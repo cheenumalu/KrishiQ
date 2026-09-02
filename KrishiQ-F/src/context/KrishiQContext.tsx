@@ -41,6 +41,7 @@ interface KrishiQContextType {
   rescheduleSlot: (newCentreId: string, newDate: string, newTime: string) => void;
   advanceFarmerStage: () => void;
   callNextFarmer: () => void;
+  decrementQueueCount: (centreId?: string) => void;
   startProcessingItem: (id: string) => void;
   completeProcessingItem: (id: string) => void;
   resolveBottleneck: (centreId: string) => void;
@@ -247,8 +248,22 @@ export const KrishiQProvider: React.FC<{ children: React.ReactNode }> = ({ child
     addToast("Procurement Stage Advanced", "Farmer status updated to Stage " + Math.min(8, farmerBooking.currentStageNumber + 1), "info");
   };
 
+  // Decrement Queue Count Helper
+  const decrementQueueCount = (centreId?: string) => {
+    const targetId = centreId || selectedCentreId;
+    setCentres((prev) =>
+      prev.map((c) =>
+        c.id === targetId
+          ? { ...c, currentQueueCount: Math.max(0, c.currentQueueCount - 1) }
+          : c
+      )
+    );
+  };
+
   // Operator Actions: Call Next
   const callNextFarmer = () => {
+    decrementQueueCount();
+
     const nextWaiting = queueItems.find((q) => q.status === "WAITING" && !q.isCurrentUser);
     if (!nextWaiting) {
       // Check if user is next
@@ -362,6 +377,7 @@ export const KrishiQProvider: React.FC<{ children: React.ReactNode }> = ({ child
         rescheduleSlot,
         advanceFarmerStage,
         callNextFarmer,
+        decrementQueueCount,
         startProcessingItem,
         completeProcessingItem,
         resolveBottleneck,

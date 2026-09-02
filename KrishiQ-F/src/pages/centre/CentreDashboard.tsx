@@ -15,7 +15,7 @@ import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
 
 export const CentreDashboard: React.FC = () => {
-  const { selectedCentre, addToast } = useKrishiQ();
+  const { selectedCentre, addToast, decrementQueueCount } = useKrishiQ();
   const { t, isHindi, formatLocation, formatCrop } = useLanguage();
   const [isBottleneckResolved, setIsBottleneckResolved] = useState(false);
 
@@ -52,6 +52,7 @@ export const CentreDashboard: React.FC = () => {
   ]);
 
   const handleCompleteStage = () => {
+    decrementQueueCount();
     const completedToken = currentServing.tokenRaw;
     setQueueTable((prev) =>
       prev.map((row) => (row.token === completedToken ? { ...row, status: "Completed", currentStage: "Procurement", currentStageHi: "उपार्जन" } : row))
@@ -88,6 +89,7 @@ export const CentreDashboard: React.FC = () => {
   };
 
   const handleCallFarmer = () => {
+    decrementQueueCount();
     setNextFarmer((prev) => ({ ...prev, called: true }));
     setQueueTable((prev) =>
       prev.map((row) => (row.token === nextFarmer.tokenRaw ? { ...row, status: "Called" } : row))
