@@ -32,20 +32,20 @@ export const OperatorQueueRow: React.FC<OperatorQueueRowProps> = ({
     >
       {/* Token */}
       <td className="py-3 px-4 font-sans font-bold text-[#17211B]">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <span
             className={
-              "w-7 h-7 rounded-lg flex items-center justify-center text-xs " +
+              "px-3 py-1.5 min-w-[50px] h-8 rounded-lg inline-flex items-center justify-center text-xs font-bold font-sans tabular-nums tracking-wide " +
               (isServing
-                ? "bg-[#F2A93B] text-white font-bold animate-pulse"
+                ? "bg-[#F2A93B] text-white shadow-xs"
                 : isCompleted
-                ? "bg-[#E4E9E5] text-[#66736B]"
-                : "bg-[#EEF5EF] text-[#123D2D] font-bold")
+                ? "bg-[#E4E9E5] dark:bg-[#203026] text-[#66736B] dark:text-[#9AAEA2]"
+                : "bg-[#EEF5EF] dark:bg-[#183928] text-[#123D2D] dark:text-[#52DB89] border border-[#58A66B]/20")
             }
           >
             {item.tokenNumber.replace("A-", "")}
           </span>
-          <span className="font-semibold text-[#17211B]">{item.tokenNumber}</span>
+          <span className="font-semibold text-[#17211B] dark:text-[#F0F5F1]">{item.tokenNumber}</span>
         </div>
       </td>
 
