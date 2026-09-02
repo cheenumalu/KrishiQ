@@ -2,30 +2,66 @@
 
 @layer base {
   :root {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --bg-main: #F6F8F4;
+    --bg-surface: #FFFFFF;
+    --primary-dark: #123D2D;
+    --primary-green: #2F7D4A;
+    --accent-green: #58A66B;
+    --light-green: #EEF5EF;
+    --text-primary: #17211B;
+    --text-secondary: #66736B;
+    --text-muted: #8A958E;
+    --border-color: #E4E9E5;
+    --amber-warning: #F2A93B;
+    --red-danger: #D95555;
+    --blue-info: #4178C0;
+
+    font-family: 'Inter', 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.45;
   }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom card shadow as per updated design guidelines */
+.card-shadow {
+  box-shadow: 0 4px 14px rgba(20, 40, 30, 0.04);
+}
+
+.card-shadow-hover {
+  transition: all 0.15s ease-out;
+}
+
+.card-shadow-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(20, 40, 30, 0.07);
 }
 
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F6F8F4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #8A958E;
 }
 
 @keyframes pulse-subtle {

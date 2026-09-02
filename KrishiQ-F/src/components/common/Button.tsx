@@ -23,27 +23,27 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+    "inline-flex items-center justify-center font-semibold rounded-[10px] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2F7D4A]/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-[0.99] tracking-tight";
 
   const sizeStyles: Record<ButtonSize, string> = {
-    sm: "px-3 py-1.5 text-xs gap-1.5",
-    md: "px-4 py-2 text-xs sm:text-sm gap-2",
-    lg: "px-5 py-2.5 text-sm sm:text-base gap-2.5",
+    sm: "px-3 py-1 text-xs h-8 gap-1.5",
+    md: "px-4 py-2 text-xs sm:text-sm h-10 gap-2 font-semibold",
+    lg: "px-5 py-2.5 text-sm h-11 gap-2.5 font-semibold",
   };
 
   const variantStyles: Record<ButtonVariant, string> = {
     primary:
-      "bg-emerald-800 hover:bg-emerald-900 active:bg-emerald-950 text-white border border-emerald-900 shadow-xs",
+      "bg-[#2F7D4A] hover:bg-[#123D2D] text-white border border-[#123D2D]/20 shadow-xs",
     secondary:
-      "bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-300 shadow-xs",
+      "bg-[#EEF5EF] hover:bg-[#E4E9E5] text-[#123D2D] border border-[#58A66B]/30",
     outline:
-      "bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 hover:border-slate-400 shadow-xs",
+      "bg-white hover:bg-[#F6F8F4] text-[#17211B] border border-[#E4E9E5] hover:border-[#66736B]/40 shadow-xs font-medium",
     danger:
-      "bg-red-700 hover:bg-red-800 active:bg-red-900 text-white border border-red-800 shadow-xs",
+      "bg-[#D95555] hover:bg-[#B84040] text-white border border-[#D95555]/20 shadow-xs",
     accent:
-      "bg-amber-700 hover:bg-amber-800 active:bg-amber-900 text-white border border-amber-800 shadow-xs",
+      "bg-[#F2A93B] hover:bg-[#D99126] text-[#17211B] border border-[#F2A93B]/20 shadow-xs",
     ghost:
-      "bg-transparent hover:bg-slate-100 text-slate-700 hover:text-slate-900",
+      "bg-transparent hover:bg-[#EEF5EF] text-[#66736B] hover:text-[#123D2D]",
   };
 
   return (
@@ -62,3 +62,4 @@ export const Button: React.FC<ButtonProps> = ({
     </button>
   );
 };
+
