@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useKrishiQ } from "../../context/KrishiQContext";
 import {
   Home,
@@ -14,150 +14,132 @@ import {
   BarChart3,
   HelpCircle,
   PhoneCall,
-  Globe
+  ChevronRight,
+  ShieldCheck,
+  Activity
 } from "lucide-react";
 
 interface SidebarProps {
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  isMobileOpen,
+  onCloseMobile,
+  isExpanded = true,
+}) => {
   const { role, farmerBooking, selectedCentre, unreadNotifsCount } = useKrishiQ();
 
   const farmerNav = [
-    { label: "Home", to: "/farmer/dashboard", icon: <Home className="w-4 h-4" /> },
-    { label: "Find Centre", to: "/farmer/centres", icon: <MapPin className="w-4 h-4" /> },
-    { label: "Book Slot", to: "/farmer/book-slot", icon: <CalendarCheck className="w-4 h-4" /> },
+    { label: "Overview", to: "/farmer/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
+    { label: "Centres", to: "/farmer/centres", icon: <MapPin className="w-[18px] h-[18px]" /> },
+    { label: "Bookings", to: "/farmer/book-slot", icon: <CalendarCheck className="w-[18px] h-[18px]" /> },
     {
-      label: "Live Queue",
+      label: "Queue",
       to: "/farmer/queue",
-      icon: <ListOrdered className="w-4 h-4" />,
-      badge: "Token #" + farmerBooking.tokenNumber,
-      badgeColor: "bg-emerald-100 text-emerald-800",
+      icon: <ListOrdered className="w-[18px] h-[18px]" />,
+      badge: "#" + farmerBooking.tokenNumber,
+      badgeColor: "bg-[#EEF5EF] text-[#123D2D]",
     },
-    {
-      label: "My Procurement",
-      to: "/farmer/procurement",
-      icon: <PackageCheck className="w-4 h-4" />,
-    },
-    { label: "Payment", to: "/farmer/payment", icon: <CreditCard className="w-4 h-4" /> },
+    { label: "Procurement", to: "/farmer/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
+    { label: "Payment", to: "/farmer/payment", icon: <CreditCard className="w-[18px] h-[18px]" /> },
     {
       label: "Notifications",
       to: "/farmer/notifications",
-      icon: <Bell className="w-4 h-4" />,
+      icon: <Bell className="w-[18px] h-[18px]" />,
       badge: unreadNotifsCount > 0 ? String(unreadNotifsCount) : undefined,
-      badgeColor: "bg-red-100 text-red-800",
+      badgeColor: "bg-[#FDF2F2] text-[#9B2C2C]",
     },
   ];
 
   const centreNav = [
-    { label: "Overview", to: "/centre/dashboard", icon: <Home className="w-4 h-4" /> },
+    { label: "Overview", to: "/centre/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
     {
       label: "Live Queue",
       to: "/centre/queue",
-      icon: <ListOrdered className="w-4 h-4" />,
-      badge: selectedCentre.currentQueueCount + " Waiting",
-      badgeColor: "bg-amber-100 text-amber-800",
+      icon: <ListOrdered className="w-[18px] h-[18px]" />,
+      badge: selectedCentre.currentQueueCount + " Queue",
+      badgeColor: "bg-[#FEF5E7] text-[#9A6210]",
     },
-    { label: "Procurement", to: "/centre/procurement", icon: <PackageCheck className="w-4 h-4" /> },
-    { label: "Analytics", to: "/centre/analytics", icon: <BarChart3 className="w-4 h-4" /> },
+    { label: "Procurement", to: "/centre/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
+    { label: "Analytics", to: "/centre/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
   ];
 
   const adminNav = [
-    { label: "Overview", to: "/admin/dashboard", icon: <Home className="w-4 h-4" /> },
+    { label: "Overview", to: "/admin/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
     {
       label: "Centres",
       to: "/admin/centres",
-      icon: <Building2 className="w-4 h-4" />,
-      badge: "24 Active",
-      badgeColor: "bg-emerald-100 text-emerald-800",
+      icon: <Building2 className="w-[18px] h-[18px]" />,
+      badge: "42 Active",
+      badgeColor: "bg-[#EEF5EF] text-[#123D2D]",
     },
-    { label: "Analytics", to: "/admin/analytics", icon: <BarChart3 className="w-4 h-4" /> },
+    { label: "Analytics", to: "/admin/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
     {
-      label: "What-if Simulator",
+      label: "Simulator",
       to: "/admin/simulator",
-      icon: <Sliders className="w-4 h-4" />,
+      icon: <Sliders className="w-[18px] h-[18px]" />,
       badge: "Sandbox",
-      badgeColor: "bg-purple-100 text-purple-800",
+      badgeColor: "bg-[#F0F5FA] text-[#24538F]",
     },
   ];
 
   const currentNav = role === "farmer" ? farmerNav : role === "centre" ? centreNav : adminNav;
 
-  const roleTitle = {
-    farmer: "Farmer Portal",
-    centre: "Centre Operations",
-    admin: "State Administration",
-  }[role];
-
   return (
     <>
+      {/* Mobile overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-[#17211B]/40 backdrop-blur-xs lg:hidden"
           onClick={onCloseMobile}
         />
       )}
 
       <aside
         className={
-          "fixed top-16 bottom-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transition-transform duration-200 ease-in-out flex flex-col justify-between " +
+          "fixed top-[60px] bottom-0 left-0 z-40 bg-white border-r border-[#E4E9E5] transition-all duration-200 ease-in-out flex flex-col justify-between card-shadow w-[200px] " +
           (isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0")
         }
       >
-        <div className="p-4 overflow-y-auto flex-1">
+        <div className="p-3 overflow-y-auto flex-1">
           
-          {/* Official Sector Badge */}
-          <div className="mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">
-                {roleTitle}
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-600" />
-            </div>
-            <p className="text-xs font-bold text-slate-900 truncate mt-0.5">
-              {role === "farmer"
-                ? farmerBooking.farmerName
-                : role === "centre"
-                ? selectedCentre.name
-                : "Department of Agriculture"}
-            </p>
-          </div>
-
           {/* Navigation Links */}
-          <nav className="space-y-0.5">
+          <nav className="space-y-[4px]">
             {currentNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 onClick={onCloseMobile}
                 className={({ isActive }) =>
-                  "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors " +
+                  "flex items-center gap-2.5 px-3 h-[40px] rounded-[10px] text-[13px] font-medium transition-all duration-150 cursor-pointer " +
                   (isActive
-                    ? "bg-emerald-800 text-white font-bold shadow-xs"
-                    : "text-slate-700 hover:text-slate-900 hover:bg-slate-100")
+                    ? "bg-[#EEF5EF] text-[#123D2D] font-bold shadow-xs border border-[#58A66B]/20"
+                    : "text-[#66736B] hover:text-[#17211B] hover:bg-[#F6F8F4]")
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className={isActive ? "text-white" : "text-slate-500"}>
-                        {item.icon}
-                      </span>
-                      <span className="truncate">{item.label}</span>
-                    </div>
+                    <span className={isActive ? "text-[#123D2D]" : "text-[#8A958E]"}>
+                      {item.icon}
+                    </span>
 
-                    {item.badge && (
-                      <span
-                        className={
-                          "text-[10px] font-bold px-1.5 py-0.2 rounded-md shrink-0 ml-1.5 " +
-                          (isActive ? "bg-white/20 text-white" : item.badgeColor)
-                        }
-                      >
-                        {item.badge}
-                      </span>
-                    )}
+                    <div className="flex items-center justify-between flex-1 min-w-0">
+                      <span className="truncate">{item.label}</span>
+                      {item.badge && (
+                        <span
+                          className={
+                            "text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ml-1 border border-[#E4E9E5] " +
+                            (isActive ? "bg-white text-[#123D2D]" : item.badgeColor)
+                          }
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
                   </>
                 )}
               </NavLink>
@@ -165,19 +147,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
           </nav>
         </div>
 
-        {/* Footer Support & Language Box */}
-        <div className="p-3.5 border-t border-slate-200 bg-slate-50 space-y-2 text-xs">
-          <div className="flex items-center justify-between text-slate-600">
-            <span className="text-[11px] font-medium">Language:</span>
-            <span className="font-semibold text-slate-900">English</span>
-          </div>
-
-          <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-600">
+        {/* Footer Support Info */}
+        <div className="p-3 border-t border-[#E4E9E5] bg-[#F6F8F4] space-y-1.5 text-xs text-[#66736B]">
+          <div className="flex items-center justify-between text-[11px]">
             <span className="flex items-center gap-1">
-              <PhoneCall className="w-3 h-3 text-emerald-700" />
-              <span>Help & Support:</span>
+              <PhoneCall className="w-3.5 h-3.5 text-[#2F7D4A]" />
+              <span>Helpline:</span>
             </span>
-            <span className="font-mono font-bold text-emerald-800">1800-180-1551</span>
+            <span className="font-mono font-bold text-[#123D2D]">1800-180-1551</span>
           </div>
         </div>
       </aside>

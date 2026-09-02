@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useKrishiQ } from "../../context/KrishiQContext";
-import { DISTRICT_ADMIN_STATS } from "../../data/mockData";
-import { formatCurrency, formatQuintals } from "../../utils/calculations";
 import {
   Building2,
   Users,
   Clock,
   AlertTriangle,
-  ShieldCheck,
-  Send,
   Sliders,
-  CheckCircle2
+  Sparkles,
+  MapPin,
+  ArrowRight,
+  ChevronRight,
+  TrendingUp,
+  Activity,
+  Layers,
+  Filter
 } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
@@ -22,42 +25,33 @@ import {
   Bar,
   AreaChart,
   Area,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
-  Legend
+  CartesianGrid
 } from "recharts";
 
 export const AdminDashboard: React.FC = () => {
   const { addToast } = useKrishiQ();
+  const navigate = useNavigate();
   const [completedActions, setCompletedActions] = useState<Record<string, boolean>>({});
 
-  const centresAttention = [
-    { name: "Centre 17 (Dhar Road)", district: "Indore", queue: 86, capacity: "136%", wait: "165 min", status: "CRITICAL", action: "Redirect 45 farmers to Centre 21" },
-    { name: "Centre 8 (Depalpur)", district: "Indore", queue: 44, capacity: "108%", wait: "68 min", status: "WARNING", action: "Extend hours by 1 hour" },
-    { name: "Centre 21 (Shivaji Nagar)", district: "Indore", queue: 31, capacity: "58%", wait: "42 min", status: "NORMAL", action: "Designated receiver" },
-    { name: "Centre 9 (Sanwer Hub)", district: "Indore", queue: 19, capacity: "52%", wait: "28 min", status: "NORMAL", action: "Operating normally" },
-  ];
-
   const waitTimeByCentreData = [
-    { name: "Centre 17", wait: 165 },
-    { name: "Centre 8", wait: 68 },
-    { name: "Centre 21", wait: 42 },
-    { name: "Centre 9", wait: 28 },
-    { name: "Centre 11", wait: 35 },
+    { name: "Dhar Road", wait: 165 },
+    { name: "Depalpur", wait: 68 },
+    { name: "Shivaji Nagar", wait: 42 },
+    { name: "Sanwer Hub", wait: 28 },
+    { name: "Mhow APMC", wait: 35 },
   ];
 
   const hourlyVolumeData = [
-    { hour: "08:00", volume: 180 },
-    { hour: "09:00", volume: 340 },
-    { hour: "10:00", volume: 480 },
-    { hour: "11:00", volume: 520 },
-    { hour: "12:00", volume: 490 },
-    { hour: "13:00", volume: 410 },
-    { hour: "14:00", volume: 360 },
+    { hour: "08:00 AM", volume: 180 },
+    { hour: "09:00 AM", volume: 340 },
+    { hour: "10:00 AM", volume: 480 },
+    { hour: "11:00 AM", volume: 520 },
+    { hour: "12:00 PM", volume: 490 },
+    { hour: "01:00 PM", volume: 410 },
+    { hour: "02:00 PM", volume: 360 },
   ];
 
   const handleToggleAction = (actionKey: string, label: string) => {
@@ -71,227 +65,314 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16 px-1">
+    <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
       
-      {/* 1. Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-1">
+      {/* 1. SIMPLE CLEAN PAGE HEADER (NO GIANT GREEN HERO BANNER) */}
+      <div className="flex flex-wrap items-center justify-between gap-4 py-1 border-b border-[#E4E9E5]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-[30px] sm:text-[32px] font-bold text-[#17211B] tracking-[-0.025em] leading-[1.1]">
             Procurement Network Overview
           </h1>
-          <p className="text-sm text-slate-600 font-medium">
-            "Real-time operational intelligence across all procurement centres."
+          <p className="text-[13px] text-[#66736B] leading-[1.4] mt-0.5">
+            Indore Division · 42 centres online
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Link to="/admin/simulator">
-            <Button variant="secondary" size="md">
-              What-if Simulator
+            <Button variant="secondary" size="md" leftIcon={<Sliders className="w-4 h-4" />}>
+              What-If Simulator
+            </Button>
+          </Link>
+          <Link to="/admin/centres">
+            <Button variant="primary" size="md" rightIcon={<ArrowRight className="w-4 h-4" />}>
+              View Centres
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* 2. Top Metrics (KPI Bar) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-lg bg-white border border-slate-300">
-          <span className="text-xs text-slate-500 block font-medium">Active Centres</span>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">42</p>
-          <span className="text-[11px] text-slate-400">100% connected</span>
+      {/* 2. UNIFIED METRIC STRIP (ONE CLEAN SURFACE WITH SUBTLE DIVIDERS) */}
+      <Card padding="none" className="bg-white rounded-[14px] border border-[#E4E9E5] card-shadow h-[88px] flex items-center divide-x divide-[#E4E9E5] overflow-x-auto">
+        
+        {/* Metric 1 */}
+        <div className="flex-1 min-w-[140px] px-5 py-3">
+          <div className="text-[28px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
+            42
+          </div>
+          <div className="text-[12px] font-medium text-[#66736B] mt-1.5">
+            Active Centres
+          </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-white border border-slate-300">
-          <span className="text-xs text-slate-500 block font-medium">Farmers Currently Waiting</span>
-          <p className="text-2xl font-extrabold text-amber-800 mt-1 font-mono">1,284</p>
-          <span className="text-[11px] text-slate-400">Across all centres</span>
+        {/* Metric 2 */}
+        <div className="flex-1 min-w-[140px] px-5 py-3">
+          <div className="text-[28px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
+            31 min
+          </div>
+          <div className="text-[12px] font-medium text-[#66736B] mt-1.5">
+            Average Wait
+          </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-white border border-slate-300">
-          <span className="text-xs text-slate-500 block font-medium">Completed Today</span>
-          <p className="text-2xl font-extrabold text-emerald-800 mt-1 font-mono">3,920</p>
-          <span className="text-[11px] text-slate-400">Farmers cleared</span>
+        {/* Metric 3 */}
+        <div className="flex-1 min-w-[140px] px-5 py-3">
+          <div className="text-[28px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
+            64%
+          </div>
+          <div className="text-[12px] font-medium text-[#66736B] mt-1.5">
+            Capacity
+          </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-white border border-slate-300">
-          <span className="text-xs text-slate-500 block font-medium">Average Waiting Time</span>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">31 min</p>
-          <span className="text-[11px] text-slate-400">Target &lt; 45 min</span>
-        </div>
-      </div>
-
-      {/* 3. CENTRES REQUIRING ATTENTION TABLE */}
-      <Card padding="none" className="border-slate-300 overflow-hidden">
-        <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800">
-            CENTRES REQUIRING ATTENTION
-          </span>
-          <span className="text-xs text-slate-500">Live Status Monitor</span>
+        {/* Metric 4 */}
+        <div className="flex-1 min-w-[140px] px-5 py-3">
+          <div className="text-[28px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
+            3,920
+          </div>
+          <div className="text-[12px] font-medium text-[#66736B] mt-1.5">
+            Farmers Today
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600 uppercase">
-                <th className="py-2.5 px-4">Centre</th>
-                <th className="py-2.5 px-4">District</th>
-                <th className="py-2.5 px-4">Queue</th>
-                <th className="py-2.5 px-4">Capacity</th>
-                <th className="py-2.5 px-4">Predicted Wait</th>
-                <th className="py-2.5 px-4">Status</th>
-                <th className="py-2.5 px-4">Recommended Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {centresAttention.map((c) => (
-                <tr key={c.name} className={c.status === "CRITICAL" ? "bg-red-50/30" : ""}>
-                  <td className="py-2.5 px-4 font-bold text-slate-900">{c.name}</td>
-                  <td className="py-2.5 px-4 text-slate-600">{c.district}</td>
-                  <td className="py-2.5 px-4 font-mono font-semibold">{c.queue}</td>
-                  <td className="py-2.5 px-4 font-mono">{c.capacity}</td>
-                  <td className="py-2.5 px-4 font-mono">{c.wait}</td>
-                  <td className="py-2.5 px-4">
-                    <Badge
-                      variant={c.status === "CRITICAL" ? "critical" : c.status === "WARNING" ? "warning" : "normal"}
-                    >
-                      {c.status}
-                    </Badge>
-                  </td>
-                  <td className="py-2.5 px-4 text-slate-700">{c.action}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Metric 5 */}
+        <div className="flex-1 min-w-[140px] px-5 py-3">
+          <div className="text-[28px] font-bold tracking-[-0.02em] leading-none text-[#D95555] tabular-nums font-sans">
+            1
+          </div>
+          <div className="text-[12px] font-semibold text-[#D95555] mt-1.5 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D95555]" />
+            Critical Centre
+          </div>
         </div>
+
       </Card>
 
-      {/* 4. PREDICTED CONGESTION ALERT & SYSTEM RECOMMENDATIONS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
-        {/* Predicted Congestion Card */}
-        <Card padding="lg" className="border-red-300 bg-red-50/30 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-red-200">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-red-950">
-              PREDICTED CONGESTION ALERT
-            </span>
-            <Badge variant="critical">CRITICAL</Badge>
-          </div>
+      {/* 3. NETWORK MAP AS THE MAIN VISUAL (71% Map + 29% Needs Attention) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[16px] font-semibold text-[#17211B] tracking-[-0.01em]">
+            Network Status
+          </h2>
+          <span className="text-[12px] text-[#66736B]">Real-time regional telemetry</span>
+        </div>
 
-          <div className="space-y-1.5 text-xs text-slate-800">
-            <h3 className="text-base font-bold text-slate-900">Centre 17</h3>
-            <div className="grid grid-cols-3 gap-2 p-2.5 rounded bg-white border border-red-200 font-mono text-center">
-              <div>
-                <span className="text-[10px] text-slate-500 block">Current Queue</span>
-                <strong>86</strong>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-500 block">Expected Arrivals</span>
-                <strong className="text-red-700">+140</strong>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-500 block">Predicted Util.</span>
-                <strong className="text-red-700 font-bold">136%</strong>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+          
+          {/* 71% Map Card (lg:col-span-8) */}
+          <Card padding="none" className="lg:col-span-8 flex flex-col h-[400px] overflow-hidden">
+            
+            {/* Clean Light Surface Map Header (No dark slab) */}
+            <div className="px-5 h-[50px] bg-white border-b border-[#E4E9E5] flex items-center justify-between text-xs font-medium shrink-0">
+              <span className="text-[14px] font-semibold text-[#17211B]">Network Map</span>
+              <div className="flex items-center gap-2 text-[#66736B]">
+                <button className="px-2.5 py-1 rounded-lg bg-[#EEF5EF] text-[#123D2D] font-semibold hover:bg-[#E4E9E5] transition-colors">
+                  District Grid
+                </button>
+                <button className="px-2.5 py-1 rounded-lg hover:bg-[#F6F8F4] transition-colors">
+                  Heat View
+                </button>
               </div>
             </div>
 
-            <div className="pt-2">
-              <strong className="block text-slate-900 mb-1">Recommended Action:</strong>
-              <p className="text-slate-700 leading-relaxed">� Redirect 45 farmers to Centre 21</p>
-              <p className="text-slate-700 leading-relaxed">� Add 1 temporary counter</p>
-            </div>
-          </div>
-        </Card>
+            {/* Map Body */}
+            <div className="relative flex-1 bg-[#17211B] overflow-hidden select-none">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
+                <line x1="30%" y1="60%" x2="55%" y2="40%" stroke="#D95555" strokeWidth="2" strokeDasharray="4" />
+                <line x1="55%" y1="40%" x2="75%" y2="30%" stroke="#2F7D4A" strokeWidth="2" />
+                <line x1="55%" y1="40%" x2="40%" y2="25%" stroke="#F2A93B" strokeWidth="2" />
+              </svg>
 
-        {/* SYSTEM RECOMMENDATIONS Panel */}
-        <Card padding="lg" className="border-slate-300 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800">
-              SYSTEM RECOMMENDATIONS
-            </span>
-            <span className="text-xs text-slate-500">Actionable Directives</span>
-          </div>
-
-          <div className="space-y-2 text-xs">
-            <div className="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center justify-between">
-              <div>
-                <strong className="text-slate-900 block">? Redirect 45 farmers from Centre 17 ? Centre 21</strong>
-                <span className="text-[11px] text-slate-500">Reduces wait time by 105 min</span>
+              {/* Centre Pins */}
+              <div className="absolute left-[30%] top-[60%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center">
+                <span className="mb-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#D95555] text-white uppercase">CRITICAL</span>
+                <div className="w-7 h-7 rounded-lg bg-[#D95555] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md">A</div>
+                <span className="mt-0.5 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px]">Dhar Road (2h 45m)</span>
               </div>
-              <Button
-                variant={completedActions.act1 ? "secondary" : "primary"}
-                size="sm"
-                onClick={() => handleToggleAction("act1", "Redirect 45 farmers")}
-              >
-                {completedActions.act1 ? "Applied ?" : "Apply"}
-              </Button>
-            </div>
 
-            <div className="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center justify-between">
-              <div>
-                <strong className="text-slate-900 block">? Add temporary counter at Centre 17</strong>
-                <span className="text-[11px] text-slate-500">Increases throughput by +35 Qtl/hr</span>
+              <div className="absolute left-[55%] top-[40%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center">
+                <span className="mb-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#2F7D4A] text-white uppercase">NORMAL</span>
+                <div className="w-7 h-7 rounded-lg bg-[#2F7D4A] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md">B</div>
+                <span className="mt-0.5 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px]">Shivaji Nagar (42m)</span>
               </div>
-              <Button
-                variant={completedActions.act2 ? "secondary" : "primary"}
-                size="sm"
-                onClick={() => handleToggleAction("act2", "Add temporary counter")}
-              >
-                {completedActions.act2 ? "Applied ?" : "Apply"}
-              </Button>
-            </div>
 
-            <div className="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center justify-between">
-              <div>
-                <strong className="text-slate-900 block">? Extend Centre 8 operating hours by 1 hour</strong>
-                <span className="text-[11px] text-slate-500">Absorbs remaining 44 arrivals</span>
+              <div className="absolute left-[75%] top-[30%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center">
+                <span className="mb-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#2F7D4A] text-white uppercase">NORMAL</span>
+                <div className="w-7 h-7 rounded-lg bg-[#2F7D4A] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md">C</div>
+                <span className="mt-0.5 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px]">Sanwer Hub (28m)</span>
               </div>
-              <Button
-                variant={completedActions.act3 ? "secondary" : "primary"}
-                size="sm"
-                onClick={() => handleToggleAction("act3", "Extend Centre 8 hours")}
-              >
-                {completedActions.act3 ? "Applied ?" : "Apply"}
-              </Button>
-            </div>
-          </div>
-        </Card>
 
+              <div className="absolute left-[40%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center">
+                <span className="mb-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#F2A93B] text-slate-950 uppercase">WARNING</span>
+                <div className="w-7 h-7 rounded-lg bg-[#F2A93B] text-slate-950 flex items-center justify-center font-bold text-xs border border-white shadow-md">D</div>
+                <span className="mt-0.5 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px]">Depalpur (1h 08m)</span>
+              </div>
+
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/75 backdrop-blur-md p-2 rounded-xl text-[11px] text-white flex items-center justify-between">
+                <span>District Grid: <strong>1 Critical, 1 Warning, 40 Normal</strong></span>
+                <span className="text-[#58A66B] font-mono">Live Telemetry</span>
+              </div>
+            </div>
+          </Card>
+
+          {/* 29% Needs Attention Panel (Clean, uncluttered alert rows) */}
+          <Card padding="md" className="lg:col-span-4 flex flex-col justify-between h-[400px]">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2.5 border-b border-[#E4E9E5]">
+                <span className="text-[14px] font-semibold text-[#17211B]">
+                  Needs Attention
+                </span>
+                <span className="text-[12px] font-semibold text-[#66736B]">2 alerts</span>
+              </div>
+
+              <div className="space-y-3">
+                
+                {/* Alert Row 1 */}
+                <div className="p-3.5 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5] hover:border-[#D95555]/40 transition-colors space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#D95555] shrink-0" />
+                      <h4 className="font-semibold text-[#17211B] text-[14px]">Dhar Road Centre</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="text-[12px] text-[#66736B] font-sans tabular-nums pl-4">
+                    2h 45m wait · 136% capacity
+                  </div>
+
+                  <div className="pt-1 text-right">
+                    <button
+                      onClick={() => handleToggleAction("dhar", "Redirect Dhar Road arrivals")}
+                      className="text-[12px] font-semibold text-[#D95555] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      {completedActions.dhar ? "Directive Sent ✓" : "Investigate →"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Alert Row 2 */}
+                <div className="p-3.5 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5] hover:border-[#F2A93B]/40 transition-colors space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#F2A93B] shrink-0" />
+                      <h4 className="font-semibold text-[#17211B] text-[14px]">Rajendra Mandi</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="text-[12px] text-[#66736B] font-sans tabular-nums pl-4">
+                    1h 35m wait · 84% capacity
+                  </div>
+
+                  <div className="pt-1 text-right">
+                    <button
+                      onClick={() => handleToggleAction("rajendra", "Inspect Rajendra Mandi")}
+                      className="text-[12px] font-semibold text-[#2F7D4A] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      {completedActions.rajendra ? "Inspected ✓" : "View →"}
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-[#E4E9E5] text-right">
+              <Link to="/admin/centres" className="text-[12px] font-semibold text-[#2F7D4A] hover:underline">
+                View All Mandis →
+              </Link>
+            </div>
+          </Card>
+
+        </div>
       </div>
 
-      {/* 5. Simplified Charts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* 4. LIGHTWEIGHT KRISHIQ INSIGHT STRIP (BELOW MAP) */}
+      <div className="p-4 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5 max-w-[1100px]">
+          <Sparkles className="w-4 h-4 text-[#2F7D4A] shrink-0" />
+          <span className="font-bold text-[#123D2D] shrink-0">✦ KrishiQ Insight:</span>
+          <p className="text-[#17211B] text-[13px] leading-relaxed">
+            Redirecting arrivals from Dhar Road to Shivaji Nagar may reduce district waiting time by 18 min.
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/admin/simulator")}
+          className="text-[12px] font-bold text-[#2F7D4A] hover:underline shrink-0 cursor-pointer"
+        >
+          View recommendation →
+        </button>
+      </div>
+
+      {/* 5. SECONDARY ANALYTICS (3-COLUMN CALM LAYOUT) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        <Card padding="md" className="border-slate-300">
-          <span className="text-xs font-bold text-slate-800 uppercase block mb-2">
-            Average Waiting Time by Centre (Minutes)
-          </span>
+        {/* Column 1: Congestion Trend */}
+        <Card padding="md" className="space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
+            <span className="text-[14px] font-semibold text-[#17211B]">
+              Congestion Trend
+            </span>
+            <span className="text-[11px] text-[#66736B]">Peak 11:00 AM</span>
+          </div>
           <div className="h-44 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={waitTimeByCentreData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} />
-                <YAxis tick={{ fontSize: 10, fill: "#64748b" }} />
-                <Tooltip contentStyle={{ borderRadius: "0.5rem", border: "1px solid #cbd5e1", fontSize: "11px" }} />
-                <Bar dataKey="wait" fill="#1b5e20" radius={[4, 4, 0, 0]} />
+              <AreaChart data={hourlyVolumeData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E4E9E5" />
+                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "#66736B" }} />
+                <YAxis tick={{ fontSize: 10, fill: "#66736B" }} />
+                <Tooltip contentStyle={{ borderRadius: "0.5rem", border: "1px solid #E4E9E5", fontSize: "11px" }} />
+                <Area type="monotone" dataKey="volume" stroke="#2F7D4A" fill="#EEF5EF" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Column 2: Capacity Utilisation */}
+        <Card padding="md" className="space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
+            <span className="text-[14px] font-semibold text-[#17211B]">
+              Capacity Utilisation
+            </span>
+            <span className="text-[11px] text-[#66736B]">Average 64%</span>
+          </div>
+          <div className="h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={waitTimeByCentreData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E4E9E5" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#66736B" }} />
+                <YAxis tick={{ fontSize: 10, fill: "#66736B" }} />
+                <Tooltip contentStyle={{ borderRadius: "0.5rem", border: "1px solid #E4E9E5", fontSize: "11px" }} />
+                <Bar dataKey="wait" fill="#2F7D4A" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card padding="md" className="border-slate-300">
-          <span className="text-xs font-bold text-slate-800 uppercase block mb-2">
-            Procurement Volume Over Time (Quintals / Hour)
-          </span>
-          <div className="h-44 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={hourlyVolumeData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "#64748b" }} />
-                <YAxis tick={{ fontSize: 10, fill: "#64748b" }} />
-                <Tooltip contentStyle={{ borderRadius: "0.5rem", border: "1px solid #cbd5e1", fontSize: "11px" }} />
-                <Area type="monotone" dataKey="volume" stroke="#047857" fill="#d1fae5" />
-              </AreaChart>
-            </ResponsiveContainer>
+        {/* Column 3: Top Centres Performance */}
+        <Card padding="md" className="space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
+            <span className="text-[14px] font-semibold text-[#17211B]">
+              Top Mandi Clearance
+            </span>
+            <span className="text-[11px] text-[#2F7D4A] font-semibold">Today</span>
+          </div>
+          <div className="space-y-2.5 text-xs text-[#17211B]">
+            <div className="flex justify-between items-center p-2 rounded-lg bg-[#F6F8F4]">
+              <span>Shivaji Nagar (Centre B)</span>
+              <strong className="font-sans tabular-nums text-[#2F7D4A]">3,240 Qtl</strong>
+            </div>
+            <div className="flex justify-between items-center p-2 rounded-lg bg-[#F6F8F4]">
+              <span>Sanwer Hub (Centre C)</span>
+              <strong className="font-sans tabular-nums text-[#17211B]">1,890 Qtl</strong>
+            </div>
+            <div className="flex justify-between items-center p-2 rounded-lg bg-[#F6F8F4]">
+              <span>Depalpur Mandi (Centre D)</span>
+              <strong className="font-sans tabular-nums text-[#17211B]">2,450 Qtl</strong>
+            </div>
+            <div className="flex justify-between items-center p-2 rounded-lg bg-[#F6F8F4]">
+              <span>Mhow APMC Yard (Centre E)</span>
+              <strong className="font-sans tabular-nums text-[#17211B]">1,620 Qtl</strong>
+            </div>
           </div>
         </Card>
 
