@@ -113,13 +113,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className={({ isActive }) =>
                   "flex items-center gap-2.5 px-3 h-[40px] rounded-[10px] text-[13px] font-medium transition-all duration-150 cursor-pointer " +
                   (isActive
-                    ? "bg-[#EEF5EF] text-[#123D2D] font-bold shadow-xs border border-[#58A66B]/20"
-                    : "text-[#66736B] hover:text-[#17211B] hover:bg-[#F6F8F4]")
+                    ? "bg-[#EEF5EF] text-[#123D2D] dark:bg-[#183928] dark:text-[#52DB89] dark:border-[#52DB89]/40 font-bold shadow-xs border border-[#58A66B]/20"
+                    : "text-[#66736B] hover:text-[#17211B] hover:bg-[#F6F8F4] dark:text-[#A0B0A6] dark:hover:text-[#F0F5F1] dark:hover:bg-[#18281F]")
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <span className={isActive ? "text-[#123D2D]" : "text-[#8A958E]"}>
+                    <span className={isActive ? "text-[#123D2D] dark:text-[#52DB89]" : "text-[#8A958E] dark:text-[#76887E]"}>
                       {item.icon}
                     </span>
 
@@ -128,8 +128,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {item.badge && (
                         <span
                           className={
-                            "text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ml-1 border border-[#E4E9E5] " +
-                            (isActive ? "bg-white text-[#123D2D]" : item.badgeColor)
+                            "text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ml-1 border " +
+                            (isActive
+                              ? "bg-white text-[#123D2D] border-[#E4E9E5] dark:bg-[#10241A] dark:text-[#52DB89] dark:border-[#52DB89]/30"
+                              : item.badgeColor + " border-[#E4E9E5] dark:bg-[#10241A] dark:text-[#52DB89] dark:border-[#2A4235]")
                           }
                         >
                           {item.badge}

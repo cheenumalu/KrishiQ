@@ -126,12 +126,28 @@ html.dark .text-\[\#17211B\] {
   color: #F0F5F1 !important;
 }
 
+html.dark .text-\[\#123D2D\] {
+  color: #52DB89 !important;
+}
+
 html.dark .text-\[\#66736B\] {
   color: #A0B0A6 !important;
 }
 
 html.dark .text-\[\#8A958E\] {
   color: #76887E !important;
+}
+
+html.dark aside a.active,
+html.dark nav a.active {
+  background-color: #173324 !important;
+  color: #52DB89 !important;
+  border-color: rgba(82, 219, 137, 0.4) !important;
+}
+
+html.dark aside a.active svg,
+html.dark nav a.active svg {
+  color: #52DB89 !important;
 }
 
 html.dark .hover\:bg-\[\#F6F8F4\]:hover {
