@@ -216,35 +216,41 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {showNotifs && (
-                <div className="absolute right-0 mt-1.5 w-80 sm:w-96 bg-white rounded-2xl border border-[#E4E9E5] card-shadow z-50 overflow-hidden">
-                  <div className="p-3 bg-[#F6F8F4] border-b border-[#E4E9E5] flex items-center justify-between gap-2">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#121E17] rounded-2xl border border-[#E4E9E5] dark:border-[#243B2E] card-shadow shadow-xl dark:shadow-2xl z-50 overflow-hidden">
+                  <div className="px-4 py-3 bg-[#F6F8F4] dark:bg-[#0D1812] border-b border-[#E4E9E5] dark:border-[#22352A] flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[#17211B] uppercase tracking-wider">
+                      <span className="text-[11px] font-bold text-[#66736B] dark:text-[#8E9F94] uppercase tracking-wider">
                         {t("farmer.notificationsTitle")}
                       </span>
+                      {unreadNotifsCount > 0 && (
+                        <span className="px-1.5 py-0.5 rounded-full bg-[#2F7D4A]/10 text-[#2F7D4A] dark:bg-[#2F7D4A]/20 dark:text-[#4ADE80] text-[10px] font-bold">
+                          {unreadNotifsCount} {isHindi ? "नया" : "new"}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
                       {unreadNotifsCount > 0 && (
                         <button
                           type="button"
                           onClick={markAllNotificationsAsRead}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EEF5EF] text-[#2F7D4A] hover:bg-[#58A66B]/20 text-[10px] font-bold transition-colors cursor-pointer"
-                          title={isHindi ? "सभी को पढ़ा हुआ चिह्नित करें" : "Mark all as read"}
+                          className="text-[11px] text-[#2F7D4A] dark:text-[#4ADE80] hover:underline font-semibold transition-colors cursor-pointer"
                         >
-                          <Eye className="w-3 h-3" />
-                          <span>{isHindi ? "सभी पढ़ें" : "Mark all read"}</span>
+                          {isHindi ? "सभी पढ़ें" : "Mark all read"}
                         </button>
                       )}
+                      <button
+                        onClick={() => setShowNotifs(false)}
+                        className="text-[#8A958E] hover:text-[#17211B] dark:hover:text-white text-xs font-medium cursor-pointer"
+                      >
+                        {t("common.close")}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setShowNotifs(false)}
-                      className="text-[#8A958E] hover:text-[#17211B] text-xs font-medium cursor-pointer"
-                    >
-                      {t("common.close")}
-                    </button>
                   </div>
 
-                  <div className="max-h-72 overflow-y-auto divide-y divide-[#E4E9E5]">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-[#E4E9E5] dark:divide-[#22352A]">
                     {notifications.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-[#66736B]">
+                      <div className="p-6 text-center text-xs text-[#66736B] dark:text-[#8E9F94]">
                         {t("farmer.noNewNotifications")}
                       </div>
                     ) : (
@@ -258,34 +264,50 @@ export const Navbar: React.FC<NavbarProps> = ({
                               setShowNotifs(false);
                             }
                           }}
-                          className={`p-3 hover:bg-[#F6F8F4] transition-colors cursor-pointer text-xs flex items-start justify-between gap-2.5 ${
-                            !notif.read ? "bg-[#EEF5EF]/60" : ""
+                          className={`px-4 py-3 hover:bg-[#F6F8F4] dark:hover:bg-[#18291F] transition-colors cursor-pointer text-xs flex items-start gap-3 ${
+                            !notif.read ? "bg-[#2F7D4A]/[0.03] dark:bg-[#2F7D4A]/[0.08]" : ""
                           }`}
                         >
+                          {/* Unread indicator dot */}
+                          <div className="pt-1 shrink-0">
+                            <span
+                              className={`w-2 h-2 rounded-full block ${
+                                !notif.read
+                                  ? "bg-[#2F7D4A] dark:bg-[#4ADE80] ring-4 ring-[#2F7D4A]/15"
+                                  : "bg-transparent"
+                              }`}
+                            />
+                          </div>
+
+                          {/* Text content */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <h5 className={`font-bold ${!notif.read ? "text-[#123D2D]" : "text-[#17211B]"}`}>
+                            <div className="flex items-baseline justify-between gap-2">
+                              <h5
+                                className={`text-xs ${
+                                  !notif.read
+                                    ? "font-bold text-[#17211B] dark:text-[#F0F5F1]"
+                                    : "font-medium text-[#66736B] dark:text-[#9AAEA2]"
+                                }`}
+                              >
                                 {notif.title}
                               </h5>
-                              <span className="text-[10px] text-[#8A958E] font-mono shrink-0">
+                              <span className="text-[10px] text-[#8A958E] dark:text-[#6C7E74] font-sans shrink-0">
                                 {notif.timestamp}
                               </span>
                             </div>
-                            <p className="text-[#66736B] mt-0.5 leading-relaxed">{notif.message}</p>
+                            <p className="text-[#66736B] dark:text-[#A0B1A7] text-[12px] leading-relaxed mt-0.5">
+                              {notif.message}
+                            </p>
                           </div>
 
-                          {/* Eye symbol button to toggle or mark as read */}
+                          {/* Sleek Eye button to toggle read state */}
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleNotificationRead(notif.id);
                             }}
-                            className={`p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer ${
-                              !notif.read
-                                ? "text-[#2F7D4A] bg-[#EEF5EF] hover:bg-[#58A66B]/20"
-                                : "text-[#8A958E] hover:text-[#17211B] hover:bg-[#EEF5EF]"
-                            }`}
+                            className="p-1 rounded-md text-[#8A958E] hover:text-[#2F7D4A] dark:text-[#6C7E74] dark:hover:text-[#4ADE80] hover:bg-black/5 dark:hover:bg-white/10 shrink-0 transition-colors cursor-pointer mt-0.5"
                             title={
                               !notif.read
                                 ? (isHindi ? "पढ़ा हुआ चिह्नित करें" : "Mark as read")
@@ -294,9 +316,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                             aria-label={!notif.read ? "Mark as read" : "Mark as unread"}
                           >
                             {!notif.read ? (
-                              <Eye className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <Eye className="w-4 h-4 text-[#2F7D4A] dark:text-[#4ADE80]" />
                             ) : (
-                              <EyeOff className="w-3.5 h-3.5 opacity-50" />
+                              <EyeOff className="w-4 h-4 opacity-40 hover:opacity-100" />
                             )}
                           </button>
                         </div>
@@ -304,13 +326,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                     )}
                   </div>
 
-                  <div className="p-2.5 bg-[#F6F8F4] border-t border-[#E4E9E5] text-center">
+                  <div className="p-2.5 bg-[#F6F8F4] dark:bg-[#0D1812] border-t border-[#E4E9E5] dark:border-[#22352A] text-center">
                     <Link
                       to="/farmer/notifications"
                       onClick={() => setShowNotifs(false)}
-                      className="text-xs font-bold text-[#2F7D4A] hover:underline"
+                      className="text-xs font-bold text-[#2F7D4A] dark:text-[#4ADE80] hover:underline inline-flex items-center gap-1"
                     >
-                      {isHindi ? "सभी सूचनाएँ देखें →" : "View All Notifications →"}
+                      <span>{isHindi ? "सभी सूचनाएँ देखें →" : "View All Notifications →"}</span>
                     </Link>
                   </div>
                 </div>
