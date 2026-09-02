@@ -15,7 +15,11 @@ import {
   Globe,
   PanelLeftClose,
   PanelLeftOpen,
-  Check
+  Check,
+  Sun,
+  Moon,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 interface NavbarProps {
@@ -37,7 +41,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     notifications,
     unreadNotifsCount,
     markNotificationAsRead,
+    toggleNotificationRead,
+    markAllNotificationsAsRead,
     resetAllData,
+    theme,
+    toggleTheme,
   } = useKrishiQ();
 
   const { language, setLanguage, t, isHindi } = useLanguage();
@@ -173,6 +181,25 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
+            {/* Light / Dark Mode Toggle Button (Between Language and Notifications) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-[10px] text-[#66736B] hover:text-[#17211B] hover:bg-[#EEF5EF] border border-[#E4E9E5] transition-colors cursor-pointer"
+              title={
+                theme === "dark"
+                  ? (isHindi ? "लाइट मोड चालू करें" : "Switch to Light Mode")
+                  : (isHindi ? "डार्क मोड चालू करें" : "Switch to Dark Mode")
+              }
+              aria-label="Toggle Light and Dark Mode"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-[#F2A93B]" />
+              ) : (
+                <Moon className="w-4 h-4 text-[#66736B]" />
+              )}
+            </button>
+
             {/* Notifications Dropdown */}
             <div className="relative">
               <button
@@ -190,13 +217,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {showNotifs && (
                 <div className="absolute right-0 mt-1.5 w-80 sm:w-96 bg-white rounded-2xl border border-[#E4E9E5] card-shadow z-50 overflow-hidden">
-                  <div className="p-3 bg-[#F6F8F4] border-b border-[#E4E9E5] flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#17211B] uppercase tracking-wider">
-                      {t("farmer.notificationsTitle")}
-                    </span>
+                  <div className="p-3 bg-[#F6F8F4] border-b border-[#E4E9E5] flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-[#17211B] uppercase tracking-wider">
+                        {t("farmer.notificationsTitle")}
+                      </span>
+                      {unreadNotifsCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={markAllNotificationsAsRead}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EEF5EF] text-[#2F7D4A] hover:bg-[#58A66B]/20 text-[10px] font-bold transition-colors cursor-pointer"
+                          title={isHindi ? "सभी को पढ़ा हुआ चिह्नित करें" : "Mark all as read"}
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>{isHindi ? "सभी पढ़ें" : "Mark all read"}</span>
+                        </button>
+                      )}
+                    </div>
                     <button
                       onClick={() => setShowNotifs(false)}
-                      className="text-[#8A958E] hover:text-[#17211B] text-xs font-medium"
+                      className="text-[#8A958E] hover:text-[#17211B] text-xs font-medium cursor-pointer"
                     >
                       {t("common.close")}
                     </button>
@@ -218,17 +258,47 @@ export const Navbar: React.FC<NavbarProps> = ({
                               setShowNotifs(false);
                             }
                           }}
-                          className={`p-3 hover:bg-[#F6F8F4] transition-colors cursor-pointer text-xs ${
+                          className={`p-3 hover:bg-[#F6F8F4] transition-colors cursor-pointer text-xs flex items-start justify-between gap-2.5 ${
                             !notif.read ? "bg-[#EEF5EF]/60" : ""
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <h5 className="font-bold text-[#17211B]">{notif.title}</h5>
-                            <span className="text-[10px] text-[#8A958E] font-mono shrink-0">
-                              {notif.timestamp}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <h5 className={`font-bold ${!notif.read ? "text-[#123D2D]" : "text-[#17211B]"}`}>
+                                {notif.title}
+                              </h5>
+                              <span className="text-[10px] text-[#8A958E] font-mono shrink-0">
+                                {notif.timestamp}
+                              </span>
+                            </div>
+                            <p className="text-[#66736B] mt-0.5 leading-relaxed">{notif.message}</p>
                           </div>
-                          <p className="text-[#66736B] mt-0.5 leading-relaxed">{notif.message}</p>
+
+                          {/* Eye symbol button to toggle or mark as read */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleNotificationRead(notif.id);
+                            }}
+                            className={`p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer ${
+                              !notif.read
+                                ? "text-[#2F7D4A] bg-[#EEF5EF] hover:bg-[#58A66B]/20"
+                                : "text-[#8A958E] hover:text-[#17211B] hover:bg-[#EEF5EF]"
+                            }`}
+                            title={
+                              !notif.read
+                                ? (isHindi ? "पढ़ा हुआ चिह्नित करें" : "Mark as read")
+                                : (isHindi ? "अनदेखा चिह्नित करें" : "Mark as unread")
+                            }
+                            aria-label={!notif.read ? "Mark as read" : "Mark as unread"}
+                          >
+                            {!notif.read ? (
+                              <Eye className="w-3.5 h-3.5 stroke-[2.5]" />
+                            ) : (
+                              <EyeOff className="w-3.5 h-3.5 opacity-50" />
+                            )}
+                          </button>
                         </div>
                       ))
                     )}

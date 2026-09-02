@@ -45,11 +45,15 @@ interface KrishiQContextType {
   completeProcessingItem: (id: string) => void;
   resolveBottleneck: (centreId: string) => void;
   markNotificationAsRead: (id: string) => void;
+  toggleNotificationRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
   resetAllData: () => void;
   simParams: SimulationParams;
   setSimParams: React.Dispatch<React.SetStateAction<SimulationParams>>;
   currentTimeFormatted: string;
   livePing: number;
+  theme: "light" | "dark";
+  toggleTheme: () => void;
 }
 
 const KrishiQContext = createContext<KrishiQContextType | undefined>(undefined);
@@ -99,6 +103,42 @@ export const KrishiQProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
+  };
+
+  const toggleNotificationRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n))
+    );
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  // Theme state: light or dark mode persisted in localStorage
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const saved = localStorage.getItem("krishiq_theme");
+    if (saved === "dark" || saved === "light") return saved;
+    return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("krishiq_theme", theme);
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } catch {
+      // ignore in environments without localStorage
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   // Booking a slot
@@ -326,11 +366,15 @@ export const KrishiQProvider: React.FC<{ children: React.ReactNode }> = ({ child
         completeProcessingItem,
         resolveBottleneck,
         markNotificationAsRead,
+        toggleNotificationRead,
+        markAllNotificationsAsRead,
         resetAllData,
         simParams,
         setSimParams,
         currentTimeFormatted,
         livePing,
+        theme,
+        toggleTheme,
       }}
     >
       {children}

@@ -73,3 +73,103 @@
   animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* ==================================================== */
+/* DARK MODE OVERRIDES & PALETTE */
+/* ==================================================== */
+html.dark {
+  --bg-main: #0C1410;
+  --bg-surface: #142019;
+  --primary-dark: #0A1711;
+  --primary-green: #389559;
+  --accent-green: #58A66B;
+  --light-green: #1B3125;
+  --text-primary: #F0F5F1;
+  --text-secondary: #9EAEA4;
+  --text-muted: #72847A;
+  --border-color: #22352A;
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0C1410;
+  color: #F0F5F1;
+}
+
+html.dark .bg-white {
+  background-color: #142019 !important;
+  color: #F0F5F1;
+}
+
+html.dark .bg-white\/95 {
+  background-color: rgba(20, 32, 25, 0.95) !important;
+}
+
+html.dark .bg-\[\#F6F8F4\] {
+  background-color: #101B15 !important;
+}
+
+html.dark .bg-\[\#EEF5EF\] {
+  background-color: #1A3125 !important;
+}
+
+html.dark .border-\[\#E4E9E5\],
+html.dark .border-\[\#E5EAE6\] {
+  border-color: #23362B !important;
+}
+
+html.dark .divide-\[\#E4E9E5\] > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-\[\#E5EAE6\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #23362B !important;
+}
+
+html.dark .text-\[\#17211B\] {
+  color: #F0F5F1 !important;
+}
+
+html.dark .text-\[\#66736B\] {
+  color: #A0B0A6 !important;
+}
+
+html.dark .text-\[\#8A958E\] {
+  color: #76887E !important;
+}
+
+html.dark .hover\:bg-\[\#F6F8F4\]:hover {
+  background-color: #18281F !important;
+}
+
+html.dark .hover\:bg-\[\#EEF5EF\]:hover {
+  background-color: #1E372A !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #101B15 !important;
+  border-color: #23362B !important;
+  color: #F0F5F1 !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  background-color: #142019 !important;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #101B15;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2A4034;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #385646;
+}
+
+html.dark .card-shadow {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+
