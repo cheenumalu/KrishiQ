@@ -24,21 +24,21 @@ export const CentreStatusTable: React.FC<CentreStatusTableProps> = ({
   });
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+    <div className="bg-white rounded-2xl border border-[#E5EAE6] card-shadow overflow-hidden">
       
       {/* Table Header Filter Toolbar */}
-      <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+      <div className="p-4 border-b border-[#E5EAE6] flex flex-wrap items-center justify-between gap-3 bg-[#F6F8F4]">
         
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+        <div className="flex items-center gap-1 bg-[#EEF5EF] p-1 rounded-xl border border-[#58A66B]/30">
           {(["all", "normal", "warning", "critical"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
               className={
-                "px-3 py-1 rounded-md text-xs font-semibold capitalize transition-all cursor-pointer " +
+                "px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer " +
                 (filter === tab
-                  ? "bg-white text-slate-900 shadow-xs font-bold"
-                  : "text-slate-600 hover:text-slate-900")
+                  ? "bg-white text-[#123D2D] shadow-xs font-bold"
+                  : "text-[#66736B] hover:text-[#17211B]")
               }
             >
               {tab === "all" ? "All Mandis" : tab}
@@ -47,13 +47,13 @@ export const CentreStatusTable: React.FC<CentreStatusTableProps> = ({
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-[#8A958E] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search Mandi or district..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#E5EAE6] bg-white text-[#17211B] focus:outline-none focus:ring-2 focus:ring-[#2F7D4A]/30"
           />
         </div>
 
@@ -63,7 +63,7 @@ export const CentreStatusTable: React.FC<CentreStatusTableProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <tr className="border-b border-[#E5EAE6] bg-[#F6F8F4] text-[11px] font-bold text-[#66736B] uppercase tracking-wider">
               <th className="py-3 px-4">Procurement Centre</th>
               <th className="py-3 px-4">District</th>
               <th className="py-3 px-4">Active Queue</th>
@@ -74,64 +74,64 @@ export const CentreStatusTable: React.FC<CentreStatusTableProps> = ({
               <th className="py-3 px-4 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[#E5EAE6]">
             {filteredCentres.map((centre) => {
               const statusVariant = centre.status === "critical" ? "critical" : centre.status === "warning" ? "warning" : "normal";
 
               return (
-                <tr key={centre.id} className="hover:bg-slate-50/70 transition-colors">
+                <tr key={centre.id} className="hover:bg-[#F6F8F4] transition-colors">
                   
-                  <td className="py-3 px-4">
-                    <div className="font-bold text-slate-900">{centre.name}</div>
-                    <div className="text-[11px] text-slate-400 font-mono">{centre.code} � {centre.activeCounters} Counters Active</div>
+                  <td className="py-3.5 px-4">
+                    <div className="font-bold text-[#17211B]">{centre.name}</div>
+                    <div className="text-[11px] text-[#66736B] font-mono">{centre.code} • {centre.activeCounters} Counters Active</div>
                   </td>
 
-                  <td className="py-3 px-4 text-slate-700 font-medium">{centre.district}</td>
+                  <td className="py-3.5 px-4 text-[#66736B] font-medium">{centre.district}</td>
 
-                  <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                  <td className="py-3.5 px-4 font-mono font-bold text-[#17211B]">
                     <span className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-slate-400" />
+                      <Users className="w-3.5 h-3.5 text-[#8A958E]" />
                       {centre.currentQueueCount} farmers
                     </span>
                   </td>
 
-                  <td className="py-3 px-4">
+                  <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-16 bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div className="w-16 bg-[#EEF5EF] rounded-full h-2 overflow-hidden">
                         <div
                           className={
                             "h-2 rounded-full " +
                             (centre.utilizationPercent > 100
-                              ? "bg-rose-600"
+                              ? "bg-[#D95555]"
                               : centre.utilizationPercent > 75
-                              ? "bg-amber-500"
-                              : "bg-emerald-600")
+                              ? "bg-[#F2A93B]"
+                              : "bg-[#2F7D4A]")
                           }
                           style={{ width: Math.min(100, centre.utilizationPercent) + "%" }}
                         />
                       </div>
-                      <span className="font-mono font-bold text-slate-800">{centre.utilizationPercent}%</span>
+                      <span className="font-mono font-bold text-[#17211B]">{centre.utilizationPercent}%</span>
                     </div>
                   </td>
 
-                  <td className="py-3 px-4 font-mono font-bold text-slate-800">
+                  <td className="py-3.5 px-4 font-mono font-bold text-[#17211B]">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <Clock className="w-3.5 h-3.5 text-[#8A958E]" />
                       {centre.predictedWaitMinutes} min
                     </span>
                   </td>
 
-                  <td className="py-3 px-4 font-mono text-emerald-800 font-bold">
+                  <td className="py-3.5 px-4 font-mono text-[#2F7D4A] font-bold">
                     {formatQuintals(centre.todayProcuredQuintals)}
                   </td>
 
-                  <td className="py-3 px-4">
+                  <td className="py-3.5 px-4">
                     <Badge variant={statusVariant} dot>
                       {centre.status.toUpperCase()}
                     </Badge>
                   </td>
 
-                  <td className="py-3 px-4 text-right">
+                  <td className="py-3.5 px-4 text-right">
                     {onSelectCentre && (
                       <Button
                         variant="outline"

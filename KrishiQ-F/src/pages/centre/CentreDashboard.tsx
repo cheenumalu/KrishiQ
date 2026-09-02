@@ -10,27 +10,27 @@ import {
   PhoneCall,
   Activity,
   Layers,
-  FileText
+  FileText,
+  Search,
+  SlidersHorizontal,
+  ArrowRight
 } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
-import { Modal } from "../../components/common/Modal";
 
 export const CentreDashboard: React.FC = () => {
   const { selectedCentre, addToast } = useKrishiQ();
-
   const [isBottleneckResolved, setIsBottleneckResolved] = useState(false);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  // Active serving & next farmer state
+  // Workstation state
   const [currentServing, setCurrentServing] = useState({
     token: "Token A124",
     tokenRaw: "A124",
     farmer: "Rajesh Kumar",
     crop: "Wheat",
     quantity: 42,
-    stage: "Weighing",
+    stage: "Weighing Station 1",
     estimatedCompletion: "6 minutes",
   });
 
@@ -64,7 +64,7 @@ export const CentreDashboard: React.FC = () => {
       farmer: "Suresh Patil",
       crop: "Wheat",
       quantity: 28,
-      stage: "Weighing",
+      stage: "Weighing Station 1",
       estimatedCompletion: "5 minutes",
     });
 
@@ -86,7 +86,7 @@ export const CentreDashboard: React.FC = () => {
     setQueueTable((prev) =>
       prev.map((row) => (row.token === nextFarmer.tokenRaw ? { ...row, status: "Called" } : row))
     );
-    addToast("Farmer Called", `${nextFarmer.token} (${nextFarmer.farmer}) called to station.`, "info");
+    addToast("Farmer Called", `${nextFarmer.token} (${nextFarmer.farmer}) called to counter.`, "info");
   };
 
   const handleApplyBottleneck = () => {
@@ -95,309 +95,314 @@ export const CentreDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16 px-1">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       
-      {/* Official Header */}
-      <div className="space-y-0.5 pb-1">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-          Procurement Centre Operations
-        </h1>
-        <p className="text-sm text-slate-600 font-medium">
-          {selectedCentre.name} � Centre Code: <strong className="font-mono text-slate-800">{selectedCentre.code}</strong> � Sector 4 Mandi Yard
-        </p>
-      </div>
-
-      {/* 1. Today's Summary KPI Bar */}
-      <div className="space-y-2">
-        <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800 block">
-          Today's Summary
-        </span>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-4 rounded-lg bg-white border border-slate-300">
-            <span className="text-xs text-slate-500 block">Farmers waiting</span>
-            <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">
-              {isBottleneckResolved ? 11 : 22}
-            </p>
+      {/* 1. OPERATOR HERO BANNER (Compact, 35% smaller) */}
+      <div className="bg-[#123D2D] p-5 sm:p-6 rounded-[18px] text-white shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#58A66B] animate-pulse" />
+            <span className="text-[11px] text-[#58A66B] font-bold uppercase tracking-wider">Operational Console • Open</span>
+            <span className="text-[11px] text-white/60">• Shift 1 (08:00 AM - 06:00 PM)</span>
           </div>
 
-          <div className="p-4 rounded-lg bg-white border border-slate-300">
-            <span className="text-xs text-slate-500 block">Currently processing</span>
-            <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">
-              1
-            </p>
-          </div>
+          <h1 className="text-[28px] sm:text-[32px] font-bold tracking-[-0.025em] text-white leading-[1.12]">
+            {selectedCentre.name}
+          </h1>
+          <p className="text-xs sm:text-sm text-white/80 font-sans">
+            Code: <strong className="text-white font-semibold">{selectedCentre.code}</strong> • District: {selectedCentre.district} • Active Counters: {selectedCentre.activeCounters}
+          </p>
+        </div>
 
-          <div className="p-4 rounded-lg bg-white border border-slate-300">
-            <span className="text-xs text-slate-500 block">Completed today</span>
-            <p className="text-2xl font-extrabold text-emerald-800 mt-1 font-mono">
-              61
-            </p>
-          </div>
-
-          <div className="p-4 rounded-lg bg-white border border-slate-300">
-            <span className="text-xs text-slate-500 block">Average waiting time</span>
-            <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">
-              31 min
-            </p>
+        <div className="bg-white/10 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/15 text-xs text-white space-y-1 shrink-0">
+          <div className="text-white/70 text-[11px]">Mandi Capacity Load</div>
+          <div className="text-sm font-bold font-sans tabular-nums">1,360 / 2,000 Units (68%)</div>
+          <div className="w-40 h-1.5 bg-white/20 rounded-full overflow-hidden mt-1">
+            <div className="h-full bg-[#58A66B] rounded-full" style={{ width: "68%" }} />
           </div>
         </div>
       </div>
 
-      {/* 2. WARNING � BOTTLENECK DETECTED */}
+      {/* 2. OPERATIONAL KPI STRIP (120-130px height, tabular-nums sans-serif values) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between">
+          <div className="flex items-center gap-2 text-[#66736B]">
+            <Building2 className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
+            <span className="text-[13px] font-medium leading-[1.3]">Today's Bookings</span>
+          </div>
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
+            148
+          </div>
+          <span className="text-[12px] text-[#2F7D4A] font-semibold">92% Checked In</span>
+        </Card>
+
+        <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between">
+          <div className="flex items-center gap-2 text-[#66736B]">
+            <Users className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
+            <span className="text-[13px] font-medium leading-[1.3]">Current Queue</span>
+          </div>
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#9A6210] tabular-nums font-sans">
+            {isBottleneckResolved ? 11 : selectedCentre.currentQueueCount}
+          </div>
+          <span className="text-[12px] text-[#66736B]">Farmers waiting</span>
+        </Card>
+
+        <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between">
+          <div className="flex items-center gap-2 text-[#66736B]">
+            <Clock className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
+            <span className="text-[13px] font-medium leading-[1.3]">Average Wait</span>
+          </div>
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
+            {isBottleneckResolved ? "22 min" : "42 min"}
+          </div>
+          <span className="text-[12px] text-[#2F7D4A] font-semibold">-14m vs yesterday</span>
+        </Card>
+
+        <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between bg-[#EEF5EF] border-[#58A66B]/30">
+          <div className="flex items-center gap-2 text-[#123D2D]">
+            <Activity className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
+            <span className="text-[13px] font-semibold leading-[1.3]">Today's Procurement</span>
+          </div>
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#123D2D] tabular-nums font-sans">
+            3,240 Qtl
+          </div>
+          <span className="text-[12px] text-[#2F7D4A] font-medium">61 Receipts Cleared</span>
+        </Card>
+      </div>
+
+      {/* 3. BOTTLENECK ALERT ADVISORY STRIP */}
       {!isBottleneckResolved ? (
-        <Card padding="md" className="border-amber-300 bg-amber-50/50 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-800 text-white uppercase">
-                WARNING � BOTTLENECK DETECTED
-              </span>
-              <span className="text-xs font-bold text-amber-950 uppercase">
-                Location: Weighing Station
-              </span>
-            </div>
-            <span className="text-xs text-amber-800 font-semibold font-mono">
-              18 farmers waiting
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
+        <Card padding="sm" className="p-[16px_20px] bg-[#FEF5E7] border border-[#F2A93B]/40 text-xs text-[#9A6210] flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-[#F2A93B]">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-[#F2A93B] shrink-0" />
             <div>
-              <span>Average processing time: <strong>11 minutes</strong></span>
-            </div>
-            <div>
-              <span>Recommended action: <strong>Shift one available operator to weighing.</strong></span>
+              <div className="font-bold text-[14px] text-[#17211B]">Bottleneck Advisory: Weighbridge Station #2</div>
+              <p className="text-[#66736B] text-[13px] mt-0.5">18 farmers queued due to heavy lot sizes. Recommended: Shift 1 operator from documentation desk.</p>
             </div>
           </div>
-
-          <div className="flex justify-end gap-2 pt-1 border-t border-amber-200">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleApplyBottleneck}
-            >
-              Shift Operator (Apply)
-            </Button>
-          </div>
+          <Button variant="accent" size="sm" onClick={handleApplyBottleneck}>
+            Shift Operator (Resolve)
+          </Button>
         </Card>
       ) : (
-        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-300 text-xs text-emerald-950 font-medium flex items-center justify-between">
-          <span>Bottleneck resolved: Operator shifted to Weighing. Queue backlog cleared.</span>
-          <span className="font-bold text-emerald-800">Normal Throughput ?</span>
+        <div className="p-3 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 text-xs text-[#123D2D] font-medium flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#2F7D4A]" />
+            Bottleneck Resolved: Operator shifted to Weighbridge 2. Intake rate restored to normal.
+          </span>
+          <span className="font-bold text-[#2F7D4A]">Optimal Flow ✓</span>
         </div>
       )}
 
-      {/* 3. CURRENTLY SERVING & NEXT FARMER WORKSTATION */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* 4. WORKSTATION CARDS & QUEUE TIMELINE */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         
-        {/* CURRENTLY SERVING */}
-        <Card padding="lg" className="border-slate-300 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800">
-              CURRENTLY SERVING
-            </span>
-            <Badge variant="warning">In Service</Badge>
+        {/* LEFT 7 COLS: WORKSTATION CARDS */}
+        <div className="lg:col-span-7 space-y-4">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            {/* Active Serving Card */}
+            <Card padding="md" className="space-y-3 border-[#2F7D4A] ring-1 ring-[#2F7D4A]/20">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
+                <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+                  CURRENTLY SERVING
+                </span>
+                <Badge variant="warning" size="sm">Active</Badge>
+              </div>
+
+              <div className="space-y-1.5 text-xs">
+                <h3 className="text-2xl font-bold text-[#17211B] font-sans tabular-nums">
+                  {currentServing.token}
+                </h3>
+                <p className="text-sm font-bold text-[#17211B]">
+                  Farmer: {currentServing.farmer}
+                </p>
+                <p className="text-[#66736B]">
+                  Lot: <strong className="text-[#17211B]">{currentServing.crop}</strong> • Quantity: <strong className="text-[#17211B] font-sans tabular-nums">{currentServing.quantity} Qtl</strong>
+                </p>
+                <p className="text-[#66736B]">
+                  Station: <strong className="text-[#123D2D] font-semibold">{currentServing.stage}</strong>
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-[#E4E9E5]">
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                  leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                  onClick={handleCompleteStage}
+                >
+                  Complete Stage
+                </Button>
+              </div>
+            </Card>
+
+            {/* Next Farmer Card */}
+            <Card padding="md" className="space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
+                <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+                  NEXT FARMER IN LINE
+                </span>
+                <Badge variant="neutral" size="sm">Position 1</Badge>
+              </div>
+
+              <div className="space-y-1.5 text-xs">
+                <h3 className="text-2xl font-bold text-[#17211B] font-sans tabular-nums">
+                  {nextFarmer.token}
+                </h3>
+                <p className="text-sm font-bold text-[#17211B]">
+                  Farmer: {nextFarmer.farmer}
+                </p>
+                <p className="text-[#66736B]">
+                  Lot: <strong className="text-[#17211B]">{nextFarmer.crop}</strong> • Quantity: <strong className="text-[#17211B] font-sans tabular-nums">{nextFarmer.quantity} Qtl</strong>
+                </p>
+                <p className="text-[#8A958E]">
+                  Est. Inspection: {nextFarmer.estimatedProcessing}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-[#E4E4E5]">
+                <Button
+                  variant={nextFarmer.called ? "secondary" : "primary"}
+                  size="md"
+                  className="w-full"
+                  leftIcon={<PhoneCall className="w-4 h-4" />}
+                  onClick={handleCallFarmer}
+                >
+                  {nextFarmer.called ? "Call Again" : "Call Next Farmer"}
+                </Button>
+              </div>
+            </Card>
+
           </div>
 
-          <div className="space-y-1 text-xs">
-            <h3 className="text-2xl font-extrabold text-slate-900 font-mono">
-              {currentServing.token}
-            </h3>
-            <p className="text-sm font-bold text-slate-800">
-              Farmer: {currentServing.farmer}
-            </p>
-            <p className="text-slate-600">
-              Crop: <strong>{currentServing.crop}</strong> � Quantity: <strong className="font-mono">{currentServing.quantity} quintals</strong>
-            </p>
-            <p className="text-slate-600">
-              Stage: <strong className="uppercase">{currentServing.stage}</strong>
-            </p>
-          </div>
+          {/* Queue Timeline Visual */}
+          <Card padding="md" className="space-y-2.5">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
+              <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+                QUEUE TIMELINE & STATUS BADGES
+              </span>
+              <span className="text-xs text-[#66736B]">Live Sequence</span>
+            </div>
 
-          <div className="pt-2 flex justify-end gap-2 border-t border-slate-200">
-            <Button
-              variant="primary"
-              size="md"
-              leftIcon={<CheckCircle2 className="w-4 h-4" />}
-              onClick={handleCompleteStage}
-            >
-              Complete Stage
-            </Button>
-          </div>
-        </Card>
+            <div className="flex flex-wrap items-center gap-2.5 text-xs pt-0.5">
+              <div className="p-2.5 rounded-xl bg-[#FEF5E7] border border-[#F2A93B]/40 text-[#9A6210] font-sans tabular-nums font-bold flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-[#66736B]">SERVING</span>
+                <span>KQ-018</span>
+              </div>
 
-        {/* NEXT FARMER */}
-        <Card padding="lg" className="border-slate-300 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800">
-              NEXT FARMER
-            </span>
-            <Badge variant="neutral">Position 1</Badge>
-          </div>
+              <span className="text-[#8A958E]">→</span>
 
-          <div className="space-y-1 text-xs">
-            <h3 className="text-2xl font-extrabold text-slate-900 font-mono">
-              {nextFarmer.token}
-            </h3>
-            <p className="text-sm font-bold text-slate-800">
-              Farmer: {nextFarmer.farmer}
-            </p>
-            <p className="text-slate-600">
-              Crop: <strong>{nextFarmer.crop}</strong> � Quantity: <strong className="font-mono">{nextFarmer.quantity} quintals</strong>
-            </p>
-            <p className="text-slate-500">
-              Est. Processing: {nextFarmer.estimatedProcessing}
-            </p>
-          </div>
+              <div className="p-2.5 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 text-[#123D2D] font-sans tabular-nums font-bold flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-[#66736B]">NEXT</span>
+                <span>KQ-019</span>
+                <span>KQ-020</span>
+                <span>KQ-021</span>
+              </div>
 
-          <div className="pt-2 flex justify-end gap-2 border-t border-slate-200">
-            <Button
-              variant={nextFarmer.called ? "secondary" : "primary"}
-              size="md"
-              leftIcon={<PhoneCall className="w-4 h-4" />}
-              onClick={handleCallFarmer}
-            >
-              {nextFarmer.called ? "Call Again" : "Call Farmer"}
-            </Button>
-          </div>
-        </Card>
+              <div className="ml-auto px-3 py-1 rounded-full bg-[#EEF5EF] text-[#2F7D4A] text-xs font-semibold">
+                Est. Delay: +0 min (On Schedule)
+              </div>
+            </div>
+          </Card>
+
+        </div>
+
+        {/* RIGHT 5 COLS: OPERATIONAL TABLE */}
+        <div className="lg:col-span-5 space-y-4">
+          <Card padding="none" className="overflow-hidden">
+            <div className="p-3.5 bg-[#F6F8F4] border-b border-[#E4E9E5] flex items-center justify-between">
+              <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+                TODAY'S INTAKE LOG
+              </span>
+              <span className="text-xs text-[#66736B]">{queueTable.length} Records</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-[#E4E9E5] bg-[#F6F8F4] text-[11px] font-bold text-[#66736B] uppercase">
+                    <th className="py-2.5 px-3">Token</th>
+                    <th className="py-2.5 px-3">Farmer</th>
+                    <th className="py-2.5 px-3">Stage</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E4E9E5]">
+                  {queueTable.map((row) => {
+                    const isCurrent = row.token === currentServing.tokenRaw;
+
+                    return (
+                      <tr key={row.token} className={isCurrent ? "bg-[#EEF5EF]/60 font-semibold" : "hover:bg-[#F6F8F4]"}>
+                        <td className="py-2.5 px-3 font-sans tabular-nums font-bold text-[#17211B]">{row.token}</td>
+                        <td className="py-2.5 px-3 text-[#17211B]">{row.farmer}</td>
+                        <td className="py-2.5 px-3 text-[#66736B]">{row.currentStage}</td>
+                        <td className="py-2.5 px-3">
+                          <Badge
+                            size="sm"
+                            variant={
+                              row.status === "Processing"
+                                ? "warning"
+                                : row.status === "Completed"
+                                ? "success"
+                                : row.status === "Called"
+                                ? "info"
+                                : "neutral"
+                            }
+                          >
+                            {row.status}
+                          </Badge>
+                        </td>
+                        <td className="py-2.5 px-3 text-right">
+                          {row.status === "Waiting" && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                setQueueTable((prev) =>
+                                  prev.map((r) => (r.token === row.token ? { ...r, status: "Called" } : r))
+                                );
+                                addToast("Called", `${row.token} called to counter.`, "info");
+                              }}
+                            >
+                              Call
+                            </Button>
+                          )}
+                          {row.status === "Called" && (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => {
+                                setQueueTable((prev) =>
+                                  prev.map((r) => (r.token === row.token ? { ...r, status: "Processing" } : r))
+                                );
+                              }}
+                            >
+                              Start
+                            </Button>
+                          )}
+                          {row.status === "Processing" && (
+                            <Button variant="primary" size="sm" onClick={handleCompleteStage}>
+                              Complete
+                            </Button>
+                          )}
+                          {row.status === "Completed" && (
+                            <span className="text-[11px] text-[#2F7D4A] font-bold">Done ✓</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
 
       </div>
-
-      {/* 4. Visual 4-Stage Operational Pipeline */}
-      <Card padding="md" className="border-slate-300 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-          <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800">
-            Centre Flow Pipeline
-          </span>
-          <span className="text-xs text-slate-500">Farmers at each station</span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">1. Registration</span>
-            <strong className="text-xl font-mono text-slate-900 block mt-1">6</strong>
-            <span className="text-[10px] text-slate-400">farmers</span>
-          </div>
-
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">2. Quality Check</span>
-            <strong className="text-xl font-mono text-slate-900 block mt-1">4</strong>
-            <span className="text-[10px] text-slate-400">farmers</span>
-          </div>
-
-          <div className={"p-3 rounded-lg border " + (!isBottleneckResolved ? "bg-amber-50 border-amber-300" : "bg-slate-50 border-slate-200")}>
-            <span className="text-slate-700 block text-[11px] font-semibold">3. Weighing</span>
-            <strong className={"text-xl font-mono block mt-1 " + (!isBottleneckResolved ? "text-amber-900" : "text-slate-900")}>
-              {isBottleneckResolved ? 8 : 18}
-            </strong>
-            <span className={"text-[10px] " + (!isBottleneckResolved ? "text-amber-800 font-bold" : "text-slate-400")}>
-              {!isBottleneckResolved ? "High queue" : "farmers"}
-            </span>
-          </div>
-
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">4. Procurement</span>
-            <strong className="text-xl font-mono text-slate-900 block mt-1">3</strong>
-            <span className="text-[10px] text-slate-400">farmers</span>
-          </div>
-        </div>
-      </Card>
-
-      {/* 5. Live Queue Table */}
-      <Card padding="none" className="border-slate-300 overflow-hidden">
-        <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <span className="text-xs uppercase font-extrabold tracking-wider text-slate-800">
-            Live Queue Table
-          </span>
-          <span className="text-xs text-slate-500 font-mono">{queueTable.length} farmers in list</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600 uppercase">
-                <th className="py-2.5 px-4">Token</th>
-                <th className="py-2.5 px-4">Farmer</th>
-                <th className="py-2.5 px-4">Crop</th>
-                <th className="py-2.5 px-4">Quantity</th>
-                <th className="py-2.5 px-4">Arrival</th>
-                <th className="py-2.5 px-4">Current Stage</th>
-                <th className="py-2.5 px-4">Status</th>
-                <th className="py-2.5 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {queueTable.map((row) => {
-                const isCurrent = row.token === currentServing.tokenRaw;
-
-                return (
-                  <tr key={row.token} className={isCurrent ? "bg-amber-50/60 font-semibold" : ""}>
-                    <td className="py-2.5 px-4 font-mono font-bold text-slate-900">{row.token}</td>
-                    <td className="py-2.5 px-4 text-slate-900">{row.farmer}</td>
-                    <td className="py-2.5 px-4 text-slate-700">{row.crop}</td>
-                    <td className="py-2.5 px-4 font-mono">{row.quantity} Qtl</td>
-                    <td className="py-2.5 px-4 font-mono text-slate-500">{row.arrival}</td>
-                    <td className="py-2.5 px-4">{row.currentStage}</td>
-                    <td className="py-2.5 px-4">
-                      <Badge
-                        variant={
-                          row.status === "Processing"
-                            ? "warning"
-                            : row.status === "Completed"
-                            ? "success"
-                            : row.status === "Called"
-                            ? "info"
-                            : "neutral"
-                        }
-                      >
-                        {row.status}
-                      </Badge>
-                    </td>
-                    <td className="py-2.5 px-4 text-right">
-                      {row.status === "Waiting" && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            setQueueTable((prev) =>
-                              prev.map((r) => (r.token === row.token ? { ...r, status: "Called" } : r))
-                            );
-                            addToast("Called", `${row.token} called to gate.`, "info");
-                          }}
-                        >
-                          Call
-                        </Button>
-                      )}
-                      {row.status === "Called" && (
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => {
-                            setQueueTable((prev) =>
-                              prev.map((r) => (r.token === row.token ? { ...r, status: "Processing" } : r))
-                            );
-                          }}
-                        >
-                          Start
-                        </Button>
-                      )}
-                      {row.status === "Processing" && (
-                        <Button variant="primary" size="sm" onClick={handleCompleteStage}>
-                          Complete
-                        </Button>
-                      )}
-                      {row.status === "Completed" && (
-                        <span className="text-[11px] text-emerald-800 font-bold">? Done</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Card>
 
     </div>
   );
