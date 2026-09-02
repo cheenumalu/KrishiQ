@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useKrishiQ } from "../../context/KrishiQContext";
+import { useLanguage } from "../../i18n";
 import {
   Home,
   MapPin,
@@ -12,11 +13,7 @@ import {
   Building2,
   Sliders,
   BarChart3,
-  HelpCircle,
-  PhoneCall,
-  ChevronRight,
-  ShieldCheck,
-  Activity
+  PhoneCall
 } from "lucide-react";
 
 interface SidebarProps {
@@ -29,25 +26,25 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
-  isExpanded = true,
 }) => {
   const { role, farmerBooking, selectedCentre, unreadNotifsCount } = useKrishiQ();
+  const { t, isHindi } = useLanguage();
 
   const farmerNav = [
-    { label: "Overview", to: "/farmer/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
-    { label: "Centres", to: "/farmer/centres", icon: <MapPin className="w-[18px] h-[18px]" /> },
-    { label: "Bookings", to: "/farmer/book-slot", icon: <CalendarCheck className="w-[18px] h-[18px]" /> },
+    { label: t("nav.overview"), to: "/farmer/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
+    { label: t("nav.centres"), to: "/farmer/centres", icon: <MapPin className="w-[18px] h-[18px]" /> },
+    { label: t("nav.bookings"), to: "/farmer/book-slot", icon: <CalendarCheck className="w-[18px] h-[18px]" /> },
     {
-      label: "Queue",
+      label: t("nav.queue"),
       to: "/farmer/queue",
       icon: <ListOrdered className="w-[18px] h-[18px]" />,
-      badge: "#" + farmerBooking.tokenNumber,
+      badge: `#${farmerBooking.tokenNumber}`,
       badgeColor: "bg-[#EEF5EF] text-[#123D2D]",
     },
-    { label: "Procurement", to: "/farmer/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
-    { label: "Payment", to: "/farmer/payment", icon: <CreditCard className="w-[18px] h-[18px]" /> },
+    { label: t("nav.procurement"), to: "/farmer/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
+    { label: t("nav.payment"), to: "/farmer/payment", icon: <CreditCard className="w-[18px] h-[18px]" /> },
     {
-      label: "Notifications",
+      label: t("nav.notifications"),
       to: "/farmer/notifications",
       icon: <Bell className="w-[18px] h-[18px]" />,
       badge: unreadNotifsCount > 0 ? String(unreadNotifsCount) : undefined,
@@ -56,33 +53,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const centreNav = [
-    { label: "Overview", to: "/centre/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
+    { label: t("nav.overview"), to: "/centre/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
     {
-      label: "Live Queue",
+      label: isHindi ? "लाइव कतार" : "Live Queue",
       to: "/centre/queue",
       icon: <ListOrdered className="w-[18px] h-[18px]" />,
-      badge: selectedCentre.currentQueueCount + " Queue",
+      badge: isHindi ? `${selectedCentre.currentQueueCount} कतार` : `${selectedCentre.currentQueueCount} Queue`,
       badgeColor: "bg-[#FEF5E7] text-[#9A6210]",
     },
-    { label: "Procurement", to: "/centre/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
-    { label: "Analytics", to: "/centre/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
+    { label: isHindi ? "उपार्जन" : "Procurement", to: "/centre/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
+    { label: isHindi ? "विश्लेषण" : "Analytics", to: "/centre/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
   ];
 
   const adminNav = [
-    { label: "Overview", to: "/admin/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
+    { label: t("nav.overview"), to: "/admin/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
     {
-      label: "Centres",
+      label: isHindi ? "उपार्जन केंद्र" : "Centres",
       to: "/admin/centres",
       icon: <Building2 className="w-[18px] h-[18px]" />,
-      badge: "42 Active",
+      badge: isHindi ? "42 सक्रिय" : "42 Active",
       badgeColor: "bg-[#EEF5EF] text-[#123D2D]",
     },
-    { label: "Analytics", to: "/admin/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
+    { label: isHindi ? "विश्लेषण" : "Analytics", to: "/admin/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
     {
-      label: "Simulator",
+      label: isHindi ? "सिम्युलेटर" : "Simulator",
       to: "/admin/simulator",
       icon: <Sliders className="w-[18px] h-[18px]" />,
-      badge: "Sandbox",
+      badge: isHindi ? "सैंडबॉक्स" : "Sandbox",
       badgeColor: "bg-[#F0F5FA] text-[#24538F]",
     },
   ];
@@ -106,7 +103,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         }
       >
         <div className="p-3 overflow-y-auto flex-1">
-          
           {/* Navigation Links */}
           <nav className="space-y-[4px]">
             {currentNav.map((item) => (
@@ -152,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between text-[11px]">
             <span className="flex items-center gap-1">
               <PhoneCall className="w-3.5 h-3.5 text-[#2F7D4A]" />
-              <span>Helpline:</span>
+              <span>{t("nav.helpline")}:</span>
             </span>
             <span className="font-mono font-bold text-[#123D2D]">1800-180-1551</span>
           </div>

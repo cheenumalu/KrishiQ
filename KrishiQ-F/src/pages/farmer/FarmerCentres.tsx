@@ -1,19 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKrishiQ } from "../../context/KrishiQContext";
+import { useLanguage } from "../../i18n";
 import { CropType } from "../../types";
 import {
-  MapPin,
-  Clock,
   Search,
   ArrowRight,
-  SlidersHorizontal,
-  Navigation,
   List,
-  Map as MapIcon,
-  Sparkles,
-  CheckCircle2,
-  AlertTriangle
+  Map as MapIcon
 } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
@@ -21,14 +15,14 @@ import { Button } from "../../components/common/Button";
 
 export const FarmerCentres: React.FC = () => {
   const { setSelectedCentreId, centres } = useKrishiQ();
+  const { t, isHindi, formatLocation, formatCrop } = useLanguage();
   const navigate = useNavigate();
 
   const [selectedCrop, setSelectedCrop] = useState<CropType>("Wheat");
   const [selectedDate, setSelectedDate] = useState("Today, 29 Aug");
-  const [maxDistance, setMaxDistance] = useState<number>(25);
-  const [maxWaitFilter, setMaxWaitFilter] = useState<"any" | "45m" | "90m">("any");
+  const [maxDistance] = useState<number>(25);
+  const [maxWaitFilter] = useState<"any" | "45m" | "90m">("any");
   const [sortBy, setSortBy] = useState<"recommended" | "distance" | "wait">("recommended");
-  const [activeCentreId, setActiveCentreId] = useState<string>("centre-b");
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
@@ -61,17 +55,21 @@ export const FarmerCentres: React.FC = () => {
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-[#E5EAE6]">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-[#E4E9E5]">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="normal">Discover & Book</Badge>
-            <span className="text-xs text-[#66736B]">Authorized Mandis</span>
+            <Badge variant="normal">
+              {isHindi ? "खोजें व स्लॉट बुक करें" : "Discover & Book"}
+            </Badge>
+            <span className="text-xs text-[#66736B]">
+              {isHindi ? "अधिकृत उपार्जन केंद्र" : "Authorized Mandis"}
+            </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#17211B] tracking-tight mt-1">
-            Procurement Centres Directory
+            {t("farmer.centresHeading")}
           </h1>
           <p className="text-xs sm:text-sm text-[#66736B]">
-            Find nearby government procurement centres with predicted queue wait times and direct slot booking.
+            {t("farmer.centresSubheading")}
           </p>
         </div>
 
@@ -84,7 +82,7 @@ export const FarmerCentres: React.FC = () => {
             }`}
           >
             <List className="w-4 h-4" />
-            <span>List Cards</span>
+            <span>{t("farmer.viewList")}</span>
           </button>
           <button
             onClick={() => setViewMode("map")}
@@ -93,7 +91,7 @@ export const FarmerCentres: React.FC = () => {
             }`}
           >
             <MapIcon className="w-4 h-4" />
-            <span>Interactive Map</span>
+            <span>{t("farmer.viewMap")}</span>
           </button>
         </div>
       </div>
@@ -107,10 +105,10 @@ export const FarmerCentres: React.FC = () => {
             <Search className="w-4 h-4 text-[#8A958E] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by centre name, code, district..."
+              placeholder={t("farmer.searchCentresPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-[#E5EAE6] bg-[#F6F8F4] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F7D4A]/30 text-[#17211B]"
+              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-[#E4E9E5] bg-[#F6F8F4] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2F7D4A]/30 text-[#17211B]"
             />
           </div>
 
@@ -119,12 +117,12 @@ export const FarmerCentres: React.FC = () => {
             <select
               value={selectedCrop}
               onChange={(e) => setSelectedCrop(e.target.value as CropType)}
-              className="w-full p-2 text-xs rounded-xl border border-[#E5EAE6] bg-[#F6F8F4] font-semibold text-[#17211B]"
+              className="w-full p-2 text-xs rounded-xl border border-[#E4E9E5] bg-[#F6F8F4] font-semibold text-[#17211B]"
             >
-              <option value="Wheat">Wheat</option>
-              <option value="Soybean">Soybean</option>
-              <option value="Paddy">Paddy</option>
-              <option value="Maize">Maize</option>
+              <option value="Wheat">{formatCrop("Wheat")}</option>
+              <option value="Soybean">{formatCrop("Soybean")}</option>
+              <option value="Paddy">{formatCrop("Paddy")}</option>
+              <option value="Maize">{formatCrop("Maize")}</option>
             </select>
           </div>
 
@@ -133,23 +131,23 @@ export const FarmerCentres: React.FC = () => {
             <select
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full p-2 text-xs rounded-xl border border-[#E5EAE6] bg-[#F6F8F4] font-semibold text-[#17211B]"
+              className="w-full p-2 text-xs rounded-xl border border-[#E4E9E5] bg-[#F6F8F4] font-semibold text-[#17211B]"
             >
-              <option value="Today, 29 Aug">29 Aug (Today)</option>
-              <option value="Tomorrow, 30 Aug">30 Aug (Tomorrow)</option>
+              <option value="Today, 29 Aug">{isHindi ? "29 अगस्त (आज)" : "29 Aug (Today)"}</option>
+              <option value="Tomorrow, 30 Aug">{isHindi ? "30 अगस्त (कल)" : "30 Aug (Tomorrow)"}</option>
             </select>
           </div>
 
           {/* Sort Pills */}
           <div className="lg:col-span-4 flex items-center justify-end gap-1.5 text-xs">
-            <span className="text-[#66736B] font-medium mr-1">Sort:</span>
+            <span className="text-[#66736B] font-medium mr-1">{t("common.sortBy")}:</span>
             <button
               onClick={() => setSortBy("recommended")}
               className={`px-3 py-1.5 rounded-xl font-semibold transition-colors cursor-pointer ${
                 sortBy === "recommended" ? "bg-[#123D2D] text-white" : "bg-[#F6F8F4] text-[#66736B] hover:bg-[#EEF5EF]"
               }`}
             >
-              Recommended
+              {t("common.recommended")}
             </button>
             <button
               onClick={() => setSortBy("distance")}
@@ -157,7 +155,7 @@ export const FarmerCentres: React.FC = () => {
                 sortBy === "distance" ? "bg-[#123D2D] text-white" : "bg-[#F6F8F4] text-[#66736B] hover:bg-[#EEF5EF]"
               }`}
             >
-              Nearest
+              {t("common.nearest")}
             </button>
             <button
               onClick={() => setSortBy("wait")}
@@ -165,7 +163,7 @@ export const FarmerCentres: React.FC = () => {
                 sortBy === "wait" ? "bg-[#123D2D] text-white" : "bg-[#F6F8F4] text-[#66736B] hover:bg-[#EEF5EF]"
               }`}
             >
-              Lowest Wait
+              {t("common.lowestWait")}
             </button>
           </div>
 
@@ -192,7 +190,9 @@ export const FarmerCentres: React.FC = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-base text-[#17211B]">{centre.name}</h3>
+                      <h3 className="font-bold text-base text-[#17211B]">
+                        {formatLocation(centre.name)}
+                      </h3>
                     </div>
                     <p className="text-xs text-[#66736B] mt-0.5 font-mono">
                       Code: {centre.code} • {centre.district}, {centre.state}
@@ -200,31 +200,35 @@ export const FarmerCentres: React.FC = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    {isRec && <Badge variant="success" dot>Recommended</Badge>}
-                    {isCrit && <Badge variant="critical">High Surge</Badge>}
-                    {isWarn && <Badge variant="warning">Moderate Queue</Badge>}
-                    {!isRec && !isCrit && !isWarn && <Badge variant="normal">Normal Intake</Badge>}
+                    {isRec && <Badge variant="success" dot>{t("common.recommended")}</Badge>}
+                    {isCrit && <Badge variant="critical">{t("common.highCongestion")}</Badge>}
+                    {isWarn && <Badge variant="warning">{t("common.moderate")}</Badge>}
+                    {!isRec && !isCrit && !isWarn && <Badge variant="normal">{t("common.normal")}</Badge>}
                   </div>
                 </div>
 
                 {/* 4 Key Metrics */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-[#F6F8F4] border border-[#E5EAE6] text-xs text-center font-mono">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-[#F6F8F4] border border-[#E4E9E5] text-xs text-center font-sans tabular-nums">
                   <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">Distance</span>
-                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">{centre.distanceKm} km</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">Queue Count</span>
-                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">{centre.currentQueueCount}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">Est. Wait</span>
-                    <strong className={`font-bold text-sm block mt-0.5 ${isRec ? "text-[#2F7D4A]" : "text-[#17211B]"}`}>
-                      {centre.predictedWaitMinutes} min
+                    <span className="text-[10px] text-[#66736B] block font-sans">{t("common.distance")}</span>
+                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">
+                      {centre.distanceKm} {t("common.km")}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">Utilization</span>
+                    <span className="text-[10px] text-[#66736B] block font-sans">{t("common.activeQueue")}</span>
+                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">
+                      {centre.currentQueueCount}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#66736B] block font-sans">{t("farmer.estWaiting")}</span>
+                    <strong className={`font-bold text-sm block mt-0.5 ${isRec ? "text-[#2F7D4A]" : "text-[#17211B]"}`}>
+                      {centre.predictedWaitMinutes} {t("common.min")}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#66736B] block font-sans">{t("common.capacityLoad")}</span>
                     <strong className="text-[#17211B] font-bold text-sm block mt-0.5">{centre.utilizationPercent}%</strong>
                   </div>
                 </div>
@@ -232,19 +236,23 @@ export const FarmerCentres: React.FC = () => {
                 {/* Recommendation Rationale */}
                 {isRec && (
                   <div className="p-3 rounded-xl bg-[#EEF5EF] text-[#123D2D] text-xs font-medium border border-[#58A66B]/30">
-                    "Recommended: Saves ~2h 28m total wait time compared with Dhar Road Hub."
+                    {isHindi
+                      ? "सुझाव: धार रोड केंद्र की तुलना में लगभग 2 घंटे 28 मिनट कम प्रतीक्षा समय।"
+                      : "Recommended: Saves ~2h 28m total wait time compared with Dhar Road Hub."}
                   </div>
                 )}
 
                 {isCrit && (
                   <div className="p-3 rounded-xl bg-[#FDF2F2] text-[#9B2C2C] text-xs font-medium border border-[#D95555]/30">
-                    "Notice: Heavy gate queue reported. Rerouting to Shivaji Nagar is advised."
+                    {isHindi
+                      ? "सूचना: मुख्य द्वार पर भारी भीड़। किसानों को शिवाजी नगर केंद्र की ओर जाने की सलाह दी जाती है।"
+                      : "Notice: Heavy gate queue reported. Rerouting to Shivaji Nagar is advised."}
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-[#E5EAE6] flex items-center justify-between">
+                <div className="pt-2 border-t border-[#E4E9E5] flex items-center justify-between">
                   <span className="text-xs text-[#66736B]">
-                    Hours: <strong className="font-mono text-[#17211B]">{centre.operatingHours}</strong>
+                    {t("farmer.operatingHours")}: <strong className="font-sans text-[#17211B]">{centre.operatingHours}</strong>
                   </span>
 
                   <Button
@@ -253,7 +261,7 @@ export const FarmerCentres: React.FC = () => {
                     rightIcon={<ArrowRight className="w-4 h-4" />}
                     onClick={() => handleBookAtCentre(centre.id)}
                   >
-                    Book Slot
+                    {t("common.bookSlot")}
                   </Button>
                 </div>
               </Card>
@@ -264,15 +272,11 @@ export const FarmerCentres: React.FC = () => {
         /* Full Map View */
         <Card padding="none" className="overflow-hidden">
           <div className="p-4 bg-[#123D2D] text-white flex items-center justify-between text-xs font-semibold">
-            <span>District Network Map View</span>
-            <span>Indore Procurement Sector</span>
+            <span>{t("farmer.liveMapTitle")}</span>
+            <span>{isHindi ? "इंदौर उपार्जन संभाग" : "Indore Procurement Sector"}</span>
           </div>
 
           <div className="relative h-[480px] bg-[#17211B] overflow-hidden select-none">
-            <div className="absolute inset-0 flex items-center justify-center text-white/50 text-xs">
-              [ Interactive District Map Loaded - 5 Procurement Centres Active ]
-            </div>
-
             {/* Pins */}
             {filteredCentres.map((c, idx) => (
               <div
@@ -285,8 +289,10 @@ export const FarmerCentres: React.FC = () => {
                   {c.name.charAt(0)}
                 </div>
                 <div className="mt-1 px-2.5 py-1 rounded-xl bg-black/85 text-white text-[11px] font-medium text-center backdrop-blur-md">
-                  <div className="font-bold">{c.name.split(" (")[0]}</div>
-                  <div className="text-[10px] text-[#58A66B] font-mono">{c.predictedWaitMinutes}m wait • {c.distanceKm} km</div>
+                  <div className="font-bold">{formatLocation(c.name.split(" (")[0])}</div>
+                  <div className="text-[10px] text-[#58A66B] font-sans">
+                    {c.predictedWaitMinutes}m {t("common.waitTime")} • {c.distanceKm} {t("common.km")}
+                  </div>
                 </div>
               </div>
             ))}

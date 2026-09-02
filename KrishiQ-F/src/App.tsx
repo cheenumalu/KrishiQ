@@ -5,6 +5,7 @@ import { Navbar } from "./components/common/Navbar";
 import { Sidebar } from "./components/common/Sidebar";
 import { ToastContainer } from "./components/common/Toast";
 import { Home, MapPin, CalendarCheck, ListOrdered, User } from "lucide-react";
+import { useLanguage } from "./i18n";
 
 // Pages
 import { LandingPage } from "./pages/LandingPage";
@@ -36,6 +37,7 @@ const LayoutContent: React.FC = () => {
   const location = useLocation();
   const isLanding = location.pathname === "/";
   const { role } = useKrishiQ();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-[#F6F8F4] flex flex-col text-[#17211B]">
@@ -93,67 +95,67 @@ const LayoutContent: React.FC = () => {
         </main>
       </div>
 
-      {/* Mobile Farmer Bottom Navigation Bar (44px+ tap targets) */}
-      {!isLanding && role === "farmer" && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5EAE6] card-shadow px-2 py-2 flex items-center justify-around">
+      {/* Mobile Bottom Navigation for Farmer role */}
+      {role === "farmer" && !isLanding && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E4E9E5] px-2 py-1.5 flex items-center justify-around card-shadow">
           <NavLink
             to="/farmer/dashboard"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-2 py-1 rounded-xl text-[11px] font-medium transition-colors ${
+              `flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-1.5 py-1 rounded-xl text-[10px] font-medium transition-colors ${
                 isActive ? "text-[#123D2D] font-bold bg-[#EEF5EF]" : "text-[#66736B]"
               }`
             }
           >
             <Home className="w-5 h-5 mb-0.5" />
-            <span>Home</span>
+            <span>{t("nav.overview")}</span>
           </NavLink>
 
           <NavLink
             to="/farmer/centres"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-2 py-1 rounded-xl text-[11px] font-medium transition-colors ${
+              `flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-1.5 py-1 rounded-xl text-[10px] font-medium transition-colors ${
                 isActive ? "text-[#123D2D] font-bold bg-[#EEF5EF]" : "text-[#66736B]"
               }`
             }
           >
             <MapPin className="w-5 h-5 mb-0.5" />
-            <span>Centres</span>
+            <span>{t("nav.centres")}</span>
           </NavLink>
 
           <NavLink
             to="/farmer/book-slot"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-2 py-1 rounded-xl text-[11px] font-medium transition-colors ${
+              `flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-1.5 py-1 rounded-xl text-[10px] font-medium transition-colors ${
                 isActive ? "text-[#123D2D] font-bold bg-[#EEF5EF]" : "text-[#66736B]"
               }`
             }
           >
             <CalendarCheck className="w-5 h-5 mb-0.5" />
-            <span>Booking</span>
+            <span>{t("nav.bookings")}</span>
           </NavLink>
 
           <NavLink
             to="/farmer/queue"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-2 py-1 rounded-xl text-[11px] font-medium transition-colors ${
+              `flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-1.5 py-1 rounded-xl text-[10px] font-medium transition-colors ${
                 isActive ? "text-[#123D2D] font-bold bg-[#EEF5EF]" : "text-[#66736B]"
               }`
             }
           >
             <ListOrdered className="w-5 h-5 mb-0.5" />
-            <span>Queue</span>
+            <span>{t("nav.queue")}</span>
           </NavLink>
 
           <NavLink
             to="/farmer/notifications"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center min-w-[64px] min-h-[48px] px-2 py-1 rounded-xl text-[11px] font-medium transition-colors ${
+              `flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-1.5 py-1 rounded-xl text-[10px] font-medium transition-colors ${
                 isActive ? "text-[#123D2D] font-bold bg-[#EEF5EF]" : "text-[#66736B]"
               }`
             }
           >
             <User className="w-5 h-5 mb-0.5" />
-            <span>Profile</span>
+            <span>{t("nav.profile")}</span>
           </NavLink>
         </div>
       )}

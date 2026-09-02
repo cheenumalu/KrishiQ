@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useKrishiQ } from "../../context/KrishiQContext";
+import { useLanguage } from "../../i18n";
 import { OperatorQueueRow } from "../../components/centre/OperatorQueueRow";
 import { QualityGradingModal } from "../../components/centre/QualityGradingModal";
-import { ListOrdered, PhoneCall, Search } from "lucide-react";
+import { PhoneCall, Search } from "lucide-react";
 import { Card } from "../../components/common/Card";
-import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
 
 export const CentreQueue: React.FC = () => {
@@ -12,10 +12,10 @@ export const CentreQueue: React.FC = () => {
     selectedCentre,
     queueItems,
     callNextFarmer,
-    startProcessingItem,
     completeProcessingItem,
   } = useKrishiQ();
 
+  const { t, isHindi, formatLocation } = useLanguage();
   const [filter, setFilter] = useState<"all" | "WAITING" | "SERVING" | "COMPLETED">("all");
   const [search, setSearch] = useState("");
   const [isQCModalOpen, setIsQCModalOpen] = useState(false);
@@ -35,7 +35,7 @@ export const CentreQueue: React.FC = () => {
     setIsQCModalOpen(true);
   };
 
-  const handleQCSubmit = (data: any) => {
+  const handleQCSubmit = (_data: any) => {
     if (activeQCItemId) {
       completeProcessingItem(activeQCItemId);
     }
@@ -44,13 +44,15 @@ export const CentreQueue: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16 px-1">
       
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-1">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-1 border-b border-[#E4E9E5]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Procurement Centre Live Queue
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#17211B] tracking-tight">
+            {isHindi ? "उपार्जन केंद्र लाइव कतार" : "Procurement Centre Live Queue"}
           </h1>
-          <p className="text-sm text-slate-600 font-medium">
-            Active gate arrival and station queue for {selectedCentre.name}.
+          <p className="text-sm text-[#66736B] font-medium">
+            {isHindi
+              ? `${formatLocation(selectedCentre.name)} के लिए सक्रिय गेट आवक एवं स्टेशन कतार।`
+              : `Active gate arrival and station queue for ${selectedCentre.name}.`}
           </p>
         </div>
 
@@ -61,13 +63,13 @@ export const CentreQueue: React.FC = () => {
             leftIcon={<PhoneCall className="w-4 h-4" />}
             onClick={callNextFarmer}
           >
-            Call Next Token
+            {isHindi ? "अगला टोकन बुलाएँ" : "Call Next Token"}
           </Button>
         </div>
       </div>
 
-      <Card padding="none" className="border-slate-300 overflow-hidden">
-        <div className="p-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50">
+      <Card padding="none" className="border-[#E4E9E5] card-shadow overflow-hidden">
+        <div className="p-3.5 border-b border-[#E4E9E5] flex flex-wrap items-center justify-between gap-3 bg-[#F6F8F4]">
           
           <div className="flex items-center gap-1 text-xs">
             {(["all", "WAITING", "SERVING", "COMPLETED"] as const).map((tab) => (
@@ -75,25 +77,31 @@ export const CentreQueue: React.FC = () => {
                 key={tab}
                 onClick={() => setFilter(tab)}
                 className={
-                  "px-3 py-1 rounded font-semibold transition-colors cursor-pointer " +
+                  "px-3 py-1 rounded-xl font-semibold transition-colors cursor-pointer " +
                   (filter === tab
-                    ? "bg-emerald-800 text-white font-bold"
-                    : "text-slate-700 hover:bg-slate-200")
+                    ? "bg-[#123D2D] text-white font-bold"
+                    : "text-[#66736B] hover:bg-[#EEF5EF]")
                 }
               >
-                {tab === "all" ? "All Tokens" : tab === "WAITING" ? "Waiting" : tab === "SERVING" ? "Now Serving" : "Completed"}
+                {tab === "all"
+                  ? (isHindi ? "सभी टोकन" : "All Tokens")
+                  : tab === "WAITING"
+                  ? (isHindi ? "प्रतीक्षा में" : "Waiting")
+                  : tab === "SERVING"
+                  ? (isHindi ? "अभी सेवा में" : "Now Serving")
+                  : (isHindi ? "पूर्ण" : "Completed")}
               </button>
             ))}
           </div>
 
           <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#8A958E] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search token, name, village..."
+              placeholder={isHindi ? "टोकन, किसान, गाँव खोजें..." : "Search token, name, village..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-800"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E4E9E5] bg-white text-[#17211B] focus:outline-none focus:ring-2 focus:ring-[#2F7D4A]/30"
             />
           </div>
 
@@ -102,17 +110,17 @@ export const CentreQueue: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600 uppercase">
-                <th className="py-2.5 px-4">Token</th>
-                <th className="py-2.5 px-4">Farmer Details</th>
-                <th className="py-2.5 px-4">Declared Lot</th>
-                <th className="py-2.5 px-4">Current Stage</th>
-                <th className="py-2.5 px-4">Status</th>
-                <th className="py-2.5 px-4">Est. Processing</th>
-                <th className="py-2.5 px-4 text-right">Actions</th>
+              <tr className="border-b border-[#E4E9E5] bg-[#F6F8F4] text-[11px] font-bold text-[#66736B] uppercase">
+                <th className="py-2.5 px-4">{t("centre.tableToken")}</th>
+                <th className="py-2.5 px-4">{isHindi ? "किसान विवरण" : "Farmer Details"}</th>
+                <th className="py-2.5 px-4">{isHindi ? "घोषित उपज" : "Declared Lot"}</th>
+                <th className="py-2.5 px-4">{isHindi ? "वर्तमान चरण" : "Current Stage"}</th>
+                <th className="py-2.5 px-4">{t("centre.tableStatus")}</th>
+                <th className="py-2.5 px-4">{isHindi ? "अनुमानित समय" : "Est. Processing"}</th>
+                <th className="py-2.5 px-4 text-right">{t("centre.tableAction")}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#E4E9E5]">
               {filteredItems.map((item) => (
                 <OperatorQueueRow
                   key={item.id}

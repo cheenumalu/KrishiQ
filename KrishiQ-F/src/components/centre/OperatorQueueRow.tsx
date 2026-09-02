@@ -1,7 +1,8 @@
 import React from "react";
 import { QueueItem } from "../../types";
 import { formatQuintals } from "../../utils/calculations";
-import { CheckCircle, Play, PhoneCall, AlertCircle, Clock } from "lucide-react";
+import { useLanguage } from "../../i18n";
+import { CheckCircle, Play, Clock } from "lucide-react";
 import { Button } from "../common/Button";
 import { Badge } from "../common/Badge";
 
@@ -14,10 +15,10 @@ interface OperatorQueueRowProps {
 
 export const OperatorQueueRow: React.FC<OperatorQueueRowProps> = ({
   item,
-  onCallNext,
   onStartProcessing,
   onCompleteProcessing,
 }) => {
+  const { t, isHindi, formatLocation, formatCrop } = useLanguage();
   const isServing = item.status === "SERVING";
   const isCompleted = item.status === "COMPLETED";
   const isWaiting = item.status === "WAITING";
@@ -25,45 +26,52 @@ export const OperatorQueueRow: React.FC<OperatorQueueRowProps> = ({
   return (
     <tr
       className={
-        "border-b border-slate-100 hover:bg-slate-50/80 transition-colors text-xs " +
-        (isServing ? "bg-amber-50/60" : isCompleted ? "bg-slate-50/40 opacity-70" : "")
+        "border-b border-[#E4E9E5] hover:bg-[#F6F8F4] transition-colors text-xs " +
+        (isServing ? "bg-[#FEF5E7]/70" : isCompleted ? "bg-[#F6F8F4]/50 opacity-70" : "")
       }
     >
       {/* Token */}
-      <td className="py-3 px-4 font-mono font-bold text-slate-900">
+      <td className="py-3 px-4 font-sans font-bold text-[#17211B]">
         <div className="flex items-center gap-1.5">
           <span
             className={
               "w-7 h-7 rounded-lg flex items-center justify-center text-xs " +
               (isServing
-                ? "bg-amber-600 text-white font-bold animate-pulse"
+                ? "bg-[#F2A93B] text-white font-bold animate-pulse"
                 : isCompleted
-                ? "bg-slate-200 text-slate-600"
-                : "bg-emerald-100 text-emerald-900 font-bold")
+                ? "bg-[#E4E9E5] text-[#66736B]"
+                : "bg-[#EEF5EF] text-[#123D2D] font-bold")
             }
           >
             {item.tokenNumber.replace("A-", "")}
           </span>
-          <span className="font-semibold text-slate-800">{item.tokenNumber}</span>
+          <span className="font-semibold text-[#17211B]">{item.tokenNumber}</span>
         </div>
       </td>
 
       {/* Farmer Name & Village */}
       <td className="py-3 px-4">
-        <div className="font-semibold text-slate-900">{item.farmerName}</div>
-        <div className="text-[11px] text-slate-400 font-mono">{item.farmerId} � {item.village}</div>
+        <div className="font-semibold text-[#17211B]">{item.farmerName}</div>
+        <div className="text-[11px] text-[#8A958E] font-sans">{item.farmerId} • {formatLocation(item.village)}</div>
       </td>
 
       {/* Crop & Quantity */}
       <td className="py-3 px-4">
-        <div className="font-bold text-slate-800">{formatQuintals(item.quantityQuintals)}</div>
-        <div className="text-[11px] text-slate-500">{item.crop}</div>
+        <div className="font-bold text-[#17211B] font-sans tabular-nums">{formatQuintals(item.quantityQuintals)}</div>
+        <div className="text-[11px] text-[#66736B]">{formatCrop(item.crop)}</div>
       </td>
 
       {/* Arrival & Stage */}
       <td className="py-3 px-4">
-        <div className="font-semibold text-slate-800">{item.stageName}</div>
-        <div className="text-[10px] text-slate-400 flex items-center gap-1">
+        <div className="font-semibold text-[#17211B]">
+          {isHindi
+            ? item.stageName === "Registration" ? "पंजीकरण"
+            : item.stageName === "Quality Check" ? "गुणवत्ता जाँच"
+            : item.stageName === "Weighing" ? "तौल"
+            : "उपार्जन"
+            : item.stageName}
+        </div>
+        <div className="text-[10px] text-[#8A958E] flex items-center gap-1">
           <Clock className="w-3 h-3" />
           <span>{item.arrivedTime}</span>
         </div>
@@ -71,14 +79,14 @@ export const OperatorQueueRow: React.FC<OperatorQueueRowProps> = ({
 
       {/* Status Badge */}
       <td className="py-3 px-4">
-        {isServing && <Badge variant="warning" dot>Processing</Badge>}
-        {isCompleted && <Badge variant="success" dot>Completed</Badge>}
-        {isWaiting && <Badge variant="info" dot>In Queue</Badge>}
+        {isServing && <Badge variant="warning" dot>{isHindi ? "प्रक्रिया में" : "Processing"}</Badge>}
+        {isCompleted && <Badge variant="success" dot>{isHindi ? "पूर्ण" : "Completed"}</Badge>}
+        {isWaiting && <Badge variant="info" dot>{isHindi ? "कतार में" : "In Queue"}</Badge>}
       </td>
 
       {/* Processing Time */}
-      <td className="py-3 px-4 font-mono text-slate-600">
-        {isCompleted ? "0 min" : item.estimatedProcessingMinutes + " min"}
+      <td className="py-3 px-4 font-sans tabular-nums text-[#66736B]">
+        {isCompleted ? "0 min" : item.estimatedProcessingMinutes + " " + t("common.min")}
       </td>
 
       {/* Operator Action Buttons */}
@@ -88,10 +96,10 @@ export const OperatorQueueRow: React.FC<OperatorQueueRowProps> = ({
             <Button
               variant="outline"
               size="sm"
-              leftIcon={<Play className="w-3.5 h-3.5 text-emerald-700" />}
+              leftIcon={<Play className="w-3.5 h-3.5 text-[#2F7D4A]" />}
               onClick={() => onStartProcessing(item.id)}
             >
-              Start Intake
+              {isHindi ? "आवक शुरू करें" : "Start Intake"}
             </Button>
           )}
 
@@ -102,13 +110,13 @@ export const OperatorQueueRow: React.FC<OperatorQueueRowProps> = ({
               leftIcon={<CheckCircle className="w-3.5 h-3.5" />}
               onClick={() => onCompleteProcessing(item.id)}
             >
-              Complete & Pass
+              {isHindi ? "पूर्ण करें व आगे बढ़ाएँ" : "Complete & Pass"}
             </Button>
           )}
 
           {isCompleted && (
-            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">
-              Verified ?
+            <span className="text-[11px] font-semibold text-[#2F7D4A] bg-[#EEF5EF] px-2 py-1 rounded-lg border border-[#58A66B]/20">
+              {isHindi ? "सत्यापित ✓" : "Verified ✓"}
             </span>
           )}
         </div>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useKrishiQ } from "../../context/KrishiQContext";
+import { useLanguage } from "../../i18n";
 import { TokenSlipModal } from "../../components/farmer/TokenSlipModal";
 import { RescheduleModal } from "../../components/farmer/RescheduleModal";
 import {
@@ -10,13 +11,10 @@ import {
   Search,
   ArrowRight,
   FileText,
-  Building2,
   Sparkles,
   Navigation,
-  CheckCircle2,
   TrendingDown,
-  ChevronRight,
-  ShieldCheck
+  ChevronRight
 } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
@@ -24,6 +22,7 @@ import { Button } from "../../components/common/Button";
 
 export const FarmerDashboard: React.FC = () => {
   const { farmerBooking, setSelectedCentreId, selectedCentre, centres } = useKrishiQ();
+  const { t, isHindi, formatLocation, formatCrop, formatTimeSlot, formatDate, getDynamicGreeting } = useLanguage();
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
   const navigate = useNavigate();
@@ -33,21 +32,23 @@ export const FarmerDashboard: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       
-      {/* 1. COMPACT HERO GREETING AREA (35-40% smaller height) */}
+      {/* 1. COMPACT HERO GREETING AREA */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-[#123D2D] to-[#2F7D4A] p-5 sm:p-6 rounded-[18px] text-white shadow-sm relative overflow-hidden">
         <div className="space-y-2 max-w-[700px] relative z-10">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-white/15 text-white text-[11px] font-semibold backdrop-blur-md">
-              🌾 Wheat • Indore District
+              🌾 {formatCrop("Wheat")} • {isHindi ? "इंदौर जिला" : "Indore District"}
             </span>
-            <span className="text-[12px] text-white/80 font-medium">Aadhaar Verified</span>
+            <span className="text-[12px] text-white/80 font-medium">
+              {t("farmer.aadhaarVerified")}
+            </span>
           </div>
 
           <h1 className="text-[30px] sm:text-[34px] font-bold tracking-[-0.025em] text-white leading-[1.12]">
-            Good morning, Rajesh 👋
+            {getDynamicGreeting("Rajesh")} 👋
           </h1>
           <p className="text-sm text-white/90 leading-[1.45]">
-            Let's find the best place to sell your wheat today with minimal waiting time.
+            {t("farmer.heroSubtitle")}
           </p>
         </div>
 
@@ -56,8 +57,10 @@ export const FarmerDashboard: React.FC = () => {
             KQ
           </div>
           <div>
-            <span className="text-white/70 block text-[11px]">Registered Lot</span>
-            <span className="font-semibold text-xs text-white block tabular-nums">65 Quintals (Sharbati)</span>
+            <span className="text-white/70 block text-[11px]">{t("farmer.registeredLot")}</span>
+            <span className="font-semibold text-xs text-white block tabular-nums">
+              {isHindi ? "65 क्विंटल (शरबती)" : "65 Quintals (Sharbati)"}
+            </span>
           </div>
         </div>
       </div>
@@ -72,8 +75,8 @@ export const FarmerDashboard: React.FC = () => {
                 <Search className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[#17211B]">Find Best Centre</h3>
-                <p className="text-[12px] text-[#66736B]">Compare live queue & distance</p>
+                <h3 className="font-bold text-[15px] text-[#17211B]">{t("farmer.findBestCentre")}</h3>
+                <p className="text-[12px] text-[#66736B]">{t("farmer.findBestCentreDesc")}</p>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-[#8A958E] group-hover:translate-x-1 transition-transform" />
@@ -87,8 +90,8 @@ export const FarmerDashboard: React.FC = () => {
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[#17211B]">Book a Slot</h3>
-                <p className="text-[12px] text-[#66736B]">Reserve appointment window</p>
+                <h3 className="font-bold text-[15px] text-[#17211B]">{t("farmer.bookSlotTitle")}</h3>
+                <p className="text-[12px] text-[#66736B]">{t("farmer.bookSlotDesc")}</p>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-[#8A958E] group-hover:translate-x-1 transition-transform" />
@@ -102,8 +105,10 @@ export const FarmerDashboard: React.FC = () => {
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[#17211B]">Track Queue</h3>
-                <p className="text-[12px] text-[#66736B]">Token #{farmerBooking.tokenNumber} status</p>
+                <h3 className="font-bold text-[15px] text-[#17211B]">{t("farmer.trackQueueTitle")}</h3>
+                <p className="text-[12px] text-[#66736B]">
+                  {t("farmer.trackQueueDesc", { token: farmerBooking.tokenNumber })}
+                </p>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-[#8A958E] group-hover:translate-x-1 transition-transform" />
@@ -118,10 +123,12 @@ export const FarmerDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#2F7D4A]" />
             <h2 className="text-[17px] font-bold text-[#17211B] tracking-[-0.01em]">
-              Recommended Procurement Centre
+              {t("farmer.recommendedCentre")}
             </h2>
           </div>
-          <span className="text-xs text-[#66736B] hidden sm:inline">AI-powered travel & queue balancer</span>
+          <span className="text-xs text-[#66736B] hidden sm:inline">
+            {t("farmer.aiBalancerDesc")}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
@@ -132,33 +139,37 @@ export const FarmerDashboard: React.FC = () => {
               
               {/* Tags */}
               <div className="flex flex-wrap items-center gap-1.5">
-                <Badge variant="success" dot size="sm">Recommended</Badge>
-                <Badge variant="info" size="sm">Low Queue</Badge>
-                <Badge variant="neutral" size="sm">Closest</Badge>
+                <Badge variant="success" dot size="sm">{t("common.recommended")}</Badge>
+                <Badge variant="info" size="sm">{t("farmer.lowQueue")}</Badge>
+                <Badge variant="neutral" size="sm">{t("farmer.closest")}</Badge>
               </div>
 
               <div>
                 <h3 className="text-[18px] font-bold text-[#17211B] leading-snug">
-                  {recommendedCentre.name}
+                  {formatLocation(recommendedCentre.name)}
                 </h3>
                 <p className="text-xs text-[#66736B] mt-1 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-[#2F7D4A] shrink-0" />
-                  <span>{recommendedCentre.distanceKm} km away from your village</span>
+                  <span>
+                    {isHindi
+                      ? `आपके गाँव से ${recommendedCentre.distanceKm} किमी दूर`
+                      : `${recommendedCentre.distanceKm} km away from your village`}
+                  </span>
                 </p>
               </div>
 
-              {/* Metric grid (tabular-nums font-sans) */}
+              {/* Metric grid */}
               <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/20 text-xs">
                 <div>
-                  <span className="text-[#66736B] block font-medium">Est. Waiting</span>
+                  <span className="text-[#66736B] block font-medium">{t("farmer.estWaiting")}</span>
                   <strong className="text-[18px] font-bold text-[#123D2D] block mt-0.5 tabular-nums font-sans">
-                    {recommendedCentre.predictedWaitMinutes} min
+                    {recommendedCentre.predictedWaitMinutes} {t("common.min")}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[#66736B] block font-medium">Current Queue</span>
+                  <span className="text-[#66736B] block font-medium">{t("farmer.currentQueue")}</span>
                   <strong className="text-[18px] font-bold text-[#17211B] block mt-0.5 tabular-nums font-sans">
-                    {recommendedCentre.currentQueueCount} farmers
+                    {recommendedCentre.currentQueueCount} {t("common.farmers")}
                   </strong>
                 </div>
               </div>
@@ -167,8 +178,8 @@ export const FarmerDashboard: React.FC = () => {
               <div className="p-3 rounded-xl bg-[#FEF5E7] border border-[#F2A93B]/30 text-xs text-[#9A6210] flex items-center gap-2.5">
                 <TrendingDown className="w-4 h-4 text-[#F2A93B] shrink-0" />
                 <div>
-                  <span className="font-bold block text-[13px]">Save approx. 2h 13m</span>
-                  <span className="text-[11px] text-[#66736B]">Compared with Dhar Road Centre (heavy surge)</span>
+                  <span className="font-bold block text-[13px]">{t("farmer.saveTimeCallout")}</span>
+                  <span className="text-[11px] text-[#66736B]">{t("farmer.comparedToDhar")}</span>
                 </div>
               </div>
 
@@ -186,7 +197,7 @@ export const FarmerDashboard: React.FC = () => {
                   navigate("/farmer/book-slot");
                 }}
               >
-                Book Slot
+                {t("common.bookSlot")}
               </Button>
 
               <Button
@@ -195,7 +206,7 @@ export const FarmerDashboard: React.FC = () => {
                 leftIcon={<Navigation className="w-4 h-4" />}
                 onClick={() => navigate("/farmer/centres")}
               >
-                View Route
+                {t("common.viewRoute")}
               </Button>
             </div>
           </Card>
@@ -205,9 +216,11 @@ export const FarmerDashboard: React.FC = () => {
             <div className="px-4 h-11 bg-[#123D2D] text-white flex items-center justify-between text-xs font-semibold z-10 shrink-0">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[#58A66B]" />
-                <span>Live District Procurement Map</span>
+                <span>{t("farmer.liveMapTitle")}</span>
               </div>
-              <span className="text-white/70 text-[11px]">Indore Division</span>
+              <span className="text-white/70 text-[11px]">
+                {isHindi ? "इंदौर संभाग" : "Indore Division"}
+              </span>
             </div>
 
             <div className="relative flex-1 bg-[#17211B] overflow-hidden select-none">
@@ -223,7 +236,7 @@ export const FarmerDashboard: React.FC = () => {
                   📍
                 </div>
                 <span className="mt-0.5 px-2 py-0.5 rounded-full bg-black/80 text-white text-[10px] font-bold backdrop-blur-md">
-                  Your Farm
+                  {t("farmer.yourFarm")}
                 </span>
               </div>
 
@@ -249,14 +262,14 @@ export const FarmerDashboard: React.FC = () => {
                   >
                     {isRec && (
                       <span className="mb-0.5 px-1.5 py-0.2 rounded-full text-[8px] font-extrabold bg-[#58A66B] text-[#123D2D] uppercase shadow-sm">
-                        RECOMMENDED
+                        {t("common.recommended")}
                       </span>
                     )}
                     <div className={`w-7 h-7 rounded-xl ${colorBg} text-white flex items-center justify-center font-bold text-xs border-2 border-white shadow-md`}>
                       {c.name.charAt(0)}
                     </div>
                     <span className="mt-0.5 px-1.5 py-0.5 rounded-md bg-black/80 text-white text-[10px] font-medium whitespace-nowrap">
-                      {c.name.split(" (")[0]} • {c.predictedWaitMinutes}m wait
+                      {formatLocation(c.name.split(" (")[0])} • {c.predictedWaitMinutes}m {t("common.waitTime")}
                     </span>
                   </div>
                 );
@@ -264,11 +277,11 @@ export const FarmerDashboard: React.FC = () => {
 
               <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/75 backdrop-blur-md p-2 rounded-xl text-[10px] text-white flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#2F7D4A]" /> Low Congestion</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#F2A93B]" /> Moderate</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#D95555]" /> High Congestion</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#2F7D4A]" /> {t("common.lowCongestion")}</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#F2A93B]" /> {t("common.moderate")}</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#D95555]" /> {t("common.highCongestion")}</span>
                 </div>
-                <span className="text-[#58A66B] font-bold">Live Grid</span>
+                <span className="text-[#58A66B] font-bold">{t("farmer.liveGrid")}</span>
               </div>
             </div>
           </Card>
@@ -283,29 +296,37 @@ export const FarmerDashboard: React.FC = () => {
         <Card padding="md" className="space-y-3">
           <div className="flex items-center justify-between pb-2.5 border-b border-[#E4E9E5]">
             <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
-              YOUR NEXT BOOKING
+              {t("farmer.nextBookingTitle")}
             </span>
-            <Badge variant="success" size="sm">Confirmed</Badge>
+            <Badge variant="success" size="sm">{t("farmer.confirmed")}</Badge>
           </div>
 
           <div className="space-y-2 text-xs">
             <div>
-              <h3 className="text-[16px] font-bold text-[#17211B]">{farmerBooking.centreName}</h3>
-              <p className="text-[#66736B] text-[12px]">{farmerBooking.slotDate} • {farmerBooking.slotTime}</p>
+              <h3 className="text-[16px] font-bold text-[#17211B]">
+                {formatLocation(farmerBooking.centreName)}
+              </h3>
+              <p className="text-[#66736B] text-[12px]">
+                {formatDate(farmerBooking.slotDate)} • {formatTimeSlot(farmerBooking.slotTime)}
+              </p>
             </div>
 
             <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5] text-center font-sans tabular-nums">
               <div>
-                <span className="text-[10px] text-[#66736B] block">Token</span>
-                <strong className="text-sm font-bold text-[#17211B] block">{farmerBooking.tokenNumber}</strong>
+                <span className="text-[10px] text-[#66736B] block">{t("farmer.token")}</span>
+                <strong className="text-sm font-bold text-[#17211B] block">#{farmerBooking.tokenNumber}</strong>
               </div>
               <div>
-                <span className="text-[10px] text-[#66736B] block">Est. Wait</span>
-                <strong className="text-sm font-bold text-[#2F7D4A] block">{farmerBooking.estimatedWaitMinutes} min</strong>
+                <span className="text-[10px] text-[#66736B] block">{t("farmer.estWaiting")}</span>
+                <strong className="text-sm font-bold text-[#2F7D4A] block">
+                  {farmerBooking.estimatedWaitMinutes} {t("common.min")}
+                </strong>
               </div>
               <div>
-                <span className="text-[10px] text-[#66736B] block">Arrival Window</span>
-                <strong className="text-sm font-bold text-[#17211B] block">10:30 AM</strong>
+                <span className="text-[10px] text-[#66736B] block">{t("farmer.arrivalWindow")}</span>
+                <strong className="text-sm font-bold text-[#17211B] block">
+                  {formatTimeSlot("10:30 AM")}
+                </strong>
               </div>
             </div>
           </div>
@@ -317,14 +338,14 @@ export const FarmerDashboard: React.FC = () => {
               leftIcon={<FileText className="w-4 h-4" />}
               onClick={() => setIsTokenModalOpen(true)}
             >
-              View Gate Slip
+              {t("farmer.viewGateSlip")}
             </Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={() => setIsRescheduleOpen(true)}
             >
-              Reschedule
+              {t("farmer.reschedule")}
             </Button>
           </div>
         </Card>
@@ -333,29 +354,31 @@ export const FarmerDashboard: React.FC = () => {
         <Card padding="md" className="space-y-3">
           <div className="flex items-center justify-between pb-2.5 border-b border-[#E4E9E5]">
             <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
-              LIVE QUEUE PROGRESS
+              {t("farmer.liveQueueProgressTitle")}
             </span>
-            <span className="text-[11px] text-[#66736B]">Updated 30s ago</span>
+            <span className="text-[11px] text-[#66736B]">{t("farmer.updatedJustNow")}</span>
           </div>
 
           <div className="space-y-3 text-xs">
             <div className="flex justify-between items-center">
               <div>
-                <span className="text-[#66736B] block text-[11px]">Currently Serving</span>
+                <span className="text-[#66736B] block text-[11px]">{t("farmer.nowServing")}</span>
                 <strong className="text-xl font-bold text-[#F2A93B] tabular-nums font-sans">A-124</strong>
               </div>
               <div className="text-right">
-                <span className="text-[#66736B] block text-[11px]">Your Token</span>
-                <strong className="text-xl font-bold text-[#2F7D4A] tabular-nums font-sans">{farmerBooking.tokenNumber}</strong>
+                <span className="text-[#66736B] block text-[11px]">{t("farmer.yourToken")}</span>
+                <strong className="text-xl font-bold text-[#2F7D4A] tabular-nums font-sans">#{farmerBooking.tokenNumber}</strong>
               </div>
             </div>
 
             {/* Visual Progress Bar */}
             <div className="space-y-1.5 pt-1">
               <div className="flex justify-between text-[11px] text-[#66736B]">
-                <span>Serving A-124</span>
-                <span className="font-bold text-[#2F7D4A]">3 Farmers Ahead</span>
-                <span>Your Turn A-127</span>
+                <span>{t("farmer.nowServing")} A-124</span>
+                <span className="font-bold text-[#2F7D4A]">
+                  {t("farmer.farmersAhead", { count: 3 })}
+                </span>
+                <span>{t("farmer.yourToken")} #{farmerBooking.tokenNumber}</span>
               </div>
               
               <div className="h-2.5 w-full bg-[#EEF5EF] rounded-full overflow-hidden relative border border-[#58A66B]/30">
@@ -367,15 +390,17 @@ export const FarmerDashboard: React.FC = () => {
             </div>
 
             <div className="p-2.5 rounded-xl bg-[#EEF5EF] text-[#123D2D] text-xs flex items-center justify-between">
-              <span>Estimated intake service time:</span>
-              <strong className="font-bold text-xs font-sans tabular-nums">11:42 AM</strong>
+              <span>{t("farmer.estimatedIntakeTime")}</span>
+              <strong className="font-bold text-xs font-sans tabular-nums">
+                {formatTimeSlot("11:42 AM")}
+              </strong>
             </div>
           </div>
 
           <div className="pt-1 border-t border-[#E4E9E5] text-right">
             <Link to="/farmer/queue">
               <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                View Live Queue Tracker
+                {t("farmer.viewLiveQueueTracker")}
               </Button>
             </Link>
           </div>

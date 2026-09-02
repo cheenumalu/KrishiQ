@@ -1,18 +1,15 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useKrishiQ } from "../context/KrishiQContext";
+import { useLanguage } from "../i18n";
 import { UserRole } from "../types";
 import {
   Users,
   Building2,
   Landmark,
   ArrowRight,
-  ShieldCheck,
-  Clock,
-  MapPin,
   CheckCircle2,
-  PhoneCall,
-  Sparkles
+  PhoneCall
 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Badge } from "../components/common/Badge";
@@ -20,6 +17,7 @@ import { Button } from "../components/common/Button";
 
 export const LandingPage: React.FC = () => {
   const { setRole } = useKrishiQ();
+  const { isHindi } = useLanguage();
   const navigate = useNavigate();
 
   const handleSelectRole = (role: UserRole, targetPath: string) => {
@@ -36,31 +34,37 @@ export const LandingPage: React.FC = () => {
 
         <div className="flex items-center gap-2 relative z-10">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-white backdrop-blur-md">
-            Digital Public Infrastructure • AgriTech SaaS
+            {isHindi ? "डिजिटल सार्वजनिक अवसंरचना • कृषि उपार्जन SaaS" : "Digital Public Infrastructure • AgriTech SaaS"}
           </span>
-          <span className="text-xs text-white/70">State Agricultural Marketing Board</span>
+          <span className="text-xs text-white/70">
+            {isHindi ? "राज्य कृषि विपणन बोर्ड" : "State Agricultural Marketing Board"}
+          </span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight relative z-10">
-          KrishiQ Intelligent Agricultural Procurement Platform
+          {isHindi
+            ? "KrishiQ आधुनिक कृषि उपार्जन समन्वय मंच"
+            : "KrishiQ Intelligent Agricultural Procurement Platform"}
         </h1>
 
         <p className="text-sm sm:text-base text-white/90 max-w-3xl leading-relaxed relative z-10">
-          Next-generation coordination platform connecting farmers, procurement centre operators, and government authorities to eliminate mandi congestion, balance regional arrival queues, and automate DBT MSP settlements.
+          {isHindi
+            ? "किसानों, उपार्जन केंद्र संचालकों एवं राज्य प्रशासन को जोड़ने वाला एकीकृत डिजिटल मंच, जो मंडियों में अनावश्यक भीड़ समाप्त करता है, लाइव कतार संतुलित करता है और पारदर्शी DBT MSP भुगतान सुनिश्चित करता है।"
+            : "Next-generation coordination platform connecting farmers, procurement centre operators, and government authorities to eliminate mandi congestion, balance regional arrival queues, and automate DBT MSP settlements."}
         </p>
 
         <div className="pt-3 flex flex-wrap gap-2.5 text-xs relative z-10">
           <span className="px-3 py-1.5 rounded-xl bg-white/10 text-white border border-white/15">
-            ✓ Smart Centre Recommendation
+            ✓ {isHindi ? "स्मार्ट खरीदी केंद्र सुझाव" : "Smart Centre Recommendation"}
           </span>
           <span className="px-3 py-1.5 rounded-xl bg-white/10 text-white border border-white/15">
-            ✓ Live Mandi Queue Token Tracker
+            ✓ {isHindi ? "लाइव मंडी कतार टोकन ट्रैकर" : "Live Mandi Queue Token Tracker"}
           </span>
           <span className="px-3 py-1.5 rounded-xl bg-white/10 text-white border border-white/15">
-            ✓ Direct MSP DBT Disbursement
+            ✓ {isHindi ? "सीधा MSP DBT बैंक अंतरण" : "Direct MSP DBT Disbursement"}
           </span>
           <span className="px-3 py-1.5 rounded-xl bg-white/10 text-white border border-white/15">
-            ✓ Bottleneck & Congestion Simulator
+            ✓ {isHindi ? "परिदृश्य एवं भीड़ सिमुलेटर" : "Bottleneck & Congestion Simulator"}
           </span>
         </div>
       </div>
@@ -69,10 +73,12 @@ export const LandingPage: React.FC = () => {
       <div className="space-y-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#17211B]">
-            Select Portal Persona to Access
+            {isHindi ? "उपयोग हेतु पोर्टल चुनें" : "Select Portal Persona to Access"}
           </h2>
           <p className="text-xs sm:text-sm text-[#66736B]">
-            Choose your role to launch the tailored experience. You can switch personas anytime from the top navigation bar.
+            {isHindi
+              ? "अपनी भूमिका चुनकर पोर्टल शुरू करें। आप शीर्ष नेविगेशन बार से कभी भी प्रोफ़ाइल बदल सकते हैं।"
+              : "Choose your role to launch the tailored experience. You can switch personas anytime from the top navigation bar."}
           </p>
         </div>
 
@@ -85,28 +91,32 @@ export const LandingPage: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-[#EEF5EF] text-[#2F7D4A] flex items-center justify-center font-bold">
                   <Users className="w-6 h-6" />
                 </div>
-                <Badge variant="success">Farmer View</Badge>
+                <Badge variant="success">{isHindi ? "किसान दृश्य" : "Farmer View"}</Badge>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-[#17211B]">1. Farmer Portal</h3>
+                <h3 className="text-xl font-bold text-[#17211B]">
+                  {isHindi ? "1. किसान पोर्टल" : "1. Farmer Portal"}
+                </h3>
                 <p className="text-xs text-[#66736B] leading-relaxed mt-1">
-                  Simple, visual, action-driven interface. Recommended centre selection, appointment slot booking, live queue token tracking, and direct MSP payment receipts.
+                  {isHindi
+                    ? "सरल, सहज और स्पष्ट इंटरफ़ेस। अनुशंसित केंद्र चयन, समय स्लॉट आरक्षण, लाइव टोकन ट्रैकिंग एवं प्रत्यक्ष MSP भुगतान रसीदें।"
+                    : "Simple, visual, action-driven interface. Recommended centre selection, appointment slot booking, live queue token tracking, and direct MSP payment receipts."}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-[#E5EAE6] space-y-2 text-xs text-[#17211B]">
+              <div className="pt-3 border-t border-[#E4E9E5] space-y-2 text-xs text-[#17211B]">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Recommended Centre (Saves ~2h wait)</span>
+                  <span>{isHindi ? "सुझाया गया केंद्र (~2h समय बचत)" : "Recommended Centre (Saves ~2h wait)"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Live Queue Token Tracker (#A127)</span>
+                  <span>{isHindi ? "लाइव कतार ट्रैकर (#A127)" : "Live Queue Token Tracker (#A127)"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>8-Stage Procurement Stepper</span>
+                  <span>{isHindi ? "7-चरणीय उपार्जन ट्रैकर" : "8-Stage Procurement Stepper"}</span>
                 </div>
               </div>
             </div>
@@ -118,7 +128,7 @@ export const LandingPage: React.FC = () => {
               rightIcon={<ArrowRight className="w-4 h-4" />}
               onClick={() => handleSelectRole("farmer", "/farmer/dashboard")}
             >
-              Launch Farmer Portal
+              {isHindi ? "किसान पोर्टल खोलें" : "Launch Farmer Portal"}
             </Button>
           </Card>
 
@@ -129,28 +139,32 @@ export const LandingPage: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-[#EEF5EF] text-[#4178C0] flex items-center justify-center font-bold">
                   <Building2 className="w-6 h-6" />
                 </div>
-                <Badge variant="info">Mandi Operations</Badge>
+                <Badge variant="info">{isHindi ? "मंडी संचालन" : "Mandi Operations"}</Badge>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-[#17211B]">2. Centre Operator</h3>
+                <h3 className="text-xl font-bold text-[#17211B]">
+                  {isHindi ? "2. केंद्र संचालक" : "2. Centre Operator"}
+                </h3>
                 <p className="text-xs text-[#66736B] leading-relaxed mt-1">
-                  Operational console for Mandi operators. Active workstation cards, 1-click station rebalancing, bottleneck advisories, and live queue dispatch.
+                  {isHindi
+                    ? "मंडी ऑपरेटरों के लिए परिचालन कंसोल। सक्रिय स्टेशन कार्ड, 1-क्लिक कर्मचारी पुनर्वितरण, रुकावट चेतावनी एवं लाइव कतार प्रेषण।"
+                    : "Operational console for Mandi operators. Active workstation cards, 1-click station rebalancing, bottleneck advisories, and live queue dispatch."}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-[#E5EAE6] space-y-2 text-xs text-[#17211B]">
+              <div className="pt-3 border-t border-[#E4E9E5] space-y-2 text-xs text-[#17211B]">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Active Station Workstation (Token A124)</span>
+                  <span>{isHindi ? "सक्रिय स्टेशन कार्ड (टोकन A124)" : "Active Station Workstation (Token A124)"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Weighbridge Bottleneck Warning Alert</span>
+                  <span>{isHindi ? "कांटा रुकावट चेतावनी अलर्ट" : "Weighbridge Bottleneck Warning Alert"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Live Queue Dispatch & Stage Actions</span>
+                  <span>{isHindi ? "लाइव कतार प्रेषण एवं चरण कार्रवाई" : "Live Queue Dispatch & Stage Actions"}</span>
                 </div>
               </div>
             </div>
@@ -162,7 +176,7 @@ export const LandingPage: React.FC = () => {
               rightIcon={<ArrowRight className="w-4 h-4" />}
               onClick={() => handleSelectRole("centre", "/centre/dashboard")}
             >
-              Launch Operator Console
+              {isHindi ? "संचालन कंसोल खोलें" : "Launch Operator Console"}
             </Button>
           </Card>
 
@@ -173,28 +187,32 @@ export const LandingPage: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-[#FEF5E7] text-[#9A6210] flex items-center justify-center font-bold">
                   <Landmark className="w-6 h-6" />
                 </div>
-                <Badge variant="warning">Command Tower</Badge>
+                <Badge variant="warning">{isHindi ? "कंट्रोल टॉवर" : "Command Tower"}</Badge>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-[#17211B]">3. State Administrator</h3>
+                <h3 className="text-xl font-bold text-[#17211B]">
+                  {isHindi ? "3. राज्य प्रशासक" : "3. State Administrator"}
+                </h3>
                 <p className="text-xs text-[#66736B] leading-relaxed mt-1">
-                  Network Command Desk. District overview (42 Mandis), 70/30 map & Needs Attention panel, proactive policy directives, and What-If simulator.
+                  {isHindi
+                    ? "नेटवर्क कमांड डेस्क। जिला अवलोकन (42 केंद्र), 70/30 नक्शा एवं ध्यान आवश्यक पैनल, अग्रिम नीति निर्देश और परिदृश्य सिम्युलेटर।"
+                    : "Network Command Desk. District overview (42 Mandis), 70/30 map & Needs Attention panel, proactive policy directives, and What-If simulator."}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-[#E5EAE6] space-y-2 text-xs text-[#17211B]">
+              <div className="pt-3 border-t border-[#E4E9E5] space-y-2 text-xs text-[#17211B]">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Procurement Control Tower (42 Mandis)</span>
+                  <span>{isHindi ? "उपार्जन कंट्रोल टॉवर (42 केंद्र)" : "Procurement Control Tower (42 Mandis)"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>Needs Attention Alert Panel (Dhar Road)</span>
+                  <span>{isHindi ? "ध्यान आवश्यक अलर्ट पैनल (धार रोड)" : "Needs Attention Alert Panel (Dhar Road)"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] shrink-0" />
-                  <span>What-If Policy Surge Simulator</span>
+                  <span>{isHindi ? "परिदृश्य मांग नीति सिम्युलेटर" : "What-If Policy Surge Simulator"}</span>
                 </div>
               </div>
             </div>
@@ -206,7 +224,7 @@ export const LandingPage: React.FC = () => {
               rightIcon={<ArrowRight className="w-4 h-4" />}
               onClick={() => handleSelectRole("admin", "/admin/dashboard")}
             >
-              Launch Administrator Desk
+              {isHindi ? "प्रशासन डेस्क खोलें" : "Launch Administrator Desk"}
             </Button>
           </Card>
 
@@ -217,9 +235,14 @@ export const LandingPage: React.FC = () => {
       <Card padding="md" className="bg-[#F6F8F4] text-xs text-[#66736B] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <PhoneCall className="w-4 h-4 text-[#2F7D4A]" />
-          <span>Kisan Call Centre Toll-Free Support: <strong className="font-mono text-[#17211B]">1800-180-1551</strong> (6:00 AM - 10:00 PM)</span>
+          <span>
+            {isHindi
+              ? "किसान कॉल सेंटर टोल-फ्री सहायता: "
+              : "Kisan Call Centre Toll-Free Support: "}
+            <strong className="font-mono text-[#17211B]">1800-180-1551</strong> ({isHindi ? "सुबह 6:00 - रात 10:00" : "6:00 AM - 10:00 PM"})
+          </span>
         </div>
-        <span>Government Agricultural Procurement Infrastructure</span>
+        <span>{isHindi ? "शासकीय कृषि उपार्जन अवसंरचना" : "Government Agricultural Procurement Infrastructure"}</span>
       </Card>
 
     </div>
