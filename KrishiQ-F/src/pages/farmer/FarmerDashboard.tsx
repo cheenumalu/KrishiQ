@@ -179,7 +179,7 @@ export const FarmerDashboard: React.FC = () => {
                 <TrendingDown className="w-4 h-4 text-[#F2A93B] shrink-0" />
                 <div>
                   <span className="font-bold block text-[13px]">{t("farmer.saveTimeCallout")}</span>
-                  <span className="text-[11px] text-[#66736B]">{t("farmer.comparedToDhar")}</span>
+                  <span className="text-[11px] text-black dark:text-black font-medium">{t("farmer.comparedToDhar")}</span>
                 </div>
               </div>
 
