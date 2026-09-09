@@ -1,0 +1,21 @@
+# Core Framework & Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+python-dotenv>=1.0.1
+
+# Database & Cache
+psycopg[binary]>=3.2.0
+supabase>=2.8.0
+redis>=5.1.0
+httpx>=0.27.0
+
+# Testing
+pytest>=8.3.0
+pytest-asyncio>=0.24.0
+
+# Future AI/ML Features (Phase 7 Architecture Preparation)
+scikit-learn>=1.5.0
+xgboost>=2.1.0
+numpy>=2.0.0

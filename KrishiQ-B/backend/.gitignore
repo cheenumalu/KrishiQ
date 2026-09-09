@@ -1,18 +1,30 @@
-# Dependencies
-node_modules/
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
 
-# Production build artifacts
-dist/
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Local Environment variables (contains sensitive credentials)
 .env
 .env.local
 .env.*.local
 
+# Build & distribution
+dist/
+build/
+*.egg-info/
+
 # Logs
 logs/
 *.log
-npm-debug.log*
 
 # OS metadata
 .DS_Store
