@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useKrishiQ } from "../../context/KrishiQContext";
 import { useLanguage } from "../../i18n";
@@ -52,6 +52,43 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showNotifs, setShowNotifs] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const langRef = useRef<HTMLDivElement>(null);
+  const notifsRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (langRef.current && !langRef.current.contains(target)) {
+        setShowLangMenu(false);
+      }
+      if (notifsRef.current && !notifsRef.current.contains(target)) {
+        setShowNotifs(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowLangMenu(false);
+        setShowNotifs(false);
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -146,36 +183,40 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2.5">
             
             {/* Language Selector */}
-            <div className="relative">
+            <div className="relative" ref={langRef}>
               <button
-                onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] border border-[#E4E9E5] bg-white hover:bg-[#F6F8F4] text-xs font-medium text-[#17211B] transition-colors cursor-pointer"
+                onClick={() => {
+                  setShowLangMenu((prev) => !prev);
+                  setShowNotifs(false);
+                  setShowUserMenu(false);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] border border-[#E4E9E5] dark:border-[#202722] bg-white dark:bg-[#141816] hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E] text-xs font-medium text-[#17211B] dark:text-white transition-colors cursor-pointer"
                 title="Select Language"
               >
-                <Globe className="w-3.5 h-3.5 text-[#66736B]" />
+                <Globe className="w-3.5 h-3.5 text-[#66736B] dark:text-[#A0ABA4]" />
                 <span className="font-semibold">{language === "hi" ? "हिंदी" : "English"}</span>
-                <ChevronDown className="w-3 h-3 text-[#8A958E]" />
+                <ChevronDown className="w-3 h-3 text-[#8A958E] dark:text-[#A0ABA4]" />
               </button>
 
               {showLangMenu && (
-                <div className="absolute right-0 mt-1.5 w-36 bg-white rounded-2xl border border-[#E4E9E5] card-shadow z-50 p-1.5 text-xs">
+                <div className="absolute right-0 mt-1.5 w-36 bg-white dark:bg-[#141816] rounded-2xl border border-[#E4E9E5] dark:border-[#202722] card-shadow z-50 p-1.5 text-xs">
                   <button
                     onClick={() => { setLanguage("en"); setShowLangMenu(false); }}
                     className={`w-full text-left px-3 py-1.5 rounded-xl transition-colors flex items-center justify-between ${
-                      language === "en" ? "font-bold bg-[#EEF5EF] text-[#123D2D]" : "text-[#17211B] hover:bg-[#F6F8F4]"
+                      language === "en" ? "font-bold bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89]" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
                     }`}
                   >
                     <span>English</span>
-                    {language === "en" && <Check className="w-3.5 h-3.5 text-[#2F7D4A]" />}
+                    {language === "en" && <Check className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />}
                   </button>
                   <button
                     onClick={() => { setLanguage("hi"); setShowLangMenu(false); }}
                     className={`w-full text-left px-3 py-1.5 rounded-xl transition-colors font-sans flex items-center justify-between ${
-                      language === "hi" ? "font-bold bg-[#EEF5EF] text-[#123D2D]" : "text-[#17211B] hover:bg-[#F6F8F4]"
+                      language === "hi" ? "font-bold bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89]" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
                     }`}
                   >
                     <span>हिंदी</span>
-                    {language === "hi" && <Check className="w-3.5 h-3.5 text-[#2F7D4A]" />}
+                    {language === "hi" && <Check className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />}
                   </button>
                 </div>
               )}
@@ -185,7 +226,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-2 rounded-[10px] text-[#66736B] hover:text-[#17211B] hover:bg-[#EEF5EF] border border-[#E4E9E5] transition-colors cursor-pointer"
+              className="p-2 rounded-[10px] text-[#66736B] dark:text-[#A0ABA4] hover:text-[#17211B] dark:hover:text-white hover:bg-[#EEF5EF] dark:hover:bg-[#1B221E] border border-[#E4E9E5] dark:border-[#202722] transition-colors cursor-pointer"
               title={
                 theme === "dark"
                   ? (isHindi ? "लाइट मोड चालू करें" : "Switch to Light Mode")
@@ -201,10 +242,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {/* Notifications Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={notifsRef}>
               <button
-                onClick={() => setShowNotifs(!showNotifs)}
-                className="relative p-2 rounded-[10px] text-[#66736B] hover:text-[#17211B] hover:bg-[#EEF5EF] border border-[#E4E9E5] transition-colors cursor-pointer"
+                onClick={() => {
+                  setShowNotifs((prev) => !prev);
+                  setShowLangMenu(false);
+                  setShowUserMenu(false);
+                }}
+                className="relative p-2 rounded-[10px] text-[#66736B] dark:text-[#A0ABA4] hover:text-[#17211B] dark:hover:text-white hover:bg-[#EEF5EF] dark:hover:bg-[#1B221E] border border-[#E4E9E5] dark:border-[#202722] transition-colors cursor-pointer"
                 aria-label={t("farmer.notificationsTitle")}
               >
                 <Bell className="w-4 h-4" />
@@ -264,8 +309,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                               setShowNotifs(false);
                             }
                           }}
-                          className={`px-4 py-3 hover:bg-[#F6F8F4] dark:hover:bg-[#18291F] transition-colors cursor-pointer text-xs flex items-start gap-3 ${
-                            !notif.read ? "bg-[#2F7D4A]/[0.03] dark:bg-[#2F7D4A]/[0.08]" : ""
+                          className={`px-4 py-3 transition-colors cursor-pointer text-xs flex items-start gap-3 ${
+                            !notif.read
+                              ? "bg-[#F2F8F4] hover:bg-[#E8F3EB] dark:bg-[#162B1F] dark:hover:bg-[#1C3627]"
+                              : "bg-white hover:bg-[#F9FAF8] dark:bg-[#121E17] dark:hover:bg-[#18291F]"
                           }`}
                         >
                           {/* Unread indicator dot */}
@@ -273,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                             <span
                               className={`w-2 h-2 rounded-full block ${
                                 !notif.read
-                                  ? "bg-[#2F7D4A] dark:bg-[#4ADE80] ring-4 ring-[#2F7D4A]/15"
+                                  ? "bg-[#2F7D4A] dark:bg-[#4ADE80] ring-4 ring-[#2F7D4A]/20"
                                   : "bg-transparent"
                               }`}
                             />
@@ -285,17 +332,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                               <h5
                                 className={`text-xs ${
                                   !notif.read
-                                    ? "font-bold text-[#17211B] dark:text-[#F0F5F1]"
-                                    : "font-medium text-[#66736B] dark:text-[#9AAEA2]"
+                                    ? "font-bold text-[#123D2D] dark:text-[#F0F5F1]"
+                                    : "font-medium text-[#4B5563] dark:text-[#9CA3AF]"
                                 }`}
                               >
                                 {notif.title}
                               </h5>
-                              <span className="text-[10px] text-[#8A958E] dark:text-[#6C7E74] font-sans shrink-0">
+                              <span
+                                className={`text-[10px] font-sans shrink-0 ${
+                                  !notif.read
+                                    ? "text-[#4B5563] dark:text-[#94A3B8] font-medium"
+                                    : "text-[#9CA3AF] dark:text-[#64748B]"
+                                }`}
+                              >
                                 {notif.timestamp}
                               </span>
                             </div>
-                            <p className="text-[#66736B] dark:text-[#A0B1A7] text-[12px] leading-relaxed mt-0.5">
+                            <p
+                              className={`text-[12px] leading-relaxed mt-0.5 ${
+                                !notif.read
+                                  ? "text-[#24332A] dark:text-[#CBD5E1]"
+                                  : "text-[#6B7280] dark:text-[#94A3B8]"
+                              }`}
+                            >
                               {notif.message}
                             </p>
                           </div>
@@ -307,7 +366,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                               e.stopPropagation();
                               toggleNotificationRead(notif.id);
                             }}
-                            className="p-1 rounded-md text-[#8A958E] hover:text-[#2F7D4A] dark:text-[#6C7E74] dark:hover:text-[#4ADE80] hover:bg-black/5 dark:hover:bg-white/10 shrink-0 transition-colors cursor-pointer mt-0.5"
+                            className="p-1 rounded-md text-[#6B7280] hover:text-[#2F7D4A] dark:text-[#94A3B8] dark:hover:text-[#4ADE80] hover:bg-black/5 dark:hover:bg-white/10 shrink-0 transition-colors cursor-pointer mt-0.5"
                             title={
                               !notif.read
                                 ? (isHindi ? "पढ़ा हुआ चिह्नित करें" : "Mark as read")
@@ -340,37 +399,41 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* User Profile Dropdown with Demo Persona Switcher */}
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full border border-[#E4E9E5] bg-white hover:bg-[#F6F8F4] transition-colors cursor-pointer"
+                onClick={() => {
+                  setShowUserMenu((prev) => !prev);
+                  setShowLangMenu(false);
+                  setShowNotifs(false);
+                }}
+                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full border border-[#E4E9E5] dark:border-[#202722] bg-white dark:bg-[#141816] hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E] transition-colors cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-full bg-[#123D2D] text-white flex items-center justify-center text-xs font-bold">
+                <div className="w-7 h-7 rounded-full bg-[#123D2D] dark:bg-[#2F7D4A] text-white flex items-center justify-center text-xs font-bold">
                   {userName.charAt(0)}
                 </div>
-                <span className="hidden md:inline text-xs font-semibold text-[#17211B]">
+                <span className="hidden md:inline text-xs font-semibold text-[#17211B] dark:text-white">
                   {userName}
                 </span>
-                <ChevronDown className="w-3 h-3 text-[#8A958E] hidden md:block" />
+                <ChevronDown className="w-3 h-3 text-[#8A958E] dark:text-[#A0ABA4] hidden md:block" />
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-1.5 w-52 bg-white rounded-2xl border border-[#E4E9E5] card-shadow z-50 p-2 text-xs space-y-1">
-                  <div className="px-3 py-2 border-b border-[#E4E9E5]">
-                    <div className="font-bold text-[#17211B]">{userName}</div>
-                    <div className="text-[10px] text-[#66736B] uppercase font-mono">
+                <div className="absolute right-0 mt-1.5 w-52 bg-white dark:bg-[#141816] rounded-2xl border border-[#E4E9E5] dark:border-[#202722] card-shadow z-50 p-2 text-xs space-y-1 shadow-xl">
+                  <div className="px-3 py-2 border-b border-[#E4E9E5] dark:border-[#202722]">
+                    <div className="font-bold text-[#17211B] dark:text-white">{userName}</div>
+                    <div className="text-[10px] text-[#66736B] dark:text-[#A0ABA4] uppercase font-mono">
                       {role === "farmer" ? t("nav.farmerPortal") : role === "centre" ? t("nav.operatorPortal") : t("nav.adminPortal")}
                     </div>
                   </div>
 
-                  <div className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8A958E]">
+                  <div className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8A958E] dark:text-[#A0ABA4]">
                     {t("common.switchPersona")}
                   </div>
 
                   <button
                     onClick={() => handleRoleChange("admin")}
                     className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2 font-medium transition-colors ${
-                      role === "admin" ? "bg-[#EEF5EF] text-[#123D2D] font-bold" : "text-[#17211B] hover:bg-[#F6F8F4]"
+                      role === "admin" ? "bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89] font-bold" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
                     }`}
                   >
                     <Landmark className="w-3.5 h-3.5 text-[#F2A93B]" />
@@ -380,7 +443,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     onClick={() => handleRoleChange("centre")}
                     className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2 font-medium transition-colors ${
-                      role === "centre" ? "bg-[#EEF5EF] text-[#123D2D] font-bold" : "text-[#17211B] hover:bg-[#F6F8F4]"
+                      role === "centre" ? "bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89] font-bold" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
                     }`}
                   >
                     <Building2 className="w-3.5 h-3.5 text-[#4178C0]" />
@@ -390,20 +453,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     onClick={() => handleRoleChange("farmer")}
                     className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2 font-medium transition-colors ${
-                      role === "farmer" ? "bg-[#EEF5EF] text-[#123D2D] font-bold" : "text-[#17211B] hover:bg-[#F6F8F4]"
+                      role === "farmer" ? "bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89] font-bold" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
                     }`}
                   >
-                    <Users className="w-3.5 h-3.5 text-[#2F7D4A]" />
+                    <Users className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />
                     <span>{t("nav.farmerPortal")}</span>
                   </button>
 
-                  <div className="border-t border-[#E4E9E5] pt-1 mt-1">
+                  <div className="border-t border-[#E4E9E5] dark:border-[#202722] pt-1 mt-1">
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
                         resetAllData();
                       }}
-                      className="w-full text-left px-3 py-1.5 rounded-xl hover:bg-[#FDF2F2] text-[#D95555] font-medium flex items-center gap-2"
+                      className="w-full text-left px-3 py-1.5 rounded-xl hover:bg-[#FDF2F2] dark:hover:bg-[#251214] text-[#D95555] dark:text-[#F87171] font-medium flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>{t("common.resetData")}</span>
