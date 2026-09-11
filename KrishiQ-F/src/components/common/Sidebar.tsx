@@ -27,8 +27,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
 }) => {
-  const { role, farmerBooking, selectedCentre, unreadNotifsCount } = useKrishiQ();
+  const { role, farmerBooking, unreadNotifsCount, queueItems } = useKrishiQ();
   const { t, isHindi } = useLanguage();
+
+  const realCentreQueueCount = queueItems.filter((q) => q.status !== "COMPLETED").length;
 
   const farmerNav = [
     { label: t("nav.overview"), to: "/farmer/dashboard", icon: <Home className="w-[18px] h-[18px]" /> },
@@ -58,8 +60,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: isHindi ? "लाइव कतार" : "Live Queue",
       to: "/centre/queue",
       icon: <ListOrdered className="w-[18px] h-[18px]" />,
-      badge: isHindi ? `${selectedCentre.currentQueueCount} कतार` : `${selectedCentre.currentQueueCount} Queue`,
-      badgeColor: "bg-[#FEF5E7] text-[#9A6210]",
+      badge: String(realCentreQueueCount),
+      badgeColor: "bg-[#EEF5EF] text-[#123D2D]",
     },
     { label: isHindi ? "उपार्जन" : "Procurement", to: "/centre/procurement", icon: <PackageCheck className="w-[18px] h-[18px]" /> },
     { label: isHindi ? "विश्लेषण" : "Analytics", to: "/centre/analytics", icon: <BarChart3 className="w-[18px] h-[18px]" /> },
@@ -80,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       to: "/admin/simulator",
       icon: <Sliders className="w-[18px] h-[18px]" />,
       badge: isHindi ? "सैंडबॉक्स" : "Sandbox",
-      badgeColor: "bg-[#F0F5FA] text-[#24538F]",
+      badgeColor: "bg-[#EEF5EF] text-[#123D2D]",
     },
   ];
 
@@ -91,14 +93,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-[#17211B]/40 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-[#17211B]/40 dark:bg-black/60 backdrop-blur-xs lg:hidden"
           onClick={onCloseMobile}
         />
       )}
 
       <aside
         className={
-          "fixed top-[60px] bottom-0 left-0 z-40 bg-white border-r border-[#E4E9E5] transition-all duration-200 ease-in-out flex flex-col justify-between card-shadow w-[200px] " +
+          "fixed top-[60px] bottom-0 left-0 z-40 bg-white dark:bg-[#0E1210] border-r border-[#E4E9E5] dark:border-[#202722] transition-all duration-200 ease-in-out flex flex-col justify-between card-shadow w-[220px] " +
           (isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0")
         }
       >
@@ -146,13 +148,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Footer Support Info */}
-        <div className="p-3 border-t border-[#E4E9E5] bg-[#F6F8F4] space-y-1.5 text-xs text-[#66736B]">
+        <div className="p-3 border-t border-[#E4E9E5] dark:border-[#202722] bg-[#F6F8F4] dark:bg-[#141816] space-y-1.5 text-xs text-[#66736B] dark:text-[#A0ABA4]">
           <div className="flex items-center justify-between text-[11px]">
             <span className="flex items-center gap-1">
-              <PhoneCall className="w-3.5 h-3.5 text-[#2F7D4A]" />
+              <PhoneCall className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />
               <span>{t("nav.helpline")}:</span>
             </span>
-            <span className="font-mono font-bold text-[#123D2D]">1800-180-1551</span>
+            <span className="font-mono font-bold text-[#123D2D] dark:text-[#52DB89]">1800-180-1551</span>
           </div>
         </div>
       </aside>

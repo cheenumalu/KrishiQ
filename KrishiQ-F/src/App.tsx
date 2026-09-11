@@ -61,7 +61,7 @@ const LayoutContent: React.FC = () => {
         <main
           className={
             "flex-1 p-4 sm:p-6 transition-all duration-200 pb-20 lg:pb-8 " +
-            (!isLanding ? "lg:pl-[216px]" : "")
+            (!isLanding ? "lg:pl-[236px]" : "")
           }
         >
           <Routes>
