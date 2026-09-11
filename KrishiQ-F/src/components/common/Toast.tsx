@@ -11,17 +11,17 @@ export const ToastContainer: React.FC = () => {
     <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       {toasts.map((toast) => {
         const icon = {
-          success: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />,
-          warning: <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />,
-          error: <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />,
-          info: <Info className="w-5 h-5 text-sky-600 shrink-0" />,
+          success: <CheckCircle2 className="w-5 h-5 text-[#2F7D4A] shrink-0" />,
+          warning: <AlertTriangle className="w-5 h-5 text-[#F2A93B] shrink-0" />,
+          error: <AlertCircle className="w-5 h-5 text-[#D95555] shrink-0" />,
+          info: <Info className="w-5 h-5 text-[#2F7D4A] shrink-0" />,
         }[toast.type];
 
         const border = {
-          success: "border-emerald-200 bg-emerald-50/90 text-emerald-950",
-          warning: "border-amber-200 bg-amber-50/90 text-amber-950",
-          error: "border-rose-200 bg-rose-50/90 text-rose-950",
-          info: "border-sky-200 bg-white text-slate-900",
+          success: "border-[#58A66B]/30 bg-[#EEF5EF] text-[#123D2D] dark:bg-[#1A3125] dark:text-[#F0F5F1] dark:border-[#23362B]",
+          warning: "border-[#F2A93B]/40 bg-[#FEF5E7] text-[#9A6210] dark:bg-[#2A2315] dark:text-[#F2A93B] dark:border-[#F2A93B]/30",
+          error: "border-[#D95555]/30 bg-[#FDF2F2] text-[#9B2C2C] dark:bg-[#2A1515] dark:text-[#FCA5A5] dark:border-[#D95555]/30",
+          info: "border-[#E4E9E5] bg-white text-[#111813] dark:bg-[#142019] dark:text-[#F0F5F1] dark:border-[#23362B]",
         }[toast.type];
 
         return (
@@ -35,11 +35,11 @@ export const ToastContainer: React.FC = () => {
             {icon}
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-semibold">{toast.title}</h4>
-              <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{toast.message}</p>
+              <p className="text-xs text-[#404A43] dark:text-[#CBD5E1] mt-0.5 leading-relaxed">{toast.message}</p>
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-slate-400 hover:text-slate-600 p-0.5 rounded"
+              className="text-[#66736C] hover:text-[#111813] dark:text-[#94A3B8] dark:hover:text-white p-0.5 rounded cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

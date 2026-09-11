@@ -19,28 +19,28 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const variantStyles: Record<BadgeVariant, { container: string; dot: string }> = {
     normal: {
-      container: "bg-[#EEF5EF] text-[#123D2D] border-[#58A66B]/30",
-      dot: "bg-[#2F7D4A]",
+      container: "bg-[#EEF5EF] dark:bg-[#1A3125] text-[#123D2D] dark:text-[#52DB89] border-[#58A66B]/30",
+      dot: "bg-[#2F7D4A] dark:bg-[#52DB89]",
     },
     success: {
-      container: "bg-[#EEF5EF] text-[#123D2D] border-[#58A66B]/30",
-      dot: "bg-[#2F7D4A]",
+      container: "bg-[#EEF5EF] dark:bg-[#1A3125] text-[#123D2D] dark:text-[#52DB89] border-[#58A66B]/30",
+      dot: "bg-[#2F7D4A] dark:bg-[#52DB89]",
     },
     warning: {
-      container: "bg-[#FEF5E7] text-[#9A6210] border-[#F2A93B]/40",
+      container: "bg-[#FEF5E7] dark:bg-[#2A2315] text-[#9A6210] dark:text-[#F2A93B] border-[#F2A93B]/40",
       dot: "bg-[#F2A93B]",
     },
     critical: {
-      container: "bg-[#FDF2F2] text-[#9B2C2C] border-[#D95555]/30",
+      container: "bg-[#FDF2F2] dark:bg-[#2A1515] text-[#9B2C2C] dark:text-[#FCA5A5] border-[#D95555]/30",
       dot: "bg-[#D95555]",
     },
     info: {
-      container: "bg-[#F0F5FA] text-[#24538F] border-[#4178C0]/30",
-      dot: "bg-[#4178C0]",
+      container: "bg-[#EEF5EF] dark:bg-[#1A3125] text-[#123D2D] dark:text-[#52DB89] border-[#58A66B]/30",
+      dot: "bg-[#2F7D4A] dark:bg-[#52DB89]",
     },
     neutral: {
-      container: "bg-[#F6F8F4] text-[#66736B] border-[#E5EAE6]",
-      dot: "bg-[#8A958E]",
+      container: "bg-[#F6F8F4] dark:bg-[#101B15] text-[#404A43] dark:text-[#CBD5E1] border-[#E4E9E5] dark:border-[#23362B]",
+      dot: "bg-[#66736C] dark:bg-[#94A3B8]",
     },
   };
 
@@ -58,4 +58,3 @@ export const Badge: React.FC<BadgeProps> = ({
     </span>
   );
 };
-
