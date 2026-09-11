@@ -8,106 +8,96 @@ import {
   CheckCircle2,
   AlertTriangle,
   PhoneCall,
-  Activity
+  Activity,
+  Play,
+  ShieldCheck,
+  ArrowRight
 } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
+import { QualityGradingModal } from "../../components/centre/QualityGradingModal";
+import { getStageLabel } from "../../utils/stages";
 
 export const CentreDashboard: React.FC = () => {
-  const { selectedCentre, addToast, decrementQueueCount } = useKrishiQ();
+  const {
+    selectedCentre,
+    queueItems,
+    allBookings,
+    addToast,
+    advanceBookingStage,
+    callNextFarmer,
+    updateQualityAndWeight,
+    resolveBottleneck,
+    isItemHighlighted,
+  } = useKrishiQ();
   const { t, isHindi, formatLocation, formatCrop } = useLanguage();
+
   const [isBottleneckResolved, setIsBottleneckResolved] = useState(false);
+  const [isQCModalOpen, setIsQCModalOpen] = useState(false);
+  const [activeQCItemId, setActiveQCItemId] = useState<string | null>(null);
 
-  // Workstation state
-  const [currentServing, setCurrentServing] = useState({
-    token: "Token A124",
-    tokenRaw: "A124",
-    farmer: "Rajesh Kumar",
-    farmerHi: "राजेश कुमार",
-    crop: "Wheat",
-    quantity: 42,
-    stage: "Weighing Station 1",
-    stageHi: "तौल कांटा नंबर 1",
-    estimatedCompletion: "6 minutes",
-  });
+  // Dynamic calculations from central state
+  const centreBookings = allBookings.filter((b) => b.centreId === selectedCentre.id);
+  const totalBookingsCount = Math.max(centreBookings.length, 140 + centreBookings.length);
+  
+  const waitingOrServing = queueItems.filter((q) => q.status === "WAITING" || q.status === "SERVING");
+  const currentQueueCount = isBottleneckResolved ? Math.max(1, waitingOrServing.length - 2) : waitingOrServing.length;
+  const avgWaitMinutes = Math.max(6, currentQueueCount * 5);
 
-  const [nextFarmer, setNextFarmer] = useState({
-    token: "Token A125",
-    tokenRaw: "A125",
-    farmer: "Suresh Patil",
-    farmerHi: "सुरेश पाटिल",
-    crop: "Wheat",
-    quantity: 28,
-    estimatedProcessing: "8 minutes",
-    called: false,
-  });
+  const totalProcuredQuintals = allBookings
+    .filter((b) => b.centreId === selectedCentre.id && b.currentStageNumber >= 6)
+    .reduce((acc, b) => acc + (b.weighing?.netWeightQuintals || b.quantityQuintals || 0), 3240);
 
-  const [queueTable, setQueueTable] = useState([
-    { token: "A124", farmer: "Rajesh Kumar", farmerHi: "राजेश कुमार", crop: "Wheat", quantity: 42, arrival: "10:15 AM", currentStage: "Weighing", currentStageHi: "तौल", status: "Processing" },
-    { token: "A125", farmer: "Suresh Patil", farmerHi: "सुरेश पाटिल", crop: "Wheat", quantity: 28, arrival: "10:28 AM", currentStage: "Quality Check", currentStageHi: "गुणवत्ता जाँच", status: "Waiting" },
-    { token: "A126", farmer: "Vikram Verma", farmerHi: "विक्रम वर्मा", crop: "Soybean", quantity: 55, arrival: "10:35 AM", currentStage: "Registration", currentStageHi: "पंजीकरण", status: "Waiting" },
-    { token: "A127", farmer: "Rajesh Malviya", farmerHi: "राजेश मालवीय", crop: "Wheat", quantity: 65, arrival: "10:45 AM", currentStage: "Registration", currentStageHi: "पंजीकरण", status: "Waiting" },
-    { token: "A123", farmer: "Om Prakash", farmerHi: "ओम प्रकाश", crop: "Maize", quantity: 36, arrival: "09:50 AM", currentStage: "Procurement", currentStageHi: "उपार्जन", status: "Completed" },
-  ]);
+  const receiptsClearedCount = allBookings.filter((b) => b.centreId === selectedCentre.id && b.currentStageNumber >= 6).length + 61;
 
-  const handleCompleteStage = () => {
-    decrementQueueCount();
-    const completedToken = currentServing.tokenRaw;
-    setQueueTable((prev) =>
-      prev.map((row) => (row.token === completedToken ? { ...row, status: "Completed", currentStage: "Procurement", currentStageHi: "उपार्जन" } : row))
-    );
+  // Active serving & next farmer in line
+  const currentServing = queueItems.find((q) => q.status === "SERVING") || queueItems[0];
+  const nextFarmer = queueItems.find((q) => q.status === "WAITING");
 
-    setCurrentServing({
-      token: "Token A125",
-      tokenRaw: "A125",
-      farmer: "Suresh Patil",
-      farmerHi: "सुरेश पाटिल",
-      crop: "Wheat",
-      quantity: 28,
-      stage: "Weighing Station 1",
-      stageHi: "तौल कांटा नंबर 1",
-      estimatedCompletion: "5 minutes",
-    });
-
-    setNextFarmer({
-      token: "Token A126",
-      tokenRaw: "A126",
-      farmer: "Vikram Verma",
-      farmerHi: "विक्रम वर्मा",
-      crop: "Soybean",
-      quantity: 55,
-      estimatedProcessing: "10 minutes",
-      called: false,
-    });
-
+  const handleCompleteCurrentStage = async () => {
+    if (!currentServing) return;
+    await advanceBookingStage(currentServing.id);
     addToast(
       isHindi ? "चरण पूर्ण" : "Stage Completed",
-      isHindi ? `टोकन ${completedToken} का तौल पूरा हुआ। टोकन A125 अब सक्रिय है।` : `Token ${completedToken} completed weighing. Token A125 now active.`,
+      isHindi ? `टोकन ${currentServing.tokenNumber} का चरण पूर्ण हुआ।` : `Token ${currentServing.tokenNumber} completed stage progression.`,
       "success"
     );
   };
 
-  const handleCallFarmer = () => {
-    decrementQueueCount();
-    setNextFarmer((prev) => ({ ...prev, called: true }));
-    setQueueTable((prev) =>
-      prev.map((row) => (row.token === nextFarmer.tokenRaw ? { ...row, status: "Called" } : row))
-    );
-    addToast(
-      isHindi ? "किसान को बुलाया गया" : "Farmer Called",
-      isHindi ? `${nextFarmer.token} (${isHindi ? nextFarmer.farmerHi : nextFarmer.farmer}) को काउंटर पर बुलाया गया।` : `${nextFarmer.token} (${nextFarmer.farmer}) called to counter.`,
-      "info"
-    );
+  const handleCallNext = () => {
+    callNextFarmer();
   };
 
   const handleApplyBottleneck = () => {
+    resolveBottleneck(selectedCentre.id);
     setIsBottleneckResolved(true);
     addToast(
       isHindi ? "स्टाफ पुनर्वितरित" : "Staff Rebalanced",
       isHindi ? "कर्मचारी तौल कांटे पर तैनात। कतार की समस्या हल हो गई।" : "Operator shifted to Weighing. Queue backlog resolved.",
       "success"
     );
+  };
+
+  const handleQCSubmit = async (data: any) => {
+    if (activeQCItemId) {
+      await updateQualityAndWeight(
+        activeQCItemId,
+        {
+          moisturePercent: data.moisture,
+          dockagePercent: data.dockage,
+          foreignMatterPercent: data.foreignMatter,
+          grade: data.grade,
+          passed: data.grade !== "Below FAQ",
+        },
+        {
+          netWeightQuintals: data.netWeightQuintals,
+          bagCount: Math.round(data.netWeightQuintals * 2),
+        }
+      );
+      await advanceBookingStage(activeQCItemId, "procured_loading");
+      setActiveQCItemId(null);
+    }
   };
 
   return (
@@ -135,10 +125,10 @@ export const CentreDashboard: React.FC = () => {
         <div className="bg-white/10 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/15 text-xs text-white space-y-1 shrink-0">
           <div className="text-white/70 text-[11px]">{t("centre.mandiCapacityLoad")}</div>
           <div className="text-sm font-bold font-sans tabular-nums">
-            {isHindi ? "1,360 / 2,000 यूनिट (68%)" : "1,360 / 2,000 Units (68%)"}
+            {isHindi ? `${totalBookingsCount} / ${selectedCentre.totalCapacityPerDay} किसान (सक्रिय)` : `${totalBookingsCount} / ${selectedCentre.totalCapacityPerDay} Farmers (Active)`}
           </div>
           <div className="w-40 h-1.5 bg-white/20 rounded-full overflow-hidden mt-1">
-            <div className="h-full bg-[#58A66B] rounded-full" style={{ width: "68%" }} />
+            <div className="h-full bg-[#58A66B] rounded-full" style={{ width: `${Math.min(100, Math.round((totalBookingsCount / selectedCentre.totalCapacityPerDay) * 100))}%` }} />
           </div>
         </div>
       </div>
@@ -146,58 +136,58 @@ export const CentreDashboard: React.FC = () => {
       {/* 2. OPERATIONAL KPI STRIP */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between">
-          <div className="flex items-center gap-2 text-[#66736B]">
+          <div className="flex items-center gap-2 text-[#404A43] dark:text-[#CBD5E1]">
             <Building2 className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
             <span className="text-[13px] font-medium leading-[1.3]">{t("centre.todayBookings")}</span>
           </div>
-          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
-            148
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#111813] dark:text-white tabular-nums font-sans">
+            {totalBookingsCount}
           </div>
-          <span className="text-[12px] text-[#2F7D4A] font-semibold">{t("centre.checkedInRate")}</span>
+          <span className="text-[12px] text-[#2F7D4A] dark:text-[#52DB89] font-semibold">{t("centre.checkedInRate")}</span>
         </Card>
 
         <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between">
-          <div className="flex items-center gap-2 text-[#66736B]">
+          <div className="flex items-center gap-2 text-[#404A43] dark:text-[#CBD5E1]">
             <Users className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
             <span className="text-[13px] font-medium leading-[1.3]">{t("centre.currentQueueCount")}</span>
           </div>
-          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#9A6210] tabular-nums font-sans">
-            {isBottleneckResolved ? 11 : selectedCentre.currentQueueCount}
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#9A6210] dark:text-[#F2A93B] tabular-nums font-sans">
+            {currentQueueCount}
           </div>
-          <span className="text-[12px] text-[#66736B]">{t("centre.farmersWaiting")}</span>
+          <span className="text-[12px] text-[#404A43] dark:text-[#CBD5E1]">{t("centre.farmersWaiting")}</span>
         </Card>
 
         <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between">
-          <div className="flex items-center gap-2 text-[#66736B]">
+          <div className="flex items-center gap-2 text-[#404A43] dark:text-[#CBD5E1]">
             <Clock className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
             <span className="text-[13px] font-medium leading-[1.3]">{t("centre.avgWaitTime")}</span>
           </div>
-          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#17211B] tabular-nums font-sans">
-            {isBottleneckResolved ? `22 ${t("common.min")}` : `42 ${t("common.min")}`}
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#111813] dark:text-white tabular-nums font-sans">
+            {isBottleneckResolved ? `18 ${t("common.min")}` : `${avgWaitMinutes} ${t("common.min")}`}
           </div>
-          <span className="text-[12px] text-[#2F7D4A] font-semibold">{t("centre.vsYesterday")}</span>
+          <span className="text-[12px] text-[#2F7D4A] dark:text-[#52DB89] font-semibold">{t("centre.vsYesterday")}</span>
         </Card>
 
-        <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between bg-[#EEF5EF] border-[#58A66B]/30">
-          <div className="flex items-center gap-2 text-[#123D2D]">
+        <Card padding="sm" className="h-[124px] p-[18px_20px] flex flex-col justify-between bg-[#EEF5EF] dark:bg-[#1A3125] border-[#58A66B]/30">
+          <div className="flex items-center gap-2 text-[#123D2D] dark:text-[#52DB89]">
             <Activity className="w-4.5 h-4.5 text-[#2F7D4A] shrink-0" />
             <span className="text-[13px] font-semibold leading-[1.3]">{t("centre.todayProcurement")}</span>
           </div>
-          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#123D2D] tabular-nums font-sans">
-            3,240 {t("common.quintal")}
+          <div className="text-[30px] font-bold tracking-[-0.02em] leading-none text-[#123D2D] dark:text-[#52DB89] tabular-nums font-sans">
+            {totalProcuredQuintals.toLocaleString()} {t("common.quintal")}
           </div>
-          <span className="text-[12px] text-[#2F7D4A] font-medium">61 {t("centre.receiptsCleared")}</span>
+          <span className="text-[12px] text-[#2F7D4A] dark:text-[#52DB89] font-medium">{receiptsClearedCount} {t("centre.receiptsCleared")}</span>
         </Card>
       </div>
 
       {/* 3. BOTTLENECK ALERT ADVISORY STRIP */}
       {!isBottleneckResolved ? (
-        <Card padding="sm" className="p-[16px_20px] bg-[#FEF5E7] border border-[#F2A93B]/40 text-xs text-[#9A6210] flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-[#F2A93B]">
+        <Card padding="sm" className="p-[16px_20px] bg-[#FEF5E7] dark:bg-[#2A2315] border border-[#F2A93B]/40 text-xs text-[#9A6210] dark:text-[#F2A93B] flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-[#F2A93B]">
           <div className="flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-[#F2A93B] shrink-0" />
             <div>
-              <div className="font-bold text-[14px] text-[#17211B]">{t("centre.bottleneckAdvisoryTitle")}</div>
-              <p className="text-[#66736B] text-[13px] mt-0.5">{t("centre.bottleneckAdvisoryDesc")}</p>
+              <div className="font-bold text-[14px] text-[#111813] dark:text-white">{t("centre.bottleneckAdvisoryTitle")}</div>
+              <p className="text-[#404A43] dark:text-[#CBD5E1] text-[13px] mt-0.5">{t("centre.bottleneckAdvisoryDesc")}</p>
             </div>
           </div>
           <Button variant="accent" size="sm" onClick={handleApplyBottleneck}>
@@ -205,12 +195,12 @@ export const CentreDashboard: React.FC = () => {
           </Button>
         </Card>
       ) : (
-        <div className="p-3 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 text-xs text-[#123D2D] font-medium flex items-center justify-between">
+        <div className="p-3 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] border border-[#58A66B]/30 text-xs text-[#123D2D] dark:text-[#52DB89] font-medium flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#2F7D4A]" />
+            <CheckCircle2 className="w-4 h-4 text-[#2F7D4A] dark:text-[#52DB89]" />
             {t("centre.bottleneckResolvedText")}
           </span>
-          <span className="font-bold text-[#2F7D4A]">{t("centre.optimalFlow")}</span>
+          <span className="font-bold text-[#2F7D4A] dark:text-[#52DB89]">{t("centre.optimalFlow")}</span>
         </div>
       )}
 
@@ -224,74 +214,105 @@ export const CentreDashboard: React.FC = () => {
             
             {/* Active Serving Card */}
             <Card padding="md" className="space-y-3 border-[#2F7D4A] ring-1 ring-[#2F7D4A]/20">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
-                <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5] dark:border-[#23362B]">
+                <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
                   {t("centre.currentlyServingTitle")}
                 </span>
-                <Badge variant="warning" size="sm">{t("centre.activeBadge")}</Badge>
+                <Badge variant={currentServing?.status === "SERVING" ? "warning" : "success"} size="sm">
+                  {currentServing?.status === "SERVING" ? t("centre.activeBadge") : "Queued"}
+                </Badge>
               </div>
 
-              <div className="space-y-1.5 text-xs">
-                <h3 className="text-2xl font-bold text-[#17211B] font-sans tabular-nums">
-                  {currentServing.token}
-                </h3>
-                <p className="text-sm font-bold text-[#17211B]">
-                  {t("centre.farmerLabel")}: {isHindi ? currentServing.farmerHi : currentServing.farmer}
-                </p>
-                <p className="text-[#66736B]">
-                  {t("centre.lotLabel")}: <strong className="text-[#17211B]">{formatCrop(currentServing.crop)}</strong> • {isHindi ? "मात्रा:" : "Quantity:"} <strong className="text-[#17211B] font-sans tabular-nums">{currentServing.quantity} {t("common.quintal")}</strong>
-                </p>
-                <p className="text-[#66736B]">
-                  {t("centre.stationLabel")}: <strong className="text-[#123D2D] font-semibold">{isHindi ? currentServing.stageHi : currentServing.stage}</strong>
-                </p>
-              </div>
+              {currentServing ? (
+                <div className="space-y-1.5 text-xs">
+                  <h3 className="text-2xl font-bold text-[#111813] dark:text-white font-sans tabular-nums">
+                    Token #{currentServing.tokenNumber}
+                  </h3>
+                  <p className="text-sm font-bold text-[#111813] dark:text-white">
+                    {t("centre.farmerLabel")}: {currentServing.farmerName} {currentServing.isCurrentUser && (isHindi ? "(डेमो किसान)" : "(Demo User)")}
+                  </p>
+                  <p className="text-[#404A43] dark:text-[#CBD5E1]">
+                    {t("centre.lotLabel")}: <strong className="text-[#111813] dark:text-white">{formatCrop(currentServing.crop)}</strong> • {isHindi ? "मात्रा:" : "Quantity:"} <strong className="text-[#111813] dark:text-white font-sans tabular-nums">{currentServing.quantityQuintals} {t("common.quintal")}</strong>
+                  </p>
+                  <p className="text-[#404A43] dark:text-[#CBD5E1]">
+                    {t("centre.stationLabel")}: <strong className="text-[#123D2D] dark:text-[#52DB89] font-semibold">{getStageLabel(currentServing.stageName || "quality_inspection", isHindi)}</strong>
+                  </p>
+                </div>
+              ) : (
+                <div className="py-6 text-center text-[#66736C]">
+                  {isHindi ? "कोई सक्रिय किसान नहीं है" : "No active farmer serving"}
+                </div>
+              )}
 
-              <div className="pt-2 border-t border-[#E4E9E5]">
-                <Button
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                  leftIcon={<CheckCircle2 className="w-4 h-4" />}
-                  onClick={handleCompleteStage}
-                >
-                  {t("centre.completeStageBtn")}
-                </Button>
+              <div className="pt-2 border-t border-[#E4E9E5] dark:border-[#23362B] flex items-center gap-2">
+                {currentServing && currentServing.stageNumber >= 3 && currentServing.stageNumber <= 5 ? (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                    leftIcon={<ShieldCheck className="w-4 h-4" />}
+                    onClick={() => {
+                      setActiveQCItemId(currentServing.id);
+                      setIsQCModalOpen(true);
+                    }}
+                  >
+                    {isHindi ? "गुणवत्ता व तौल दर्ज करें" : "Record Assay & Weigh"}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                    leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                    onClick={handleCompleteCurrentStage}
+                    disabled={!currentServing}
+                  >
+                    {t("centre.completeStageBtn")}
+                  </Button>
+                )}
               </div>
             </Card>
 
             {/* Next Farmer Card */}
             <Card padding="md" className="space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
-                <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5] dark:border-[#23362B]">
+                <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
                   {t("centre.nextFarmerTitle")}
                 </span>
                 <Badge variant="neutral" size="sm">{t("centre.position1Badge")}</Badge>
               </div>
 
-              <div className="space-y-1.5 text-xs">
-                <h3 className="text-2xl font-bold text-[#17211B] font-sans tabular-nums">
-                  {nextFarmer.token}
-                </h3>
-                <p className="text-sm font-bold text-[#17211B]">
-                  {t("centre.farmerLabel")}: {isHindi ? nextFarmer.farmerHi : nextFarmer.farmer}
-                </p>
-                <p className="text-[#66736B]">
-                  {t("centre.lotLabel")}: <strong className="text-[#17211B]">{formatCrop(nextFarmer.crop)}</strong> • {isHindi ? "मात्रा:" : "Quantity:"} <strong className="text-[#17211B] font-sans tabular-nums">{nextFarmer.quantity} {t("common.quintal")}</strong>
-                </p>
-                <p className="text-[#8A958E]">
-                  {t("centre.estInspection")}: {isHindi ? "8 मिनट" : nextFarmer.estimatedProcessing}
-                </p>
-              </div>
+              {nextFarmer ? (
+                <div className="space-y-1.5 text-xs">
+                  <h3 className="text-2xl font-bold text-[#111813] dark:text-white font-sans tabular-nums">
+                    Token #{nextFarmer.tokenNumber}
+                  </h3>
+                  <p className="text-sm font-bold text-[#111813] dark:text-white">
+                    {t("centre.farmerLabel")}: {nextFarmer.farmerName} {nextFarmer.isCurrentUser && (isHindi ? "(डेमो किसान)" : "(Demo User)")}
+                  </p>
+                  <p className="text-[#404A43] dark:text-[#CBD5E1]">
+                    {t("centre.lotLabel")}: <strong className="text-[#111813] dark:text-white">{formatCrop(nextFarmer.crop)}</strong> • {isHindi ? "मात्रा:" : "Quantity:"} <strong className="text-[#111813] dark:text-white font-sans tabular-nums">{nextFarmer.quantityQuintals} {t("common.quintal")}</strong>
+                  </p>
+                  <p className="text-[#66736C] dark:text-[#94A3B8]">
+                    {t("centre.estInspection")}: ~{nextFarmer.estimatedProcessingMinutes || 8} {t("common.min")}
+                  </p>
+                </div>
+              ) : (
+                <div className="py-6 text-center text-[#66736C]">
+                  {isHindi ? "कतार में अगला किसान नहीं है" : "No waiting farmer in queue"}
+                </div>
+              )}
 
-              <div className="pt-2 border-t border-[#E4E9E5]">
+              <div className="pt-2 border-t border-[#E4E9E5] dark:border-[#23362B]">
                 <Button
-                  variant={nextFarmer.called ? "secondary" : "primary"}
+                  variant="primary"
                   size="md"
                   className="w-full"
                   leftIcon={<PhoneCall className="w-4 h-4" />}
-                  onClick={handleCallFarmer}
+                  onClick={handleCallNext}
+                  disabled={!nextFarmer}
                 >
-                  {nextFarmer.called ? t("centre.callAgainBtn") : t("centre.callNextBtn")}
+                  {t("centre.callNextBtn")}
                 </Button>
               </div>
             </Card>
@@ -300,29 +321,33 @@ export const CentreDashboard: React.FC = () => {
 
           {/* Queue Timeline Visual */}
           <Card padding="md" className="space-y-2.5">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
-              <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5] dark:border-[#23362B]">
+              <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
                 {t("centre.queueTimelineTitle")}
               </span>
-              <span className="text-xs text-[#66736B]">{t("centre.liveSequence")}</span>
+              <span className="text-xs text-[#404A43] dark:text-[#CBD5E1]">{t("centre.liveSequence")}</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 text-xs pt-0.5">
-              <div className="p-2.5 rounded-xl bg-[#FEF5E7] border border-[#F2A93B]/40 text-[#9A6210] font-sans tabular-nums font-bold flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-wider text-[#66736B]">{t("centre.servingPrefix")}</span>
-                <span>KQ-018</span>
+              {currentServing && (
+                <div className="p-2.5 rounded-xl bg-[#FEF5E7] dark:bg-[#2A2315] border border-[#F2A93B]/40 text-[#9A6210] dark:text-[#F2A93B] font-sans tabular-nums font-bold flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-wider text-[#404A43] dark:text-[#CBD5E1]">{t("centre.servingPrefix")}</span>
+                  <span>#{currentServing.tokenNumber}</span>
+                </div>
+              )}
+
+              <span className="text-[#66736C] dark:text-[#94A3B8]">→</span>
+
+              <div className="p-2.5 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] border border-[#58A66B]/30 text-[#123D2D] dark:text-[#52DB89] font-sans tabular-nums font-bold flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-[#404A43] dark:text-[#CBD5E1]">{t("centre.nextPrefix")}</span>
+                {queueItems.filter((q) => q.status === "WAITING").slice(0, 4).map((q) => (
+                  <span key={q.id} className={q.isCurrentUser ? "underline decoration-[#2F7D4A] font-extrabold" : ""}>
+                    #{q.tokenNumber}
+                  </span>
+                ))}
               </div>
 
-              <span className="text-[#8A958E]">→</span>
-
-              <div className="p-2.5 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 text-[#123D2D] font-sans tabular-nums font-bold flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-wider text-[#66736B]">{t("centre.nextPrefix")}</span>
-                <span>KQ-019</span>
-                <span>KQ-020</span>
-                <span>KQ-021</span>
-              </div>
-
-              <div className="ml-auto px-3 py-1 rounded-full bg-[#EEF5EF] text-[#2F7D4A] text-xs font-semibold">
+              <div className="ml-auto px-3 py-1 rounded-full bg-[#EEF5EF] dark:bg-[#1A3125] text-[#2F7D4A] dark:text-[#52DB89] text-xs font-semibold">
                 {t("centre.onSchedule")}
               </div>
             </div>
@@ -333,17 +358,17 @@ export const CentreDashboard: React.FC = () => {
         {/* RIGHT 5 COLS: OPERATIONAL TABLE */}
         <div className="lg:col-span-5 space-y-4">
           <Card padding="none" className="overflow-hidden">
-            <div className="p-3.5 bg-[#F6F8F4] border-b border-[#E4E9E5] flex items-center justify-between">
-              <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+            <div className="p-3.5 bg-[#F6F8F4] dark:bg-[#101B15] border-b border-[#E4E9E5] dark:border-[#23362B] flex items-center justify-between">
+              <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
                 {t("centre.todayIntakeLog")}
               </span>
-              <span className="text-xs text-[#66736B]">{queueTable.length} {t("centre.recordsCount")}</span>
+              <span className="text-xs text-[#404A43] dark:text-[#CBD5E1]">{queueItems.length} {t("centre.recordsCount")}</span>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[480px]">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-[#E4E9E5] bg-[#F6F8F4] text-[11px] font-bold text-[#66736B] uppercase">
+                  <tr className="border-b border-[#E4E9E5] dark:border-[#23362B] bg-[#F6F8F4] dark:bg-[#101B15] text-[11px] font-bold text-[#404A43] dark:text-[#CBD5E1] uppercase">
                     <th className="py-2.5 px-3">{t("centre.tableToken")}</th>
                     <th className="py-2.5 px-3">{t("centre.tableFarmer")}</th>
                     <th className="py-2.5 px-3">{t("centre.tableStage")}</th>
@@ -351,49 +376,61 @@ export const CentreDashboard: React.FC = () => {
                     <th className="py-2.5 px-3 text-right">{t("centre.tableAction")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E4E9E5]">
-                  {queueTable.map((row) => {
-                    const isCurrent = row.token === currentServing.tokenRaw;
+                <tbody className="divide-y divide-[#E4E9E5] dark:divide-[#23362B]">
+                  {queueItems.map((row) => {
+                    const isServingRow = row.status === "SERVING";
+                    const isHighlighted = isItemHighlighted(row.id);
 
                     return (
-                      <tr key={row.token} className={isCurrent ? "bg-[#EEF5EF]/60 font-semibold" : "hover:bg-[#F6F8F4]"}>
-                        <td className="py-2.5 px-3 font-sans tabular-nums font-bold text-[#17211B]">{row.token}</td>
-                        <td className="py-2.5 px-3 text-[#17211B]">{isHindi ? row.farmerHi : row.farmer}</td>
-                        <td className="py-2.5 px-3 text-[#66736B]">{isHindi ? row.currentStageHi : row.currentStage}</td>
+                      <tr
+                        key={row.id}
+                        className={`${
+                          isHighlighted
+                            ? "highlight-pulse bg-emerald-50 dark:bg-emerald-950/40"
+                            : isServingRow
+                            ? "bg-[#FEF5E7]/70 dark:bg-[#2A2315]/70 font-semibold"
+                            : "hover:bg-[#F6F8F4] dark:hover:bg-[#18281F]"
+                        }`}
+                      >
+                        <td className="py-2.5 px-3 font-sans tabular-nums font-bold text-[#111813] dark:text-white">
+                          <span className={row.isCurrentUser ? "text-[#2F7D4A] dark:text-[#52DB89]" : ""}>
+                            #{row.tokenNumber}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-[#111813] dark:text-white font-medium">
+                          {row.farmerName} {row.isCurrentUser && (isHindi ? "(आप)" : "(You)")}
+                        </td>
+                        <td className="py-2.5 px-3 text-[#404A43] dark:text-[#CBD5E1]">
+                          {getStageLabel(row.stageName || "quality_inspection", isHindi)}
+                        </td>
                         <td className="py-2.5 px-3">
                           <Badge
                             size="sm"
                             variant={
-                              row.status === "Processing"
+                              row.status === "SERVING"
                                 ? "warning"
-                                : row.status === "Completed"
+                                : row.status === "COMPLETED"
                                 ? "success"
-                                : row.status === "Called"
-                                ? "info"
                                 : "neutral"
                             }
                           >
-                            {row.status === "Processing"
+                            {row.status === "SERVING"
                               ? t("centre.statusProcessing")
-                              : row.status === "Completed"
+                              : row.status === "COMPLETED"
                               ? t("centre.statusCompleted")
-                              : row.status === "Called"
-                              ? t("centre.statusCalled")
                               : t("centre.statusWaiting")}
                           </Badge>
                         </td>
                         <td className="py-2.5 px-3 text-right">
-                          {row.status === "Waiting" && (
+                          {row.status === "WAITING" && (
                             <Button
                               variant="secondary"
                               size="sm"
-                              onClick={() => {
-                                setQueueTable((prev) =>
-                                  prev.map((r) => (r.token === row.token ? { ...r, status: "Called" } : r))
-                                );
+                              onClick={async () => {
+                                await advanceBookingStage(row.id, "gate_verification");
                                 addToast(
                                   isHindi ? "बुलाया गया" : "Called",
-                                  isHindi ? `${row.token} को काउंटर पर बुलाया गया।` : `${row.token} called to counter.`,
+                                  isHindi ? `${row.tokenNumber} को काउंटर पर बुलाया गया।` : `${row.tokenNumber} called to intake counter.`,
                                   "info"
                                 );
                               }}
@@ -401,26 +438,22 @@ export const CentreDashboard: React.FC = () => {
                               {t("centre.callAction")}
                             </Button>
                           )}
-                          {row.status === "Called" && (
+                          {row.status === "SERVING" && (
                             <Button
                               variant="primary"
                               size="sm"
                               onClick={() => {
-                                setQueueTable((prev) =>
-                                  prev.map((r) => (r.token === row.token ? { ...r, status: "Processing" } : r))
-                                );
+                                setActiveQCItemId(row.id);
+                                setIsQCModalOpen(true);
                               }}
                             >
-                              {t("centre.startAction")}
+                              {isHindi ? "तौल/QC" : "QC / Weigh"}
                             </Button>
                           )}
-                          {row.status === "Processing" && (
-                            <Button variant="primary" size="sm" onClick={handleCompleteStage}>
-                              {t("centre.completeAction")}
-                            </Button>
-                          )}
-                          {row.status === "Completed" && (
-                            <span className="text-[11px] text-[#2F7D4A] font-bold">{t("centre.doneBadge")}</span>
+                          {row.status === "COMPLETED" && (
+                            <span className="text-[11px] text-[#2F7D4A] dark:text-[#52DB89] font-bold">
+                              {t("centre.doneBadge")}
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -433,6 +466,16 @@ export const CentreDashboard: React.FC = () => {
         </div>
 
       </div>
+
+      {/* QC & Weighbridge Modal */}
+      <QualityGradingModal
+        isOpen={isQCModalOpen}
+        onClose={() => {
+          setIsQCModalOpen(false);
+          setActiveQCItemId(null);
+        }}
+        onSubmit={handleQCSubmit}
+      />
 
     </div>
   );
