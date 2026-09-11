@@ -210,10 +210,10 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="absolute left-[40%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center">
-                <span className="mb-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#F2A93B] text-slate-950 uppercase">
+                <span className="mb-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#F2A93B] text-[#111813] uppercase">
                   {t("common.warning")}
                 </span>
-                <div className="w-7 h-7 rounded-lg bg-[#F2A93B] text-slate-950 flex items-center justify-center font-bold text-xs border border-white shadow-md">D</div>
+                <div className="w-7 h-7 rounded-lg bg-[#F2A93B] text-[#111813] flex items-center justify-center font-bold text-xs border border-white shadow-md">D</div>
                 <span className="mt-0.5 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px]">
                   {formatLocation("Depalpur")} ({isHindi ? "1 घंटा 08 मिनट" : "1h 08m"})
                 </span>
