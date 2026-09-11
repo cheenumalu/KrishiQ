@@ -1,75 +1,137 @@
-import React from "react";
+import React, { useState } from "react";
 import { useKrishiQ } from "../../context/KrishiQContext";
 import { useLanguage } from "../../i18n";
 import { formatCurrency } from "../../utils/calculations";
-import {
-  Download,
-  ShieldCheck
-} from "lucide-react";
+import { Download, CheckCircle2, Clock, AlertCircle, History, Zap } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
+import { AuditTrailModal } from "../../components/common/AuditTrailModal";
+import { GrievanceModal } from "../../components/farmer/GrievanceModal";
+import { FarmerTokenSwitcher } from "../../components/farmer/FarmerTokenSwitcher";
 
 export const FarmerPayment: React.FC = () => {
-  const { farmerBooking, addToast } = useKrishiQ();
-  const { t, isHindi, formatLocation, formatCrop } = useLanguage();
+  const { farmerBooking, simulatePayment, isItemHighlighted, addToast } = useKrishiQ();
+  const { t, isHindi } = useLanguage();
+  const [isAuditOpen, setIsAuditOpen] = useState(false);
+  const [isGrievanceOpen, setIsGrievanceOpen] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   const payment = farmerBooking.payment || {
-    netPayableAmount: 147875,
     mspRatePerQuintal: 2275,
-    pfmsReferenceId: "PFMS-MP-2026-9920148",
+    grossAmount: 79625,
+    mandiFeeDeduction: 0,
+    netPayableAmount: 79625,
     bankName: isHindi ? "भारतीय स्टेट बैंक (इंदौर शाखा)" : "State Bank of India (Indore Branch)",
-    accountEnding: "4092"
+    accountEnding: "4092",
+    ifscPrefix: "SBIN0000382",
+    pfmsReferenceId: "PFMS-MP-2026-884102",
+    utrNumber: "UTRIB26241088492",
+    paymentInitiatedDate: "Today",
+    paymentExpectedDate: "Within 24h of intake",
+    status: "PENDING" as const,
+  };
+
+  const isCompleted = payment.status === "COMPLETED";
+  const isInitiated = payment.status === "INITIATED";
+  const isPending = payment.status === "PENDING";
+  const isHighlighted = isItemHighlighted(farmerBooking.id);
+
+  const handleSimulatePaymentAdvance = async () => {
+    setIsSimulating(true);
+    try {
+      if (isPending) {
+        await simulatePayment(farmerBooking.id, "INITIATED");
+      } else if (isInitiated) {
+        await simulatePayment(farmerBooking.id, "COMPLETED");
+      } else {
+        await simulatePayment(farmerBooking.id, "PENDING");
+      }
+    } finally {
+      setIsSimulating(false);
+    }
   };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-16 px-1">
-      
       {/* Header */}
-      <div className="space-y-1 pb-1 border-b border-[#E4E9E5]">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#17211B] tracking-tight">
-          {t("farmer.paymentTitle")}
-        </h1>
-        <p className="text-sm text-[#66736B] font-medium">
-          {t("farmer.paymentSubheading")}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-[#E4E9E5] dark:border-[#23362B]">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#17211B] dark:text-[#F0F5F1] tracking-tight">
+            {t("farmer.paymentTitle")}
+          </h1>
+          <p className="text-sm text-[#66736B] dark:text-[#9EAEA4] font-medium">
+            {t("farmer.paymentSubheading")}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<History className="w-3.5 h-3.5 text-[#2F7D4A]" />}
+            onClick={() => setIsAuditOpen(true)}
+          >
+            {isHindi ? "ऑडिट ट्रेल" : "View Audit Trail"}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<AlertCircle className="w-3.5 h-3.5 text-[#F2A93B]" />}
+            onClick={() => setIsGrievanceOpen(true)}
+          >
+            {isHindi ? "शिकायत दर्ज करें" : "Raise Dispute"}
+          </Button>
+        </div>
       </div>
 
+      {/* Multi-booking switcher */}
+      <FarmerTokenSwitcher />
+
       {/* Official Transaction Summary Receipt Card */}
-      <Card padding="lg" className="border-[#E4E9E5] card-shadow space-y-5">
-        
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E4E9E5]">
+      <Card
+        padding="lg"
+        className={`border-[#E4E9E5] dark:border-[#23362B] card-shadow space-y-5 transition-all ${
+          isHighlighted ? "highlight-pulse ring-2 ring-[#2F7D4A]/40" : ""
+        }`}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E4E9E5] dark:border-[#23362B]">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
-              {isHindi ? "भुगतान लेन-देन सारांश" : "PAYMENT TRANSACTION SUMMARY"}
+            <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
+              {isHindi ? "PFMS डायरेक्ट बेनिफिट ट्रांसफर (DBT)" : "PFMS DIRECT BENEFIT TRANSFER (DBT)"}
             </span>
-            <Badge variant="success">
-              {isHindi ? "भुगतान शुरू किया गया" : "Payment Initiated"}
+            <Badge variant={isCompleted ? "success" : isInitiated ? "warning" : "info"} dot>
+              {isCompleted
+                ? isHindi ? "बैंक खाते में जमा ✓" : "Credited to Bank ✓"
+                : isInitiated
+                ? isHindi ? "PFMS भुगतान प्रक्रियाधीन" : "PFMS Processing"
+                : isHindi ? "उपार्जन पश्चात देय" : "Pending Intake Clearance"}
             </Badge>
           </div>
 
-          <span className="text-xs text-[#66736B] font-mono">
-            {isHindi ? "संदर्भ:" : "Ref:"} {payment.pfmsReferenceId}
+          <span className="text-xs text-[#66736B] dark:text-[#9EAEA4] font-mono">
+            {isHindi ? "संदर्भ:" : "PFMS Ref:"} {payment.pfmsReferenceId}
           </span>
         </div>
 
         {/* Amount Hero Box */}
-        <div className="p-4 sm:p-5 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5] flex flex-wrap items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 rounded-xl bg-[#F6F8F4] dark:bg-[#101B15] border border-[#E4E9E5] dark:border-[#23362B] flex flex-wrap items-center justify-between gap-4">
           <div>
-            <span className="text-xs text-[#66736B] block font-medium">
-              {isHindi ? "कुल उपार्जन राशि (MSP)" : "Total Procurement Amount (MSP)"}
+            <span className="text-xs text-[#66736B] dark:text-[#9EAEA4] block font-medium">
+              {isHindi ? "कुल शुद्ध देय राशि (MSP Payout)" : "Net Guaranteed MSP Payout"}
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17211B] font-sans tabular-nums mt-0.5">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#17211B] dark:text-[#F0F5F1] font-mono tabular-nums mt-0.5">
               {formatCurrency(payment.netPayableAmount)}
             </h2>
-            <span className="text-xs text-[#2F7D4A] font-semibold block mt-1">
+            <span className="text-xs text-[#2F7D4A] dark:text-[#52DB89] font-semibold block mt-1">
               {isHindi
-                ? `आधिकारिक समर्थन मूल्य दर: ₹${payment.mspRatePerQuintal} / क्विंटल`
-                : `Calculated at Official MSP rate of ₹${payment.mspRatePerQuintal} / Quintal`}
+                ? `आधिकारिक समर्थन मूल्य दर: ₹${payment.mspRatePerQuintal} / क्विंटल (${farmerBooking.quantityQuintals} क्विंटल)`
+                : `Calculated at Official MSP rate of ₹${payment.mspRatePerQuintal} / Qtl (${farmerBooking.quantityQuintals} Qtl)`}
             </span>
           </div>
 
-          <div className="text-right">
+          <div className="flex flex-col items-end gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -82,89 +144,133 @@ export const FarmerPayment: React.FC = () => {
                 )
               }
             >
-              {isHindi ? "PDF रसीद डाउनलोड करें" : "Download PDF Receipt"}
+              {isHindi ? "PDF रसीद डाउनलोड करें" : "Download PDF Slip"}
             </Button>
+
+            {/* PFMS Simulation Demo Button */}
+            <button
+              onClick={handleSimulatePaymentAdvance}
+              disabled={isSimulating}
+              className="text-[11px] font-semibold text-[#123D2D] dark:text-[#52DB89] bg-[#EEF5EF] dark:bg-[#1A3125] hover:bg-[#E4E9E5] px-2.5 py-1 rounded-lg border border-[#58A66B]/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Zap className="w-3 h-3 text-[#F2A93B]" />
+              <span>
+                {isPending
+                  ? isHindi ? "डेमो: भुगतान शुरू करें" : "Demo: Simulate PFMS Init"
+                  : isInitiated
+                  ? isHindi ? "डेमो: भुगतान पूरा करें" : "Demo: Simulate Bank Credit"
+                  : isHindi ? "डेमो: रीसेट" : "Demo: Reset Payment"}
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* Transaction Data Table */}
+        {/* Transaction Data Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          
-          <div className="p-4 rounded-xl bg-white border border-[#E4E9E5] space-y-2.5 text-[#17211B]">
-            <span className="font-bold text-[#17211B] block text-xs uppercase pb-1 border-b border-[#E4E9E5]">
-              {isHindi ? "उपार्जन विवरण" : "Procurement Details"}
+          <div className="p-4 rounded-xl bg-white dark:bg-[#142019] border border-[#E4E9E5] dark:border-[#23362B] space-y-2.5 text-[#17211B] dark:text-[#F0F5F1]">
+            <span className="font-bold block text-xs uppercase pb-1 border-b border-[#E4E9E5] dark:border-[#23362B]">
+              {isHindi ? "उपार्जन एवं तौल विवरण" : "Procurement Summary"}
             </span>
             <div className="flex justify-between">
-              <span>{isHindi ? "स्वीकृत मात्रा:" : "Accepted Quantity:"}</span>
-              <strong className="text-[#17211B] font-sans tabular-nums">
-                {isHindi ? "65.0 क्विंटल (130 बोरी)" : "65.0 Quintals (130 Bags)"}
-              </strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "फसल व किस्म:" : "Crop & Variety:"}</span>
+              <strong>{farmerBooking.variety || "Sharbati Wheat"}</strong>
             </div>
             <div className="flex justify-between">
-              <span>{isHindi ? "फसल की किस्म:" : "Crop Variety:"}</span>
-              <strong className="text-[#17211B]">
-                {isHindi ? "शरबती गेहूँ (ग्रेड A)" : "Sharbati Wheat (Grade A)"}
-              </strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "स्वीकृत मात्रा:" : "Certified Quantity:"}</span>
+              <strong className="font-mono">{farmerBooking.quantityQuintals} Quintals</strong>
             </div>
             <div className="flex justify-between">
-              <span>{isHindi ? "खरीदी की तारीख:" : "Procurement Date:"}</span>
-              <strong className="text-[#17211B]">
-                {isHindi ? "29 अगस्त 2026" : "29 August 2026"}
-              </strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "उपार्जन केंद्र:" : "Procurement Centre:"}</span>
+              <span>{farmerBooking.centreName}</span>
             </div>
             <div className="flex justify-between">
-              <span>{isHindi ? "खरीदी केंद्र:" : "Procurement Centre:"}</span>
-              <strong className="text-[#17211B]">{formatLocation(farmerBooking.centreName)}</strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "मंडी टैक्स कटौती:" : "Mandi Fee Deduction:"}</span>
+              <strong className="text-[#2F7D4A] dark:text-[#52DB89]">₹0 (100% Exemption)</strong>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white border border-[#E4E9E5] space-y-2.5 text-[#17211B]">
-            <span className="font-bold text-[#17211B] block text-xs uppercase pb-1 border-b border-[#E4E9E5]">
-              {isHindi ? "बैंक अंतरण विवरण" : "Bank Disbursement Details"}
+          <div className="p-4 rounded-xl bg-white dark:bg-[#142019] border border-[#E4E9E5] dark:border-[#23362B] space-y-2.5 text-[#17211B] dark:text-[#F0F5F1]">
+            <span className="font-bold block text-xs uppercase pb-1 border-b border-[#E4E9E5] dark:border-[#23362B]">
+              {isHindi ? "सत्यापित DBT बैंक विवरण" : "Direct Benefit Bank Account"}
             </span>
             <div className="flex justify-between">
-              <span>{t("farmer.paymentStatus")}:</span>
-              <strong className="text-[#2F7D4A] font-bold">
-                {isHindi ? "भुगतान प्रक्रिया में" : "Payment Initiated"}
-              </strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "बैंक का नाम:" : "Bank Name:"}</span>
+              <strong>{payment.bankName}</strong>
             </div>
             <div className="flex justify-between">
-              <span>{isHindi ? "लाभार्थी बैंक:" : "Beneficiary Bank:"}</span>
-              <strong className="text-[#17211B]">{payment.bankName}</strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "खाता संख्या (Masked):" : "Account Number:"}</span>
+              <strong className="font-mono">XXXX-XXXX-{payment.accountEnding}</strong>
             </div>
             <div className="flex justify-between">
-              <span>{t("farmer.bankAccount")}:</span>
-              <strong className="text-[#17211B] font-mono">XXXX-XXXX-{payment.accountEnding}</strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "IFSC कोड:" : "IFSC Prefix:"}</span>
+              <strong className="font-mono">{payment.ifscPrefix}</strong>
             </div>
             <div className="flex justify-between">
-              <span>{isHindi ? "संभावित भुगतान तारीख:" : "Expected Payment Date:"}</span>
-              <strong className="text-[#17211B]">
-                {isHindi ? "30 अगस्त 2026" : "30 August 2026"}
-              </strong>
+              <span className="text-[#66736B] dark:text-[#9EAEA4]">{isHindi ? "आधार सत्यापन:" : "Aadhaar Linked:"}</span>
+              <span className="text-[#2F7D4A] dark:text-[#52DB89] font-bold">सत्यापित (NPCI Seeding ✓)</span>
             </div>
-          </div>
-
-        </div>
-
-        {/* DBT Process Notice */}
-        <div className="p-3.5 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 text-xs text-[#17211B] leading-relaxed flex items-start gap-2.5">
-          <ShieldCheck className="w-4 h-4 text-[#2F7D4A] shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-[#123D2D]">
-              {isHindi
-                ? "सार्वजनिक वित्तीय प्रबंधन प्रणाली (PFMS) द्वारा प्रत्यक्ष लाभ अंतरण (DBT):"
-                : "Direct Benefit Transfer (DBT) via Public Financial Management System (PFMS):"}
-            </strong>
-            <p className="mt-0.5 text-[#66736B]">
-              {isHindi
-                ? "उपज सुपुर्दगी के 24 से 48 घंटे के भीतर राशि सीधे आपके आधार-संबद्ध बैंक खाते में जमा कर दी जाती है। शून्य बिचौलिया कमीशन या मंडी कटौती।"
-                : "Funds are credited directly into your Aadhaar-linked State Bank of India bank account within 24 to 48 hours of depot handover. Zero intermediary commission or mandi deduction."}
-            </p>
           </div>
         </div>
 
+        {/* Live DBT Settlement Tracking Timeline */}
+        <div className="p-4 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] border border-[#58A66B]/30 space-y-3">
+          <span className="font-bold text-[#123D2D] dark:text-[#52DB89] text-xs uppercase block">
+            {isHindi ? "DBT प्रत्यक्ष अंतरण स्थिति टाइमलाइन" : "DBT SETTLEMENT STATUS TIMELINE"}
+          </span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 bg-white dark:bg-[#142019] rounded-lg border border-[#E4E9E5] dark:border-[#23362B]">
+              <div className="flex items-center gap-1.5 font-bold text-[#2F7D4A] dark:text-[#52DB89]">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>1. {isHindi ? "मंडी आवक पूर्ण" : "Intake Cleared"}</span>
+              </div>
+              <p className="text-[11px] text-[#66736B] dark:text-[#9EAEA4] mt-1">
+                {isHindi ? "वजन एवं गुणवत्ता प्रमाणित" : "Assay & weighment recorded"}
+              </p>
+            </div>
+
+            <div className={`p-3 rounded-lg border ${
+              isInitiated || isCompleted
+                ? "bg-white dark:bg-[#142019] border-[#2F7D4A]/40"
+                : "bg-white/60 dark:bg-[#142019]/60 border-[#E4E9E5] dark:border-[#23362B] opacity-60"
+            }`}>
+              <div className="flex items-center gap-1.5 font-bold text-[#2F7D4A] dark:text-[#52DB89]">
+                {isInitiated || isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4 text-[#8A958E]" />}
+                <span>2. {isHindi ? "PFMS भुगतान आदेश" : "PFMS Batch Queued"}</span>
+              </div>
+              <p className="text-[11px] text-[#66736B] dark:text-[#9EAEA4] mt-1 font-mono">
+                {payment.pfmsReferenceId}
+              </p>
+            </div>
+
+            <div className={`p-3 rounded-lg border ${
+              isCompleted
+                ? "bg-white dark:bg-[#142019] border-emerald-400"
+                : "bg-white/60 dark:bg-[#142019]/60 border-[#E4E9E5] dark:border-[#23362B] opacity-60"
+            }`}>
+              <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
+                {isCompleted ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <Clock className="w-4 h-4 text-[#8A958E]" />}
+                <span>3. {isHindi ? "बैंक खाता क्रेडिट" : "Bank Credit Settled"}</span>
+              </div>
+              <p className="text-[11px] text-[#66736B] dark:text-[#9EAEA4] mt-1 font-mono">
+                {isCompleted ? `UTR: ${payment.utrNumber}` : (isHindi ? "प्रक्रिया में (24 घंटे के भीतर)" : "Pending UTR clearance")}
+              </p>
+            </div>
+          </div>
+        </div>
       </Card>
 
+      {/* Modals */}
+      <AuditTrailModal
+        isOpen={isAuditOpen}
+        onClose={() => setIsAuditOpen(false)}
+        bookingToken={farmerBooking.tokenNumber}
+      />
+      <GrievanceModal
+        isOpen={isGrievanceOpen}
+        onClose={() => setIsGrievanceOpen(false)}
+        bookingToken={farmerBooking.tokenNumber}
+      />
     </div>
   );
 };
