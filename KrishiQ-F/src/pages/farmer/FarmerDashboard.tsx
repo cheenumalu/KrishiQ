@@ -4,6 +4,8 @@ import { useKrishiQ } from "../../context/KrishiQContext";
 import { useLanguage } from "../../i18n";
 import { TokenSlipModal } from "../../components/farmer/TokenSlipModal";
 import { RescheduleModal } from "../../components/farmer/RescheduleModal";
+import { OfflineAccessCard } from "../../components/farmer/OfflineAccessCard";
+import { FarmerTokenSwitcher } from "../../components/farmer/FarmerTokenSwitcher";
 import {
   Clock,
   MapPin,
@@ -65,53 +67,56 @@ export const FarmerDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* MULTI-BOOKING TOKEN SWITCHER */}
+      <FarmerTokenSwitcher />
+
       {/* 2. THREE PRIMARY QUICK ACTION CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         <Link to="/farmer/centres" className="group">
           <Card padding="md" hoverable className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF5EF] text-[#2F7D4A] flex items-center justify-center group-hover:bg-[#2F7D4A] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] text-[#2F7D4A] dark:text-[#52DB89] flex items-center justify-center group-hover:bg-[#2F7D4A] group-hover:text-white transition-colors">
                 <Search className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[#17211B]">{t("farmer.findBestCentre")}</h3>
-                <p className="text-[12px] text-[#66736B]">{t("farmer.findBestCentreDesc")}</p>
+                <h3 className="font-bold text-[15px] text-[#111827] dark:text-white">{t("farmer.findBestCentre")}</h3>
+                <p className="text-[12px] text-[#4B5563] dark:text-[#CBD5E1] font-medium">{t("farmer.findBestCentreDesc")}</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#8A958E] group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-[#4B5563] dark:text-[#94A3B8] group-hover:translate-x-1 transition-transform" />
           </Card>
         </Link>
 
         <Link to="/farmer/book-slot" className="group">
           <Card padding="md" hoverable className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF5EF] text-[#2F7D4A] flex items-center justify-center group-hover:bg-[#2F7D4A] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] text-[#2F7D4A] dark:text-[#52DB89] flex items-center justify-center group-hover:bg-[#2F7D4A] group-hover:text-white transition-colors">
                 <Calendar className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[#17211B]">{t("farmer.bookSlotTitle")}</h3>
-                <p className="text-[12px] text-[#66736B]">{t("farmer.bookSlotDesc")}</p>
+                <h3 className="font-bold text-[15px] text-[#111827] dark:text-white">{t("farmer.bookSlotTitle")}</h3>
+                <p className="text-[12px] text-[#4B5563] dark:text-[#CBD5E1] font-medium">{t("farmer.bookSlotDesc")}</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#8A958E] group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-[#4B5563] dark:text-[#94A3B8] group-hover:translate-x-1 transition-transform" />
           </Card>
         </Link>
 
         <Link to="/farmer/queue" className="group">
           <Card padding="md" hoverable className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF5EF] text-[#2F7D4A] flex items-center justify-center group-hover:bg-[#2F7D4A] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] text-[#2F7D4A] dark:text-[#52DB89] flex items-center justify-center group-hover:bg-[#2F7D4A] group-hover:text-white transition-colors">
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[#17211B]">{t("farmer.trackQueueTitle")}</h3>
-                <p className="text-[12px] text-[#66736B]">
+                <h3 className="font-bold text-[15px] text-[#111827] dark:text-white">{t("farmer.trackQueueTitle")}</h3>
+                <p className="text-[12px] text-[#4B5563] dark:text-[#CBD5E1] font-medium">
                   {t("farmer.trackQueueDesc", { token: farmerBooking.tokenNumber })}
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#8A958E] group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-[#4B5563] dark:text-[#94A3B8] group-hover:translate-x-1 transition-transform" />
           </Card>
         </Link>
 
@@ -121,12 +126,12 @@ export const FarmerDashboard: React.FC = () => {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#2F7D4A]" />
-            <h2 className="text-[17px] font-bold text-[#17211B] tracking-[-0.01em]">
+            <Sparkles className="w-4 h-4 text-[#2F7D4A] dark:text-[#52DB89]" />
+            <h2 className="text-[17px] font-bold text-[#111827] dark:text-white tracking-[-0.01em]">
               {t("farmer.recommendedCentre")}
             </h2>
           </div>
-          <span className="text-xs text-[#66736B] hidden sm:inline">
+          <span className="text-xs text-[#4B5563] dark:text-[#CBD5E1] font-medium hidden sm:inline">
             {t("farmer.aiBalancerDesc")}
           </span>
         </div>
@@ -145,11 +150,11 @@ export const FarmerDashboard: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-[18px] font-bold text-[#17211B] leading-snug">
+                <h3 className="text-[18px] font-bold text-[#111827] dark:text-white leading-snug">
                   {formatLocation(recommendedCentre.name)}
                 </h3>
-                <p className="text-xs text-[#66736B] mt-1 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#2F7D4A] shrink-0" />
+                <p className="text-xs text-[#4B5563] dark:text-[#CBD5E1] mt-1 flex items-center gap-1.5 font-medium">
+                  <MapPin className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89] shrink-0" />
                   <span>
                     {isHindi
                       ? `आपके गाँव से ${recommendedCentre.distanceKm} किमी दूर`
@@ -159,27 +164,27 @@ export const FarmerDashboard: React.FC = () => {
               </div>
 
               {/* Metric grid */}
-              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/20 text-xs">
+              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] border border-[#58A66B]/20 text-xs">
                 <div>
-                  <span className="text-[#66736B] block font-medium">{t("farmer.estWaiting")}</span>
-                  <strong className="text-[18px] font-bold text-[#123D2D] block mt-0.5 tabular-nums font-sans">
+                  <span className="text-[#374151] dark:text-[#CBD5E1] block font-medium">{t("farmer.estWaiting")}</span>
+                  <strong className="text-[18px] font-bold text-[#123D2D] dark:text-[#52DB89] block mt-0.5 tabular-nums font-sans">
                     {recommendedCentre.predictedWaitMinutes} {t("common.min")}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[#66736B] block font-medium">{t("farmer.currentQueue")}</span>
-                  <strong className="text-[18px] font-bold text-[#17211B] block mt-0.5 tabular-nums font-sans">
+                  <span className="text-[#374151] dark:text-[#CBD5E1] block font-medium">{t("farmer.currentQueue")}</span>
+                  <strong className="text-[18px] font-bold text-[#111827] dark:text-white block mt-0.5 tabular-nums font-sans">
                     {recommendedCentre.currentQueueCount} {t("common.farmers")}
                   </strong>
                 </div>
               </div>
 
               {/* Time saved callout */}
-              <div className="p-3 rounded-xl bg-[#FEF5E7] border border-[#F2A93B]/30 text-xs text-[#9A6210] flex items-center gap-2.5">
+              <div className="p-3 rounded-xl bg-[#FEF5E7] dark:bg-[#2A2315] border border-[#F2A93B]/30 text-xs text-[#9A6210] dark:text-[#F2A93B] flex items-center gap-2.5">
                 <TrendingDown className="w-4 h-4 text-[#F2A93B] shrink-0" />
                 <div>
                   <span className="font-bold block text-[13px]">{t("farmer.saveTimeCallout")}</span>
-                  <span className="text-[11px] text-black dark:text-black font-medium">{t("farmer.comparedToDhar")}</span>
+                  <span className="text-[11px] text-[#784D0B] dark:text-[#FCD34D] font-medium">{t("farmer.comparedToDhar")}</span>
                 </div>
               </div>
 
@@ -303,35 +308,35 @@ export const FarmerDashboard: React.FC = () => {
 
           <div className="space-y-2 text-xs">
             <div>
-              <h3 className="text-[16px] font-bold text-[#17211B]">
+              <h3 className="text-[16px] font-bold text-[#111827] dark:text-white">
                 {formatLocation(farmerBooking.centreName)}
               </h3>
-              <p className="text-[#66736B] text-[12px]">
+              <p className="text-[#4B5563] dark:text-[#CBD5E1] text-[12px] font-medium">
                 {formatDate(farmerBooking.slotDate)} • {formatTimeSlot(farmerBooking.slotTime)}
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5] text-center font-sans tabular-nums">
+            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-[#F6F8F4] dark:bg-[#101B15] border border-[#E4E9E5] dark:border-[#23362B] text-center font-sans tabular-nums">
               <div>
-                <span className="text-[10px] text-[#66736B] block">{t("farmer.token")}</span>
-                <strong className="text-sm font-bold text-[#17211B] block">#{farmerBooking.tokenNumber}</strong>
+                <span className="text-[11px] text-[#374151] dark:text-[#CBD5E1] block font-medium">{t("farmer.token")}</span>
+                <strong className="text-sm font-bold text-[#111827] dark:text-white block">#{farmerBooking.tokenNumber}</strong>
               </div>
               <div>
-                <span className="text-[10px] text-[#66736B] block">{t("farmer.estWaiting")}</span>
-                <strong className="text-sm font-bold text-[#2F7D4A] block">
+                <span className="text-[11px] text-[#374151] dark:text-[#CBD5E1] block font-medium">{t("farmer.estWaiting")}</span>
+                <strong className="text-sm font-bold text-[#2F7D4A] dark:text-[#52DB89] block">
                   {farmerBooking.estimatedWaitMinutes} {t("common.min")}
                 </strong>
               </div>
               <div>
-                <span className="text-[10px] text-[#66736B] block">{t("farmer.arrivalWindow")}</span>
-                <strong className="text-sm font-bold text-[#17211B] block">
+                <span className="text-[11px] text-[#374151] dark:text-[#CBD5E1] block font-medium">{t("farmer.arrivalWindow")}</span>
+                <strong className="text-sm font-bold text-[#111827] dark:text-white block">
                   {formatTimeSlot("10:30 AM")}
                 </strong>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-1 border-t border-[#E4E9E5]">
+          <div className="flex items-center gap-2 pt-1 border-t border-[#E4E9E5] dark:border-[#23362B]">
             <Button
               variant="outline"
               size="sm"
@@ -352,30 +357,30 @@ export const FarmerDashboard: React.FC = () => {
 
         {/* Live Queue Module */}
         <Card padding="md" className="space-y-3">
-          <div className="flex items-center justify-between pb-2.5 border-b border-[#E4E9E5]">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
+          <div className="flex items-center justify-between pb-2.5 border-b border-[#E4E9E5] dark:border-[#23362B]">
+            <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
               {t("farmer.liveQueueProgressTitle")}
             </span>
-            <span className="text-[11px] text-[#66736B]">{t("farmer.updatedJustNow")}</span>
+            <span className="text-[11px] text-[#4B5563] dark:text-[#CBD5E1] font-medium">{t("farmer.updatedJustNow")}</span>
           </div>
 
           <div className="space-y-3 text-xs">
             <div className="flex justify-between items-center">
               <div>
-                <span className="text-[#66736B] block text-[11px]">{t("farmer.nowServing")}</span>
+                <span className="text-[#374151] dark:text-[#CBD5E1] block text-[11px] font-medium">{t("farmer.nowServing")}</span>
                 <strong className="text-xl font-bold text-[#F2A93B] tabular-nums font-sans">A-124</strong>
               </div>
               <div className="text-right">
-                <span className="text-[#66736B] block text-[11px]">{t("farmer.yourToken")}</span>
-                <strong className="text-xl font-bold text-[#2F7D4A] tabular-nums font-sans">#{farmerBooking.tokenNumber}</strong>
+                <span className="text-[#374151] dark:text-[#CBD5E1] block text-[11px] font-medium">{t("farmer.yourToken")}</span>
+                <strong className="text-xl font-bold text-[#2F7D4A] dark:text-[#52DB89] tabular-nums font-sans">#{farmerBooking.tokenNumber}</strong>
               </div>
             </div>
 
             {/* Visual Progress Bar */}
             <div className="space-y-1.5 pt-1">
-              <div className="flex justify-between text-[11px] text-[#66736B]">
+              <div className="flex justify-between text-[11px] text-[#4B5563] dark:text-[#CBD5E1] font-medium">
                 <span>{t("farmer.nowServing")} A-124</span>
-                <span className="font-bold text-[#2F7D4A]">
+                <span className="font-bold text-[#2F7D4A] dark:text-[#52DB89]">
                   {t("farmer.farmersAhead", { count: 3 })}
                 </span>
                 <span>{t("farmer.yourToken")} #{farmerBooking.tokenNumber}</span>
@@ -407,6 +412,9 @@ export const FarmerDashboard: React.FC = () => {
         </Card>
 
       </div>
+
+      {/* Non-Smartphone Fallback Access Banner */}
+      <OfflineAccessCard />
 
       {/* Modals */}
       <TokenSlipModal

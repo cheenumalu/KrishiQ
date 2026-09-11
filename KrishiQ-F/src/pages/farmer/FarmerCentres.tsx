@@ -190,11 +190,11 @@ export const FarmerCentres: React.FC = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-base text-[#17211B]">
+                      <h3 className="font-bold text-base text-[#111827] dark:text-white">
                         {formatLocation(centre.name)}
                       </h3>
                     </div>
-                    <p className="text-xs text-[#66736B] mt-0.5 font-mono">
+                    <p className="text-xs text-[#4B5563] dark:text-[#CBD5E1] mt-0.5 font-mono">
                       Code: {centre.code} • {centre.district}, {centre.state}
                     </p>
                   </div>
@@ -208,34 +208,34 @@ export const FarmerCentres: React.FC = () => {
                 </div>
 
                 {/* 4 Key Metrics */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-[#F6F8F4] border border-[#E4E9E5] text-xs text-center font-sans tabular-nums">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-[#F6F8F4] dark:bg-[#101B15] border border-[#E4E9E5] dark:border-[#23362B] text-xs text-center font-sans tabular-nums">
                   <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">{t("common.distance")}</span>
-                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">
+                    <span className="text-[10px] text-[#374151] dark:text-[#CBD5E1] block font-sans font-medium">{t("common.distance")}</span>
+                    <strong className="text-[#111827] dark:text-white font-bold text-sm block mt-0.5">
                       {centre.distanceKm} {t("common.km")}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">{t("common.activeQueue")}</span>
-                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">
+                    <span className="text-[10px] text-[#374151] dark:text-[#CBD5E1] block font-sans font-medium">{t("common.activeQueue")}</span>
+                    <strong className="text-[#111827] dark:text-white font-bold text-sm block mt-0.5">
                       {centre.currentQueueCount}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">{t("farmer.estWaiting")}</span>
-                    <strong className={`font-bold text-sm block mt-0.5 ${isRec ? "text-[#2F7D4A]" : "text-[#17211B]"}`}>
+                    <span className="text-[10px] text-[#374151] dark:text-[#CBD5E1] block font-sans font-medium">{t("farmer.estWaiting")}</span>
+                    <strong className={`font-bold text-sm block mt-0.5 ${isRec ? "text-[#2F7D4A] dark:text-[#52DB89]" : "text-[#111827] dark:text-white"}`}>
                       {centre.predictedWaitMinutes} {t("common.min")}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#66736B] block font-sans">{t("common.capacityLoad")}</span>
-                    <strong className="text-[#17211B] font-bold text-sm block mt-0.5">{centre.utilizationPercent}%</strong>
+                    <span className="text-[10px] text-[#374151] dark:text-[#CBD5E1] block font-sans font-medium">{t("common.capacityLoad")}</span>
+                    <strong className="text-[#111827] dark:text-white font-bold text-sm block mt-0.5">{centre.utilizationPercent}%</strong>
                   </div>
                 </div>
 
                 {/* Recommendation Rationale */}
                 {isRec && (
-                  <div className="p-3 rounded-xl bg-[#EEF5EF] text-[#123D2D] text-xs font-medium border border-[#58A66B]/30">
+                  <div className="p-3 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] text-[#123D2D] dark:text-[#52DB89] text-xs font-medium border border-[#58A66B]/30">
                     {isHindi
                       ? "सुझाव: धार रोड केंद्र की तुलना में लगभग 2 घंटे 28 मिनट कम प्रतीक्षा समय।"
                       : "Recommended: Saves ~2h 28m total wait time compared with Dhar Road Hub."}
@@ -243,16 +243,16 @@ export const FarmerCentres: React.FC = () => {
                 )}
 
                 {isCrit && (
-                  <div className="p-3 rounded-xl bg-[#FDF2F2] text-[#9B2C2C] text-xs font-medium border border-[#D95555]/30">
+                  <div className="p-3 rounded-xl bg-[#FDF2F2] dark:bg-[#2A1515] text-[#9B2C2C] dark:text-[#FCA5A5] text-xs font-medium border border-[#D95555]/30">
                     {isHindi
                       ? "सूचना: मुख्य द्वार पर भारी भीड़। किसानों को शिवाजी नगर केंद्र की ओर जाने की सलाह दी जाती है।"
                       : "Notice: Heavy gate queue reported. Rerouting to Shivaji Nagar is advised."}
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-[#E4E9E5] flex items-center justify-between">
-                  <span className="text-xs text-[#66736B]">
-                    {t("farmer.operatingHours")}: <strong className="font-sans text-[#17211B]">{centre.operatingHours}</strong>
+                <div className="pt-2 border-t border-[#E4E9E5] dark:border-[#23362B] flex items-center justify-between">
+                  <span className="text-xs text-[#4B5563] dark:text-[#CBD5E1] font-medium">
+                    {t("farmer.operatingHours")}: <strong className="font-sans text-[#111827] dark:text-white">{centre.operatingHours}</strong>
                   </span>
 
                   <Button
