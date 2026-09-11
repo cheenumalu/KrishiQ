@@ -148,3 +148,41 @@ export interface SimulationResult {
     simulatedQueue: number;
   }[];
 }
+
+export interface AuditLogEntry {
+  id: string;
+  booking_id?: string;
+  token_code?: string;
+  actor: string;
+  actor_role: string;
+  event_type: string;
+  previous_value?: string;
+  new_value?: string;
+  details?: Record<string, any>;
+  created_at: string;
+}
+
+export interface GrievanceItem {
+  id: string;
+  booking_id?: string;
+  farmer_id: string;
+  farmer_name?: string;
+  token_code?: string;
+  reason: string;
+  description: string;
+  status: "open" | "in_review" | "resolved";
+  resolution_note?: string;
+  created_at: string;
+  resolved_at?: string;
+}
+
+export interface StationLog {
+  id: string;
+  booking_id: string;
+  station: string;
+  started_at: string;
+  completed_at?: string;
+  duration_seconds?: number;
+  operator_id?: string;
+  notes?: string;
+}
