@@ -3,305 +3,261 @@ import { useKrishiQ } from "../../context/KrishiQContext";
 import { useLanguage } from "../../i18n";
 import { TokenSlipModal } from "../../components/farmer/TokenSlipModal";
 import { RescheduleModal } from "../../components/farmer/RescheduleModal";
+import { AuditTrailModal } from "../../components/common/AuditTrailModal";
+import { GrievanceModal } from "../../components/farmer/GrievanceModal";
 import {
   Clock,
-  CheckCircle2,
-  FileText
+  FileText,
+  History,
+  AlertCircle,
+  Radio,
 } from "lucide-react";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid
-} from "recharts";
+import { Badge } from "../../components/common/Badge";
+import { ProcurementStepper } from "../../components/farmer/ProcurementStepper";
+import { FarmerTokenSwitcher } from "../../components/farmer/FarmerTokenSwitcher";
 
 export const FarmerQueue: React.FC = () => {
-  const { farmerBooking, addToast } = useKrishiQ();
-  const { t, isHindi, formatLocation, formatTimeSlot } = useLanguage();
+  const {
+    farmerBooking,
+    queueItems,
+    selectedCentre,
+    isItemHighlighted,
+    isRealtimeConnected,
+  } = useKrishiQ();
+
+  const { t, isHindi, formatLocation } = useLanguage();
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+  const [isAuditOpen, setIsAuditOpen] = useState(false);
+  const [isGrievanceOpen, setIsGrievanceOpen] = useState(false);
 
-  // Local demo simulation state
-  const [simulationStep, setSimulationStep] = useState<number>(0);
-
-  const queueMovementData = [
-    { time: "10:30", ahead: 12 },
-    { time: "10:40", ahead: 9 },
-    { time: "10:50", ahead: 6 },
-    { time: "11:00", ahead: Math.max(0, 3 - simulationStep) },
-  ];
-
-  const simulatedServingToken = simulationStep === 0 ? "A124" : simulationStep === 1 ? "A125" : simulationStep === 2 ? "A126" : "A127";
-  const simulatedFarmersAhead = Math.max(0, 3 - simulationStep);
-  const simulatedWaitTime = Math.max(0, 24 - simulationStep * 8);
-
-  const handleSimulateUpdate = () => {
-    if (simulationStep < 3) {
-      const nextStep = simulationStep + 1;
-      setSimulationStep(nextStep);
-      if (nextStep === 1) {
-        addToast(
-          isHindi ? "कतार आगे बढ़ी" : "Queue Advanced",
-          isHindi ? "टोकन A124 पूर्ण हुआ। टोकन A125 बुलाया गया। आपसे पहले 2 किसान हैं।" : "Token A124 completed. Token A125 called. 2 farmers ahead.",
-          "info"
-        );
-      } else if (nextStep === 2) {
-        addToast(
-          isHindi ? "कतार आगे बढ़ी" : "Queue Advanced",
-          isHindi ? "टोकन A125 पूर्ण हुआ। टोकन A126 बुलाया गया। केवल 1 किसान आगे है!" : "Token A125 completed. Token A126 called. Only 1 farmer ahead!",
-          "warning"
-        );
-      } else if (nextStep === 3) {
-        addToast(
-          isHindi ? "आपकी बारी है!" : "Your Turn!",
-          isHindi ? "टोकन A127 (राजेश) को कांटा नंबर 1 पर बुलाया गया। कृपया गेट 1 पर जाएँ!" : "Token A127 (Rajesh) called to Weighbridge. Please proceed to Gate 1!",
-          "success"
-        );
-      }
-    } else {
-      setSimulationStep(0);
-      addToast(
-        isHindi ? "सिमुलेशन रीसेट" : "Queue Reset",
-        isHindi ? "कतार की स्थिति सामान्य पर रीसेट हो गई।" : "Simulation returned to baseline queue state.",
-        "info"
-      );
-    }
-  };
-
-  const queueList = [
-    { token: "A121", name: isHindi ? "हरीश पटेल" : "Harish Patel", crop: isHindi ? "गेहूँ 45 क्विंटल" : "Wheat 45 Qtl", status: "completed" },
-    { token: "A122", name: isHindi ? "सुरेश चौहान" : "Suresh Chouhan", crop: isHindi ? "गेहूँ 80 क्विंटल" : "Wheat 80 Qtl", status: "completed" },
-    { token: "A123", name: isHindi ? "विक्रम वर्मा" : "Vikram Verma", crop: isHindi ? "सोयाबीन 50 क्विंटल" : "Soybean 50 Qtl", status: "completed" },
-    {
-      token: "A124",
-      name: isHindi ? "रामेश्वर गुर्जर" : "Rameshwar Gurjar",
-      crop: isHindi ? "गेहूँ 72 क्विंटल" : "Wheat 72 Qtl",
-      status: simulationStep > 0 ? "completed" : "serving",
-    },
-    {
-      token: "A125",
-      name: isHindi ? "बलवंत सिंह" : "Balwant Singh",
-      crop: isHindi ? "गेहूँ 60 क्विंटल" : "Wheat 60 Qtl",
-      status: simulationStep >= 2 ? "completed" : simulationStep === 1 ? "serving" : "waiting",
-    },
-    {
-      token: "A126",
-      name: isHindi ? "देवेंद्र राठौड़" : "Devendra Rathore",
-      crop: isHindi ? "मक्का 40 क्विंटल" : "Maize 40 Qtl",
-      status: simulationStep >= 3 ? "completed" : simulationStep === 2 ? "serving" : "waiting",
-    },
-    {
-      token: "A127",
-      name: isHindi ? "राजेश (आप)" : "Rajesh (You)",
-      crop: isHindi ? "शरबती गेहूँ 65 क्विंटल" : "Sharbati Wheat 65 Qtl",
-      status: simulationStep === 3 ? "serving" : "user",
-      isUser: true,
-    },
-  ];
+  const isHighlighted = isItemHighlighted(farmerBooking.id);
+  const farmersAhead = Math.max(0, (farmerBooking.queuePosition || 1) - 1);
+  const estWait = farmerBooking.estimatedWaitMinutes || (farmersAhead * 12);
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-16 px-1">
-      
-      {/* Official Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-1 border-b border-[#E4E9E5]">
+    <div className="space-y-6 max-w-5xl mx-auto pb-16 px-1">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-1 border-b border-[#E4E9E5] dark:border-[#23362B]">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#17211B] tracking-tight">
-            {t("farmer.queuePageHeading")}
-          </h1>
-          <div className="flex items-center gap-2 text-xs text-[#66736B] mt-1">
-            <span>
-              {isHindi ? "केंद्र:" : "Centre:"} <strong className="text-[#17211B]">{formatLocation("Shivaji Nagar Procurement Centre")}</strong>
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1 text-[#2F7D4A] font-semibold">
-              <span className="w-2 h-2 rounded-full bg-[#2F7D4A] animate-pulse" />
-              {isHindi ? "सामान्य परिचालन चालू" : "Operating normally"}
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#17211B] dark:text-[#F0F5F1] tracking-tight">
+              {t("farmer.queueTrackerTitle")}
+            </h1>
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 animate-pulse">
+              <Radio className="w-3 h-3" />
+              <span>{isRealtimeConnected ? "Live Realtime" : "Live Ticker"}</span>
             </span>
           </div>
+          <p className="text-sm text-[#66736B] dark:text-[#9EAEA4] font-medium">
+            {isHindi
+              ? "आपकी वास्तविक समय कतार स्थिति, प्रतीक्षारत समय एवं उपार्जन चरण।"
+              : "Live queue telemetry, dynamic wait calculation & stage progression."}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={handleSimulateUpdate}
+            leftIcon={<History className="w-3.5 h-3.5 text-[#2F7D4A]" />}
+            onClick={() => setIsAuditOpen(true)}
           >
-            {simulationStep < 3
-              ? (isHindi ? "कतार आगे बढ़ाएँ (+1)" : "Simulate Queue Update (+1)")
-              : (isHindi ? "सिमुलेशन रीसेट" : "Reset Simulation")}
+            {isHindi ? "ऑडिट ट्रेल" : "View Audit Log"}
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            leftIcon={<FileText className="w-4 h-4" />}
-            onClick={() => setIsTokenModalOpen(true)}
+            leftIcon={<AlertCircle className="w-3.5 h-3.5 text-[#F2A93B]" />}
+            onClick={() => setIsGrievanceOpen(true)}
           >
-            {t("farmer.viewGateSlip")}
+            {isHindi ? "समस्या दर्ज करें" : "Raise Dispute"}
           </Button>
         </div>
       </div>
 
-      {/* 4 Large Clean Status Metric Panels */}
-      <Card padding="lg" className="border-[#E4E9E5] card-shadow space-y-4">
-        
-        <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
-          <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
-            {isHindi ? "आपकी कतार स्थिति" : "YOUR QUEUE POSITION"}
-          </span>
-          <span className="text-xs text-[#66736B] font-sans">
-            {t("farmer.updatedJustNow")}
-          </span>
+      {/* Token Switcher if multiple bookings */}
+      <FarmerTokenSwitcher />
+
+      {/* Main Stepper */}
+      <ProcurementStepper />
+
+      {/* Hero Live Status Card */}
+      <Card
+        padding="lg"
+        className={`border-[#E4E9E5] dark:border-[#23362B] card-shadow space-y-4 transition-all ${
+          isHighlighted ? "highlight-pulse ring-2 ring-[#2F7D4A]/40" : ""
+        }`}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E4E9E5] dark:border-[#23362B]">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
+              {isHindi ? "आपकी लाइव कतार स्थिति" : "YOUR LIVE QUEUE TELEMETRY"}
+            </span>
+            <Badge variant={farmersAhead === 0 ? "success" : "warning"} dot>
+              {farmersAhead === 0
+                ? isHindi ? "आपकी बारी है!" : "Now Serving / Next!"
+                : isHindi ? `आपसे पहले ${farmersAhead} किसान` : `${farmersAhead} Farmers Ahead`}
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<FileText className="w-3.5 h-3.5" />}
+              onClick={() => setIsTokenModalOpen(true)}
+            >
+              {t("farmer.viewGateSlip")}
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-          
-          <div className="p-4 rounded-xl bg-[#123D2D] text-white shadow-xs">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#58A66B] block">
+        {/* 3 Metric Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl bg-[#F6F8F4] dark:bg-[#101B15] border border-[#E4E9E5] dark:border-[#23362B] text-center">
+            <span className="text-xs text-[#374151] dark:text-[#CBD5E1] block font-semibold">
               {t("farmer.yourToken")}
             </span>
-            <p className="text-3xl font-extrabold font-sans mt-1 text-white tabular-nums">A127</p>
-            <span className="text-[11px] text-white/80 block mt-0.5">
-              {isHindi ? "राजेश (65 क्विंटल)" : "Rajesh (65 Qtl)"}
+            <strong className="text-3xl font-extrabold text-[#111827] dark:text-white font-mono block mt-1 tracking-wider">
+              #{farmerBooking.tokenNumber}
+            </strong>
+            <span className="text-xs text-[#4B5563] dark:text-[#CBD5E1] block mt-0.5 font-mono font-medium">
+              {farmerBooking.slotDate} ({farmerBooking.slotTime})
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5]">
-            <span className="text-xs text-[#66736B] block uppercase text-[10px] font-semibold">
-              {t("farmer.nowServing")}
+          <div className="p-4 rounded-xl bg-[#EEF5EF] dark:bg-[#1A3125] border border-[#58A66B]/30 text-center">
+            <span className="text-xs text-[#123D2D] dark:text-[#52DB89] block font-bold">
+              {isHindi ? "अनुमानित प्रतीक्षा समय" : "Est. Waiting Time"}
             </span>
-            <p className="text-2xl font-extrabold text-[#F2A93B] mt-1 font-sans tabular-nums">{simulatedServingToken}</p>
-            <span className="text-[11px] text-[#66736B] block mt-0.5">
-              {isHindi ? "तौल कांटा 1" : "Weighbridge 1"}
-            </span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5]">
-            <span className="text-xs text-[#66736B] block uppercase text-[10px] font-semibold">
-              {isHindi ? "आपसे पहले किसान" : "FARMERS AHEAD"}
-            </span>
-            <p className="text-2xl font-extrabold text-[#17211B] mt-1 font-sans tabular-nums">{simulatedFarmersAhead}</p>
-            <span className="text-[11px] text-[#66736B] block mt-0.5">
-              {isHindi ? "कतार में आगे" : "in line before you"}
+            <strong className="text-3xl font-extrabold text-[#2F7D4A] dark:text-[#52DB89] font-mono block mt-1 tracking-wider">
+              ~{estWait} {t("common.min")}
+            </strong>
+            <span className="text-xs text-[#4B5563] dark:text-[#CBD5E1] block mt-0.5 font-medium">
+              {isHindi ? "वास्तविक औसत सेवा दर आधारित" : "Based on rolling centre service rate"}
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30">
-            <span className="text-xs text-[#123D2D] font-semibold block uppercase text-[10px]">
-              {t("farmer.estWaiting")}
+          <div className="p-4 rounded-xl bg-[#F6F8F4] dark:bg-[#101B15] border border-[#E4E9E5] dark:border-[#23362B] text-center">
+            <span className="text-xs text-[#374151] dark:text-[#CBD5E1] block font-semibold">
+              {isHindi ? "उपार्जन केंद्र" : "Assigned Centre"}
             </span>
-            <p className="text-2xl font-extrabold text-[#123D2D] mt-1 font-sans tabular-nums">
-              {simulatedWaitTime} {t("common.min").toUpperCase()}
-            </p>
-            <span className="text-[11px] text-[#2F7D4A] block mt-0.5">
-              {isHindi ? "संभावित समय:" : "Expected:"} {formatTimeSlot("11:42 AM")}
+            <strong className="text-base font-bold text-[#111827] dark:text-white block mt-1 truncate">
+              {formatLocation(farmerBooking.centreName || selectedCentre.name)}
+            </strong>
+            <span className="text-xs text-[#2F7D4A] dark:text-[#52DB89] block mt-0.5 font-medium">
+              {farmerBooking.centreDistanceKm || 7.2} km away • {selectedCentre.status} load
             </span>
           </div>
-
         </div>
 
-        {/* Helpful Proactive Reminder */}
-        <div className="p-3 rounded-xl bg-[#FEF5E7] border border-[#F2A93B]/40 text-xs text-[#9A6210] flex items-start gap-2.5">
-          <Clock className="w-4 h-4 text-[#F2A93B] shrink-0 mt-0.5" />
+        {/* Advisory Banner */}
+        <div className="p-3.5 rounded-xl bg-[#FEF5E7] dark:bg-[#2A2315] border border-[#F2A93B]/40 text-xs text-[#9A6210] dark:text-[#F2A93B] flex items-start gap-2.5">
+          <Clock className="w-4 h-4 shrink-0 mt-0.5" />
           <p className="font-medium leading-relaxed">
             {isHindi
-              ? "आपकी बारी जल्द आने वाली है। कृपया 15 मिनट के भीतर खरीदी केंद्र पहुँचें।"
-              : "Your turn is approaching. Please be at the procurement centre within 15 minutes."}
+              ? "आपकी बारी आने पर गेट पर डिजिटल टोकन दिखाएं। इलेक्ट्रॉनिक तौल एवं गुणवत्ता जाँच के तुरंत बाद PFMS द्वारा भुगतान आरंभ कर दिया जाएगा।"
+              : "Present your digital token at the intake gate upon call. DBT payment will initiate immediately following certified assay and weighment."}
           </p>
         </div>
-
       </Card>
 
-      {/* Queue Sequence List */}
-      <Card padding="lg" className="border-[#E4E9E5] card-shadow space-y-3">
-        
-        <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5]">
-          <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D]">
-            {isHindi ? "गेट प्रवेश क्रम (टोकन A121 - A127)" : "GATE ENTRY ORDER (TOKENS A121 - A127)"}
+      {/* Live Queue Sequence List */}
+      <Card padding="lg" className="border-[#E4E9E5] dark:border-[#23362B] card-shadow space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-[#E4E9E5] dark:border-[#23362B]">
+          <span className="text-xs uppercase font-extrabold tracking-wider text-[#123D2D] dark:text-[#52DB89]">
+            {isHindi ? "मंडी गेट प्रवेश कतार क्रम" : "LIVE MANDI ENTRY SEQUENCE"}
           </span>
-          <span className="text-xs text-[#66736B]">
-            {formatLocation("Shivaji Nagar Centre")}
+          <span className="text-xs text-[#66736B] dark:text-[#9EAEA4]">
+            {selectedCentre.name}
           </span>
         </div>
 
         <div className="space-y-2 text-xs">
-          {queueList.map((item) => {
-            const isUser = item.isUser;
-            const isCompleted = item.status === "completed";
-            const isServing = item.status === "serving";
+          {queueItems.length === 0 ? (
+            <div className="text-center py-6 text-[#8A958E]">
+              <p>{isHindi ? "वर्तमान में कोई अन्य किसान कतार में नहीं है।" : "No active farmers in queue."}</p>
+            </div>
+          ) : (
+            queueItems.map((item) => {
+              const isUser = item.isCurrentUser;
+              const isServing = item.status === "SERVING";
+              const isCompleted = item.status === "COMPLETED";
 
-            return (
-              <div
-                key={item.token}
-                className={
-                  "flex items-center justify-between p-3 rounded-xl border transition-colors " +
-                  (isUser
-                    ? "bg-[#EEF5EF] border-[#2F7D4A] ring-1 ring-[#2F7D4A]/20 font-semibold"
-                    : isServing
-                    ? "bg-[#FEF5E7] border-[#F2A93B]/40 font-medium"
-                    : isCompleted
-                    ? "bg-[#F6F8F4] border-[#E4E9E5] text-[#66736B]"
-                    : "bg-white border-[#E4E9E5]")
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-6 font-bold text-center">
-                    {isCompleted ? "✓" : isServing ? "●" : "○"}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <strong className="font-sans text-[#17211B]">{item.token}</strong>
-                      <span className="text-[#17211B]">{item.name}</span>
+              return (
+                <div
+                  key={item.id}
+                  className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                    isUser
+                      ? "bg-[#EEF5EF] dark:bg-[#1A3125] border-[#2F7D4A] ring-1 ring-[#2F7D4A]/30 font-semibold"
+                      : isServing
+                      ? "bg-[#FEF5E7] dark:bg-[#2A2315] border-[#F2A93B]/40 font-medium"
+                      : isCompleted
+                      ? "bg-[#F6F8F4] dark:bg-[#101B15] border-[#E4E9E5] dark:border-[#23362B] opacity-70"
+                      : "bg-white dark:bg-[#142019] border-[#E4E9E5] dark:border-[#23362B]"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 font-bold text-center font-mono">
+                      {isCompleted ? "✓" : isServing ? "●" : "○"}
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <strong className="font-mono text-[#17211B] dark:text-[#F0F5F1]">#{item.tokenNumber}</strong>
+                        <span className="text-[#17211B] dark:text-[#F0F5F1]">
+                          {item.farmerName} {isUser && (isHindi ? "(आप)" : "(You)")}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-[#66736B] dark:text-[#9EAEA4]">
+                        {item.crop} • {item.quantityQuintals} Qtl • {item.stageName}
+                      </span>
                     </div>
-                    <span className="text-[11px] text-[#66736B]">{item.crop}</span>
+                  </div>
+
+                  <div className="text-right">
+                    {isCompleted && (
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                        ✓ {isHindi ? "उपार्जन पूर्ण" : "Procured"}
+                      </span>
+                    )}
+                    {isServing && (
+                      <span className="text-[#9A6210] dark:text-[#F2A93B] font-bold bg-[#FEF5E7] dark:bg-[#2A2315] px-2 py-0.5 rounded-lg border border-[#F2A93B]/30">
+                        ● {isHindi ? "कांटे पर सक्रिय" : "Now Serving"}
+                      </span>
+                    )}
+                    {!isCompleted && !isServing && !isUser && (
+                      <span className="text-[#66736B] dark:text-[#9EAEA4]">
+                        ○ {isHindi ? "प्रतीक्षा में" : "In Queue"}
+                      </span>
+                    )}
+                    {isUser && !isServing && (
+                      <span className="text-[#123D2D] dark:text-[#52DB89] font-bold bg-[#EEF5EF] dark:bg-[#1A3125] px-2 py-0.5 rounded-lg border border-[#58A66B]/30 font-mono">
+                        ● {isHindi ? `आप (~ ${estWait} मिनट)` : `You (~ ${estWait} min)`}
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                <div className="text-right">
-                  {isCompleted && (
-                    <span className="text-[#66736B] font-medium">
-                      ✓ {isHindi ? "पूर्ण" : "Completed"}
-                    </span>
-                  )}
-                  {isServing && (
-                    <span className="text-[#9A6210] font-bold bg-[#FEF5E7] px-2 py-0.5 rounded-lg border border-[#F2A93B]/30">
-                      ● {isHindi ? "अभी सेवा में" : "Currently serving"}
-                    </span>
-                  )}
-                  {!isCompleted && !isServing && !isUser && (
-                    <span className="text-[#66736B]">
-                      ○ {isHindi ? "प्रतीक्षा में" : "Waiting"}
-                    </span>
-                  )}
-                  {isUser && !isServing && (
-                    <span className="text-[#123D2D] font-bold bg-[#EEF5EF] px-2 py-0.5 rounded-lg border border-[#58A66B]/30">
-                      ● {isHindi ? "आप (लगभग 24 मिनट)" : "You (~24 min)"}
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
-
       </Card>
 
       {/* Reschedule Option */}
-      <Card padding="md" className="border-[#E4E9E5] bg-[#F6F8F4]">
+      <Card padding="md" className="border-[#E4E9E5] dark:border-[#23362B] bg-[#F6F8F4] dark:bg-[#101B15]">
         <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
           <div>
-            <strong className="text-[#17211B] block text-sm">
-              {isHindi ? "पहुँचने का समय बदलना चाहते हैं?" : "Need to change your arrival time?"}
+            <strong className="text-[#17211B] dark:text-[#F0F5F1] block text-sm">
+              {isHindi ? "पहुँचने का समय बदलना चाहते हैं?" : "Need to reschedule your slot?"}
             </strong>
-            <p className="text-[#66736B] mt-0.5">
+            <p className="text-[#66736B] dark:text-[#9EAEA4] mt-0.5">
               {isHindi
-                ? "यदि आप समय पर केंद्र नहीं पहुँच पा रहे हैं, तो दूसरा उपलब्ध समय स्लॉट चुन सकते हैं।"
-                : "If you cannot reach the centre on time, you can select another available slot."}
+                ? "यदि आप समय पर केंद्र नहीं पहुँच पा रहे हैं, तो बिना किसी दंड के दूसरा उपलब्ध समय स्लॉट चुन सकते हैं।"
+                : "You can move your appointment to another time window or centre with no penalty."}
             </p>
           </div>
 
@@ -325,7 +281,16 @@ export const FarmerQueue: React.FC = () => {
         isOpen={isRescheduleOpen}
         onClose={() => setIsRescheduleOpen(false)}
       />
-
+      <AuditTrailModal
+        isOpen={isAuditOpen}
+        onClose={() => setIsAuditOpen(false)}
+        bookingToken={farmerBooking.tokenNumber}
+      />
+      <GrievanceModal
+        isOpen={isGrievanceOpen}
+        onClose={() => setIsGrievanceOpen(false)}
+        bookingToken={farmerBooking.tokenNumber}
+      />
     </div>
   );
 };
