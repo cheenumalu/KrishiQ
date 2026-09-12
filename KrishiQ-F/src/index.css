@@ -4,21 +4,28 @@
 
 @layer base {
   :root {
-    --bg-main: #F6F8F4;
+    /* Authentic Indian Government Color Palette */
+    --gov-navy: #003366;
+    --gov-navy-dark: #001F3F;
+    --gov-saffron: #D97706;
+    --gov-green: #138808;
+    --gov-red: #B91C1C;
+    
+    --bg-main: #F4F6F9;
     --bg-surface: #FFFFFF;
-    --primary-dark: #123D2D;
-    --primary-green: #2F7D4A;
-    --accent-green: #58A66B;
-    --light-green: #EEF5EF;
-    --text-primary: #111813;
-    --text-secondary: #404A43;
-    --text-muted: #66736C;
-    --border-color: #E4E9E5;
-    --amber-warning: #F2A93B;
-    --red-danger: #D95555;
-    --blue-info: #2F7D4A;
+    --primary-dark: #003366;
+    --primary-green: #15803D;
+    --accent-green: #16A34A;
+    --light-green: #F0FDF4;
+    --text-primary: #0F172A;
+    --text-secondary: #334155;
+    --text-muted: #64748B;
+    --border-color: #CBD5E1;
+    --amber-warning: #D97706;
+    --red-danger: #DC2626;
+    --blue-info: #003366;
 
-    font-family: 'Inter', 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
@@ -31,7 +38,7 @@
     line-height: 1.45;
   }
 
-  /* Global Link & Button Reset: strictly prevent browser default dark blue text (-webkit-link) */
+  /* Global Link & Button Reset */
   a, a:visited, a:hover, a:active {
     color: inherit;
     text-decoration: inherit;
@@ -50,313 +57,327 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom card shadow */
+/* Crisp Government Card Elevation */
 .card-shadow {
-  box-shadow: 0 4px 14px rgba(20, 40, 30, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .card-shadow-hover {
-  transition: all 0.15s ease-out;
+  transition: all 0.15s ease-in-out;
 }
 
 .card-shadow-hover:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(20, 40, 30, 0.07);
+  border-color: #94A3B8;
+  box-shadow: 0 2px 6px rgba(0, 51, 102, 0.1);
 }
 
 /* Subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F6F8F4;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 9999px;
+  background: #94A3B8;
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8A958E;
+  background: #64748B;
 }
 
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.75; transform: scale(0.98); }
+/* Official Government Marquee Ticker */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 40s linear infinite;
 }
 
-/* ==================================================== */
-/* HIGH-CONTRAST NEUTRAL LIGHT-MODE TEXT (ZERO BLUE)     */
-/* ==================================================== */
-.text-\[\#17211B\],
-.text-\[\#111827\],
-.text-slate-900,
-.text-slate-800,
-.text-slate-700,
-.text-gray-900,
-.text-gray-800,
-.text-gray-700 {
-  color: #111813 !important;
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
-.text-\[\#66736B\],
-.text-\[\#374151\],
-.text-slate-600,
-.text-slate-500,
-.text-gray-600,
-.text-gray-500 {
-  color: #404A43 !important;
+/* Accessibility Font Resizing */
+html.text-scale-sm {
+  font-size: 13px !important;
+}
+html.text-scale-md {
+  font-size: 14px !important;
+}
+html.text-scale-lg {
+  font-size: 16px !important;
 }
 
-.text-\[\#8A958E\],
-.text-\[\#4B5563\],
-.text-slate-400,
-.text-gray-400 {
-  color: #66736C !important;
-}
-
-.text-\[\#123D2D\] {
-  color: #123D2D !important;
-}
-
-/* Ensure any dark green banner/card has 100% crisp white text */
-.bg-\[\#123D2D\],
-.bg-\[\#123D2D\] h1,
-.bg-\[\#123D2D\] h2,
-.bg-\[\#123D2D\] h3,
-.bg-\[\#123D2D\] h4,
-.bg-\[\#123D2D\] strong,
-.bg-\[\#123D2D\] a,
-.bg-\[\#123D2D\] button,
-.bg-\[\#2F7D4A\],
-.bg-\[\#2F7D4A\] h1,
-.bg-\[\#2F7D4A\] h2,
-.bg-\[\#2F7D4A\] strong,
-.bg-\[\#2F7D4A\] a,
-.bg-\[\#2F7D4A\] button {
-  color: #FFFFFF !important;
-}
-
-/* ==================================================== */
-/* DEEP PITCH-BLACK / CARBON DARK MODE PALETTE          */
-/* ==================================================== */
-html.dark {
-  --bg-main: #070908;
-  --bg-surface: #0E1210;
-  --primary-dark: #050706;
-  --primary-green: #389559;
-  --accent-green: #52DB89;
-  --light-green: #12281C;
-  --text-primary: #FFFFFF;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-  --border-color: #202722;
+/* =========================================================
+   GIGW ACCESSIBILITY HIGH-CONTRAST MODE (WCAG 2.1 AAA)
+   ========================================================= */
+html.high-contrast {
+  --bg-main: #000000 !important;
+  --bg-surface: #000000 !important;
+  --text-primary: #FFFF00 !important;
+  --text-secondary: #FFFFFF !important;
+  --text-muted: #FFFF00 !important;
+  --border-color: #FFFF00 !important;
   color-scheme: dark;
 }
 
-html.dark body {
-  background-color: #070908 !important;
-  color: #FFFFFF;
+html.high-contrast * {
+  border-color: #FFFF00 !important;
 }
 
-html.dark header,
-html.dark aside {
-  background-color: #0A0D0B !important;
-  border-color: #202722 !important;
+html.high-contrast,
+html.high-contrast body,
+html.high-contrast div,
+html.high-contrast section,
+html.high-contrast header,
+html.high-contrast footer,
+html.high-contrast aside,
+html.high-contrast nav,
+html.high-contrast main,
+html.high-contrast article,
+html.high-contrast table,
+html.high-contrast tr,
+html.high-contrast td,
+html.high-contrast th,
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea,
+html.high-contrast button,
+html.high-contrast ul,
+html.high-contrast ol,
+html.high-contrast li {
+  background-color: #000000 !important;
 }
 
-html.dark .bg-white {
-  background-color: #0E1210 !important;
-  color: #FFFFFF;
+/* Headings, interactive elements, strong, labels: Yellow #FFFF00 */
+html.high-contrast h1,
+html.high-contrast h2,
+html.high-contrast h3,
+html.high-contrast h4,
+html.high-contrast h5,
+html.high-contrast h6,
+html.high-contrast strong,
+html.high-contrast b,
+html.high-contrast a,
+html.high-contrast button,
+html.high-contrast th,
+html.high-contrast label,
+html.high-contrast [class*="font-bold"],
+html.high-contrast [class*="font-black"],
+html.high-contrast [class*="font-extrabold"] {
+  color: #FFFF00 !important;
 }
 
-html.dark .bg-white\/95 {
-  background-color: rgba(14, 18, 16, 0.95) !important;
-}
-
-html.dark .bg-\[\#F6F8F4\],
-html.dark .dark\:bg-\[\#101B15\],
-html.dark .dark\:bg-\[\#0D1812\],
-html.dark .dark\:bg-\[\#121E17\],
-html.dark .dark\:bg-\[\#142019\] {
-  background-color: #141816 !important;
-}
-
-html.dark .bg-\[\#EEF5EF\],
-html.dark .dark\:bg-\[\#1A3125\],
-html.dark .dark\:bg-\[\#162B1F\],
-html.dark .dark\:bg-\[\#183928\] {
-  background-color: #12281C !important;
-}
-
-/* Red/Danger and Warning background dark mode overrides */
-html.dark .bg-\[\#FDF2F2\],
-html.dark .dark\:bg-\[\#2A1515\] {
-  background-color: #231113 !important;
-  border-color: rgba(217, 85, 85, 0.35) !important;
-}
-
-html.dark .bg-\[\#FEF5E7\],
-html.dark .dark\:bg-\[\#2A2315\] {
-  background-color: #231B0E !important;
-  border-color: rgba(242, 169, 59, 0.35) !important;
-}
-
-html.dark .border-\[\#E4E9E5\],
-html.dark .border-\[\#E5EAE6\],
-html.dark .dark\:border-\[\#23362B\],
-html.dark .dark\:border-\[\#22352A\],
-html.dark .dark\:border-\[\#243B2E\] {
-  border-color: #202722 !important;
-}
-
-html.dark .divide-\[\#E4E9E5\] > :not([hidden]) ~ :not([hidden]),
-html.dark .divide-\[\#E5EAE6\] > :not([hidden]) ~ :not([hidden]),
-html.dark .dark\:divide-\[\#22352A\] > :not([hidden]) ~ :not([hidden]) {
-  border-color: #202722 !important;
-}
-
-html.dark .text-\[\#17211B\],
-html.dark .text-\[\#111827\],
-html.dark .text-slate-900,
-html.dark .text-slate-800,
-html.dark .text-slate-700,
-html.dark .text-gray-900,
-html.dark .text-gray-800,
-html.dark .text-gray-700 {
+/* Paragraphs, descriptions, secondary text: Crisp Pure White #FFFFFF */
+html.high-contrast p,
+html.high-contrast span,
+html.high-contrast li,
+html.high-contrast td,
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
   color: #FFFFFF !important;
 }
 
-html.dark .text-\[\#123D2D\] {
-  color: #52DB89 !important;
+/* In High Contrast, override ALL hardcoded text colors */
+html.high-contrast [class*="text-"] {
+  color: #FFFF00 !important;
 }
 
-html.dark .text-\[\#D95555\],
-html.dark .text-\[\#9B2C2C\] {
-  color: #F87171 !important;
+html.high-contrast p[class*="text-"],
+html.high-contrast span[class*="text-slate-"],
+html.high-contrast span[class*="text-gray-"],
+html.high-contrast td[class*="text-"] {
+  color: #FFFFFF !important;
 }
 
-html.dark .text-\[\#F2A93B\],
-html.dark .text-\[\#9A6210\] {
-  color: #FCD34D !important;
+/* SVGs & Icons in High Contrast */
+html.high-contrast svg {
+  color: #FFFF00 !important;
+  stroke: #FFFF00 !important;
 }
 
-html.dark .text-\[\#66736B\],
-html.dark .text-\[\#374151\],
-html.dark .text-slate-600,
-html.dark .text-slate-500,
-html.dark .text-gray-600,
-html.dark .text-gray-500 {
-  color: #CBD5E1 !important;
+html.high-contrast svg.fill-current {
+  fill: #FFFF00 !important;
 }
 
-html.dark .text-\[\#8A958E\],
-html.dark .text-\[\#4B5563\],
-html.dark .text-slate-400,
-html.dark .text-gray-400 {
+/* Badges & Pills in High Contrast */
+html.high-contrast [class*="rounded-"] {
+  border-width: 1px !important;
+  border-color: #FFFF00 !important;
+  background-color: #000000 !important;
+}
+
+/* =========================================================
+   AUTHORITATIVE INDIAN GOVERNMENT PORTAL DARK THEME
+   (Deep Charcoal Slate #0B1118 with Sky/Navy Highlights)
+   ========================================================= */
+html.dark:not(.high-contrast) {
+  --bg-main: #0B1118;
+  --bg-surface: #131D28;
+  --primary-dark: #0A1929;
+  --primary-green: #22C55E;
+  --accent-green: #4ADE80;
+  --light-green: #0E2919;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border-color: #1E293B;
+  color-scheme: dark;
+}
+
+html.dark:not(.high-contrast) body {
+  background-color: #0B1118 !important;
+  color: #F8FAFC !important;
+}
+
+/* Surfaces & Containers */
+html.dark:not(.high-contrast) .bg-white,
+html.dark:not(.high-contrast) [class*="bg-white"] {
+  background-color: #131D28 !important;
+  color: #F8FAFC;
+}
+
+html.dark:not(.high-contrast) [class*="bg-[#F8FAFC]"],
+html.dark:not(.high-contrast) [class*="bg-[#F4F6F9]"],
+html.dark:not(.high-contrast) [class*="bg-[#F1F5F9]"],
+html.dark:not(.high-contrast) [class*="bg-[#F6F8F4]"],
+html.dark:not(.high-contrast) [class*="bg-[#EEF5EF]"],
+html.dark:not(.high-contrast) .bg-slate-50,
+html.dark:not(.high-contrast) .bg-slate-100 {
+  background-color: #0E1620 !important;
+}
+
+/* Tinted Card/Badge Containers */
+html.dark:not(.high-contrast) [class*="bg-[#EFF6FF]"] {
+  background-color: #0C2340 !important;
+}
+
+html.dark:not(.high-contrast) [class*="bg-[#F0FDF4]"] {
+  background-color: #062817 !important;
+}
+
+html.dark:not(.high-contrast) [class*="bg-[#FFFBEB]"] {
+  background-color: #261B07 !important;
+}
+
+html.dark:not(.high-contrast) [class*="bg-[#FEF2F2]"] {
+  background-color: #2B0C0C !important;
+}
+
+/* Borders */
+html.dark:not(.high-contrast) .border-slate-200,
+html.dark:not(.high-contrast) .border-slate-300,
+html.dark:not(.high-contrast) [class*="border-[#CBD5E1]"],
+html.dark:not(.high-contrast) [class*="border-[#E4E9E5]"],
+html.dark:not(.high-contrast) [class*="border-[#E2E8F0]"] {
+  border-color: #1E293B !important;
+}
+
+html.dark:not(.high-contrast) [class*="border-[#003366]"] {
+  border-color: #1E40AF !important;
+}
+
+html.dark:not(.high-contrast) [class*="border-[#BFDBFE]"] {
+  border-color: #1E3A8A !important;
+}
+
+/* ---------------------------------------------------------
+   CRITICAL: Text Visibility & Inversion for Dark Theme
+   --------------------------------------------------------- */
+
+/* Primary Government Navy -> High-contrast Sky Blue */
+html.dark:not(.high-contrast) [class*="text-[#003366]"],
+html.dark:not(.high-contrast) [class*="text-[#001F3F]"],
+html.dark:not(.high-contrast) [class*="text-[#002244]"] {
+  color: #38BDF8 !important;
+}
+
+/* Primary Dark / Near-Black Text -> Pure Crisp White/Slate */
+html.dark:not(.high-contrast) [class*="text-[#17211B]"],
+html.dark:not(.high-contrast) [class*="text-[#0F172A]"],
+html.dark:not(.high-contrast) [class*="text-[#1E293B]"],
+html.dark:not(.high-contrast) .text-slate-900,
+html.dark:not(.high-contrast) .text-slate-800,
+html.dark:not(.high-contrast) .text-slate-700 {
+  color: #F8FAFC !important;
+}
+
+/* Secondary & Muted Text -> High-contrast Light Slate */
+html.dark:not(.high-contrast) [class*="text-[#66736B]"],
+html.dark:not(.high-contrast) [class*="text-[#66736C]"],
+html.dark:not(.high-contrast) [class*="text-[#8A958E]"],
+html.dark:not(.high-contrast) [class*="text-[#64748B]"],
+html.dark:not(.high-contrast) [class*="text-[#334155]"],
+html.dark:not(.high-contrast) .text-slate-600,
+html.dark:not(.high-contrast) .text-slate-500 {
   color: #94A3B8 !important;
 }
 
-html.dark h1,
-html.dark h2,
-html.dark h3,
-html.dark h4,
-html.dark h5,
-html.dark h6 {
-  color: #FFFFFF !important;
+/* Dark Green -> Vivid Light Emerald */
+html.dark:not(.high-contrast) [class*="text-[#123D2D]"],
+html.dark:not(.high-contrast) [class*="text-[#15803D]"],
+html.dark:not(.high-contrast) [class*="text-[#138808]"],
+html.dark:not(.high-contrast) [class*="text-[#2F7D4A]"],
+html.dark:not(.high-contrast) .text-emerald-700,
+html.dark:not(.high-contrast) .text-green-700 {
+  color: #4ADE80 !important;
 }
 
-html.dark a,
-html.dark a:visited,
-html.dark a:hover,
-html.dark a:active {
-  color: inherit;
+/* Dark Amber/Saffron -> Vivid Amber Gold */
+html.dark:not(.high-contrast) [class*="text-[#B45309]"],
+html.dark:not(.high-contrast) [class*="text-[#D97706]"],
+html.dark:not(.high-contrast) .text-amber-700 {
+  color: #FBBF24 !important;
 }
 
-html.dark aside a.active,
-html.dark nav a.active {
-  background-color: #12281C !important;
-  color: #52DB89 !important;
-  border-color: rgba(82, 219, 137, 0.4) !important;
+/* Dark Red/Crimson -> Vivid Coral Red */
+html.dark:not(.high-contrast) [class*="text-[#B91C1C]"],
+html.dark:not(.high-contrast) [class*="text-[#DC2626]"],
+html.dark:not(.high-contrast) .text-red-700 {
+  color: #F87171 !important;
 }
 
-html.dark aside a.active svg,
-html.dark nav a.active svg {
-  color: #52DB89 !important;
+/* SVGs with text-[#003366] */
+html.dark:not(.high-contrast) svg[class*="text-[#003366]"] {
+  color: #38BDF8 !important;
+  stroke: #38BDF8 !important;
 }
 
-html.dark .hover\:bg-\[\#F6F8F4\]:hover,
-html.dark .dark\:hover\:bg-\[\#18281F\]:hover,
-html.dark .dark\:hover\:bg-\[\#1C3627\]:hover,
-html.dark .dark\:hover\:bg-\[\#18291F\]:hover {
-  background-color: #181E1B !important;
+html.dark:not(.high-contrast) svg[class*="text-[#003366]"].fill-current,
+html.dark:not(.high-contrast) svg[class*="text-[#003366]"] g[fill="currentColor"] {
+  fill: #38BDF8 !important;
 }
 
-html.dark .hover\:bg-\[\#EEF5EF\]:hover {
-  background-color: #162E20 !important;
+/* Form Controls */
+html.dark:not(.high-contrast) input:not([type="checkbox"]):not([type="radio"]),
+html.dark:not(.high-contrast) select,
+html.dark:not(.high-contrast) textarea {
+  background-color: #0E1620 !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
 }
 
-html.dark input,
-html.dark select,
-html.dark textarea {
-  background-color: #0B0E0C !important;
-  border-color: #242C26 !important;
-  color: #FFFFFF !important;
+html.dark:not(.high-contrast) input::placeholder,
+html.dark:not(.high-contrast) textarea::placeholder {
+  color: #64748B !important;
 }
 
-html.dark input:focus,
-html.dark select:focus,
-html.dark textarea:focus {
-  background-color: #101412 !important;
-  border-color: #52DB89 !important;
+/* Tables */
+html.dark:not(.high-contrast) table {
+  color: #F8FAFC;
 }
 
-html.dark ::-webkit-scrollbar-track {
-  background: #070908;
+html.dark:not(.high-contrast) th {
+  color: #38BDF8 !important;
 }
 
-html.dark ::-webkit-scrollbar-thumb {
-  background: #202823;
-}
-
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #2E3A33;
-}
-
-html.dark .card-shadow {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.75);
-}
-
-@keyframes realtime-flash {
-  0% {
-    background-color: rgba(46, 125, 50, 0.25);
-    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.45);
-  }
-  100% {
-    background-color: transparent;
-    box-shadow: none;
-  }
-}
-
-.highlight-pulse {
-  animation: realtime-flash 0.7s ease-out forwards;
-}
-
-@keyframes realtime-flash-amber {
-  0% {
-    background-color: rgba(242, 169, 59, 0.25);
-    box-shadow: 0 0 0 2px rgba(242, 169, 59, 0.5);
-  }
-  100% {
-    background-color: transparent;
-    box-shadow: none;
-  }
-}
-
-.highlight-pulse-amber {
-  animation: realtime-flash-amber 0.7s ease-out forwards;
+html.dark:not(.high-contrast) tr:hover {
+  background-color: #1A2634 !important;
 }

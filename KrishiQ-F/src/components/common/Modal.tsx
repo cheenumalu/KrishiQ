@@ -10,6 +10,10 @@ interface ModalProps {
   maxWidth?: "sm" | "md" | "lg" | "xl";
 }
 
+/**
+ * Official Government Dialogue / Modal
+ * Styled with an authoritative national header strip and crisp borders.
+ */
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -37,33 +41,43 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-slate-900/70 dark:bg-black/85 transition-opacity"
         aria-hidden="true"
       />
       <div
         onClick={(e) => e.stopPropagation()}
         className={
-          "relative bg-white dark:bg-[#142019] text-[#111827] dark:text-[#F0F5F1] rounded-2xl border border-[#E4E9E5] dark:border-[#23362B] shadow-2xl w-full z-10 overflow-hidden transform transition-all " +
+          "relative bg-white dark:bg-[#131D28] text-[#0F172A] dark:text-[#F8FAFC] rounded-xs border-2 border-[#003366] dark:border-[#1E3A8A] shadow-2xl w-full z-10 overflow-hidden " +
           maxWidthClass
         }
       >
-        <div className="flex items-start justify-between p-5 border-b border-[#E4E9E5] dark:border-[#23362B] bg-[#F6F8F4] dark:bg-[#101B15]">
+        {/* National Header Strip */}
+        <div className="flex items-start justify-between px-4 sm:px-5 py-3.5 bg-[#003366] text-white border-b-2 border-[#FF9933]">
           <div>
-            <h3 className="text-lg font-bold text-[#111827] dark:text-white">{title}</h3>
-            {subtitle && <p className="text-xs text-[#4B5563] dark:text-[#CBD5E1] mt-0.5 font-medium">{subtitle}</p>}
+            <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+              {title}
+            </h3>
+            {subtitle && (
+              <p className="text-[11px] text-slate-200 mt-0.5 font-normal">
+                {subtitle}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
-            className="text-[#6B7280] hover:text-[#111827] dark:text-[#94A3B8] dark:hover:text-white rounded-lg p-1.5 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="text-white/80 hover:text-white rounded-xs p-1 hover:bg-white/10 transition-colors cursor-pointer"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+
+        {/* Content Body */}
+        <div className="p-4 sm:p-5 max-h-[82vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );

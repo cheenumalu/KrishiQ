@@ -3,8 +3,9 @@ import { Modal } from "../common/Modal";
 import { FarmerBooking } from "../../types";
 import { formatQuintals } from "../../utils/calculations";
 import { useLanguage } from "../../i18n";
-import { QrCode, Printer, ShieldCheck } from "lucide-react";
+import { QrCode, Printer, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "../common/Button";
+import { EmblemOfIndia } from "../common/EmblemOfIndia";
 
 interface TokenSlipModalProps {
   isOpen: boolean;
@@ -19,101 +20,148 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({
 }) => {
   const { t, isHindi, formatLocation, formatCrop, formatTimeSlot, formatDate } = useLanguage();
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isHindi ? "डिजिटल मंडी गेट पास एवं टोकन" : "Digital Mandi Gate Pass & Token"}
-      subtitle={isHindi ? "आधिकारिक कृषि उपार्जन प्रवेश प्राधिकार" : "Official Agricultural Procurement Entry Authorization"}
+      title={isHindi ? "आधिकारिक डिजिटल मंडी गेट पास (प्रपत्र APMC-IV)" : "Official Mandi Gate Entry Pass (Form APMC-IV)"}
+      subtitle={isHindi ? "राज्य कृषि उपज मंडी विपणन बोर्ड • अधिकृत प्रवेश टोकन" : "State Agricultural Marketing Board • Authorized Entry Token"}
       maxWidth="md"
     >
-      <div className="space-y-4">
-        <div className="p-4 rounded-xl bg-[#123D2D] text-white text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-[#58A66B]" />
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#58A66B]">
-            {isHindi ? "मध्य प्रदेश शासन • खाद्य एवं नागरिक आपूर्ति विभाग" : "Govt of Madhya Pradesh • Food & Civil Supplies"}
-          </span>
-          <h3 className="text-3xl font-extrabold font-sans tabular-nums tracking-wider mt-1 text-white">
-            #{booking.tokenNumber}
-          </h3>
-          <p className="text-xs text-white/80 mt-0.5">
-            {t("farmer.bookingId")}: <span className="font-mono text-[#58A66B]">{booking.id}</span>
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-[#F6F8F4] border border-[#E4E9E5] text-xs">
-          <div>
-            <span className="text-[#66736B] block text-[11px]">{isHindi ? "किसान का नाम" : "Farmer Name"}</span>
-            <strong className="text-[#17211B] text-sm">{isHindi ? "राजेश शर्मा" : booking.farmerName}</strong>
-          </div>
-          <div>
-            <span className="text-[#66736B] block text-[11px]">{isHindi ? "पंजीकरण आईडी" : "Farmer Registration ID"}</span>
-            <strong className="text-[#17211B] font-mono">{booking.farmerId}</strong>
-          </div>
-          <div>
-            <span className="text-[#66736B] block text-[11px]">{isHindi ? "फसल एवं किस्म" : "Crop & Variety"}</span>
-            <strong className="text-[#17211B]">{formatCrop(booking.crop)} ({booking.variety})</strong>
-          </div>
-          <div>
-            <span className="text-[#66736B] block text-[11px]">{isHindi ? "घोषित मात्रा" : "Declared Quantity"}</span>
-            <strong className="text-[#2F7D4A] text-sm font-bold">{formatQuintals(booking.quantityQuintals)}</strong>
-          </div>
-          <div className="col-span-2 pt-2 border-t border-[#E4E9E5]">
-            <span className="text-[#66736B] block text-[11px]">{isHindi ? "आवंटित खरीदी केंद्र" : "Designated Mandi Centre"}</span>
-            <strong className="text-[#17211B]">{formatLocation(booking.centreName)}</strong>
-          </div>
-          <div>
-            <span className="text-[#66736B] block text-[11px]">{isHindi ? "तारीख एवं समय" : "Slot Date & Time"}</span>
-            <strong className="text-[#17211B]">{formatDate(booking.slotDate)} ({formatTimeSlot(booking.slotTime)})</strong>
-          </div>
-          <div>
-            <span className="text-[#66736B] block text-[11px]">{t("farmer.estWaiting")}</span>
-            <strong className="text-[#2F7D4A] font-semibold">{booking.estimatedWaitMinutes} {t("common.min")}</strong>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-3.5 rounded-xl border border-dashed border-[#E4E9E5] bg-white">
-          <div className="space-y-1">
-            <span className="text-xs font-bold text-[#17211B] block">
-              {isHindi ? "सुरक्षा सत्यापन बारकोड" : "Security Verification Barcode"}
-            </span>
-            <p className="text-[10px] text-[#66736B]">
-              {isHindi ? "स्वचालित बैरियर निकासी के लिए गेट 1 स्कैनर पर दिखाएँ।" : "Scan at Gate 1 Reader for automated barrier clearance."}
-            </p>
-            <div className="font-mono text-xs text-[#66736B] tracking-widest bg-[#F6F8F4] px-2 py-1 rounded inline-block">
-              ||| | |||| ||| ||||||| | ||
+      <div className="space-y-4 font-sans print:p-0">
+        
+        {/* Official Gov Pass Header */}
+        <div className="border-2 border-[#003366] bg-[#F8FAFC] dark:bg-[#0E1620] p-4 text-center relative overflow-hidden rounded-xs">
+          <div className="flex items-center justify-between border-b border-[#CBD5E1] dark:border-slate-700 pb-2 mb-2">
+            <EmblemOfIndia size="sm" showText={false} />
+            <div className="text-center">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#003366] dark:text-[#38BDF8] block">
+                {isHindi ? "मध्य प्रदेश शासन • किसान कल्याण तथा कृषि विकास विभाग" : "Govt of Madhya Pradesh • Dept of Farmer Welfare & Agriculture"}
+              </span>
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                {isHindi ? "राज्य कृषि उपज ई-उपार्जन गेट पास" : "State APMC Mandi Digital Intake Gate Pass"}
+              </h4>
+            </div>
+            <div className="w-8 h-8 rounded-2xs bg-[#003366] text-white flex items-center justify-center font-bold text-xs">
+              GoI
             </div>
           </div>
-          <div className="w-16 h-16 bg-[#F6F8F4] rounded-lg flex items-center justify-center border border-[#E4E9E5]">
-            <QrCode className="w-12 h-12 text-[#17211B]" />
+
+          <div className="bg-[#003366] text-white py-2 px-3 rounded-2xs my-1">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#FF9933] block">
+              {isHindi ? "अधिकृत आगमन टोकन संख्या" : "AUTHORIZED INTAKE TOKEN NUMBER"}
+            </span>
+            <h3 className="text-3xl font-black font-mono tabular-nums tracking-widest text-white mt-0.5">
+              #{booking.tokenNumber}
+            </h3>
+            <p className="text-[11px] text-slate-200 mt-0.5">
+              {t("farmer.bookingId")}: <span className="font-mono font-bold text-[#FF9933]">{booking.id}</span>
+            </p>
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-[#EEF5EF] border border-[#58A66B]/30 text-xs text-[#123D2D]">
-          <h5 className="font-bold flex items-center gap-1.5 text-[#123D2D] mb-1">
-            <ShieldCheck className="w-4 h-4 text-[#2F7D4A]" />
-            {isHindi ? "मंडी गेट पर आवश्यक दस्तावेज़" : "Mandatory Documents at Mandi Gate"}
-          </h5>
-          <ul className="list-disc list-inside space-y-0.5 text-[11px] text-[#123D2D]/90">
-            <li>{isHindi ? "मूल आधार कार्ड अथवा मतदाता पहचान पत्र" : "Original Aadhaar Card or Voter ID"}</li>
-            <li>{isHindi ? "जमीन खसरा / बी1 ऋण पुस्तिका प्रति" : "Land Khasra / B1 Rin Pustika copy"}</li>
-            <li>{isHindi ? "बैंक पासबुक (SBI खाता संख्या 4092)" : "Bank Passbook (SBI Account ending 4092)"}</li>
+        {/* Structured Official Table of Particulars */}
+        <div className="border border-[#CBD5E1] dark:border-slate-700 text-xs overflow-hidden rounded-xs">
+          <div className="bg-[#F1F5F9] dark:bg-[#1E293B] px-3 py-1.5 border-b border-[#CBD5E1] dark:border-slate-700 font-bold text-[#003366] dark:text-white uppercase text-[11px]">
+            {isHindi ? "उपज एवं किसान विवरण (Particulars)" : "Farmer & Produce Particulars"}
+          </div>
+
+          <div className="grid grid-cols-2 divide-x divide-y divide-[#CBD5E1] dark:divide-slate-700 bg-white dark:bg-[#131D28]">
+            <div className="p-2.5">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "किसान का नाम" : "Farmer Name"}</span>
+              <strong className="text-[#003366] dark:text-white text-xs sm:text-sm font-bold">{isHindi ? "श्री राजेश शर्मा" : booking.farmerName}</strong>
+            </div>
+
+            <div className="p-2.5">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "पंजीकरण आईडी (समग्र/आधार)" : "Registration ID"}</span>
+              <strong className="text-slate-900 dark:text-slate-100 font-mono font-bold">{booking.farmerId}</strong>
+            </div>
+
+            <div className="p-2.5">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "फसल एवं किस्म" : "Crop & Variety"}</span>
+              <strong className="text-slate-900 dark:text-slate-100">{formatCrop(booking.crop)} ({booking.variety})</strong>
+            </div>
+
+            <div className="p-2.5">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "घोषित मात्रा" : "Declared Quantity"}</span>
+              <strong className="text-[#15803D] dark:text-emerald-400 font-bold">{formatQuintals(booking.quantityQuintals)}</strong>
+            </div>
+
+            <div className="col-span-2 p-2.5 bg-slate-50 dark:bg-[#0E1620]">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "आवंटित उपार्जन केंद्र (APMC Mandi)" : "Designated Mandi Centre"}</span>
+              <strong className="text-[#003366] dark:text-[#38BDF8] text-sm">{formatLocation(booking.centreName)}</strong>
+            </div>
+
+            <div className="p-2.5">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "आवंटित तारीख व समय" : "Allotted Window"}</span>
+              <strong className="text-slate-900 dark:text-slate-100">{formatDate(booking.slotDate)} ({formatTimeSlot(booking.slotTime)})</strong>
+            </div>
+
+            <div className="p-2.5">
+              <span className="text-slate-500 block text-[10px] uppercase font-semibold">{isHindi ? "अनुमानित प्रतीक्षा" : "Est. Wait Duration"}</span>
+              <strong className="text-[#15803D] font-bold">{booking.estimatedWaitMinutes} {t("common.min")}</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Barcode & QR Verification Block */}
+        <div className="p-3 border-2 border-dashed border-slate-300 dark:border-slate-700 bg-[#F8FAFC] dark:bg-[#0E1620] rounded-xs flex items-center justify-between gap-3">
+          <div className="space-y-1">
+            <span className="text-xs font-bold text-[#003366] dark:text-white uppercase tracking-wider block">
+              {isHindi ? "गेट 1 स्वचालित सुरक्षा स्कैनर" : "Gate 1 Automated Security Scanner"}
+            </span>
+            <p className="text-[10px] text-slate-500">
+              {isHindi ? "मंडी प्रवेश द्वार पर बारकोड स्कैनर अथवा RFID रीडर से सत्यापित कराएं।" : "Present this QR/Barcode at Gate 1 automatic barrier reader."}
+            </p>
+            <div className="font-mono text-xs font-bold text-slate-700 dark:text-slate-300 tracking-widest bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded-2xs inline-block">
+              *MP-IND-2026-A135-SEC*
+            </div>
+          </div>
+          <div className="w-16 h-16 bg-white p-1 border border-[#CBD5E1] rounded-xs flex items-center justify-center shrink-0">
+            <QrCode className="w-12 h-12 text-[#003366]" />
+          </div>
+        </div>
+
+        {/* Mandatory Instructions & Officer Signature */}
+        <div className="p-3 bg-[#FFFBEB] dark:bg-[#201505] border border-[#FDE68A] text-xs text-[#92400E] dark:text-[#FCD34D] rounded-xs space-y-1">
+          <div className="flex items-center gap-1.5 font-bold">
+            <ShieldCheck className="w-4 h-4 text-[#B45309]" />
+            <span>{isHindi ? "मंडी गेट पर अनिवार्य निर्देश" : "Mandatory Mandi Gate Instructions"}</span>
+          </div>
+          <ul className="list-disc list-inside text-[11px] space-y-0.5 text-slate-700 dark:text-slate-300">
+            <li>{isHindi ? "मूल आधार कार्ड एवं बैंक पासबुक (DBT खाता) साथ लाएं।" : "Carry original Aadhaar Card and Bank Passbook (DBT account)."}</li>
+            <li>{isHindi ? "गेहूं में नमी 12% से कम एवं कचरा/विजातीय तत्व 1% से कम होना अनिवार्य है।" : "Wheat moisture must be ≤12% and dockage ≤1% as per FAQ standard."}</li>
           </ul>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" onClick={onClose}>
-            {t("common.close")}
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            leftIcon={<Printer className="w-4 h-4" />}
-            onClick={() => window.print()}
-          >
-            {t("farmer.printGateSlip")}
-          </Button>
+        {/* Modal Action Buttons */}
+        <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-700">
+          <span className="text-[10px] text-slate-400 font-mono">
+            {isHindi ? "कंप्यूटर जनरेटेड पावती • हस्ताक्षर की आवश्यकता नहीं" : "Computer Generated • Form APMC-IV"}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onClose}
+            >
+              {t("common.close")}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Printer className="w-3.5 h-3.5" />}
+              onClick={handlePrint}
+            >
+              {isHindi ? "गेट पास प्रिंट करें" : "Print Gate Pass"}
+            </Button>
+          </div>
         </div>
+
       </div>
     </Modal>
   );

@@ -16,15 +16,22 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Check,
-  Sun,
-  Moon,
   Eye,
-  EyeOff
+  EyeOff,
+  PhoneCall,
+  Home,
+  FileText,
+  HelpCircle
 } from "lucide-react";
+import { EmblemOfIndia, GovInitiativeBadges } from "./EmblemOfIndia";
+import { GovTopBar } from "./GovTopBar";
+import { GovMarquee } from "./GovMarquee";
 
 interface NavbarProps {
   onToggleMobileSidebar?: () => void;
   isMobileSidebarOpen?: boolean;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebarCollapse?: () => void;
   isSidebarExpanded?: boolean;
   onToggleSidebarExpand?: () => void;
 }
@@ -32,37 +39,38 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   onToggleMobileSidebar,
   isMobileSidebarOpen,
+  isSidebarCollapsed,
+  onToggleSidebarCollapse,
   isSidebarExpanded,
   onToggleSidebarExpand,
 }) => {
+  const isCollapsed = isSidebarCollapsed ?? (isSidebarExpanded !== undefined ? !isSidebarExpanded : false);
+  const handleToggleCollapse = onToggleSidebarCollapse ?? onToggleSidebarExpand;
+
   const {
     role,
     setRole,
+    theme,
+    toggleTheme,
     notifications,
     unreadNotifsCount,
     markNotificationAsRead,
     toggleNotificationRead,
     markAllNotificationsAsRead,
     resetAllData,
-    theme,
-    toggleTheme,
   } = useKrishiQ();
 
   const { language, setLanguage, t, isHindi } = useLanguage();
   const [showNotifs, setShowNotifs] = useState(false);
-  const [showLangMenu, setShowLangMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isHighContrast, setIsHighContrast] = useState(false);
 
-  const langRef = useRef<HTMLDivElement>(null);
   const notifsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
-      if (langRef.current && !langRef.current.contains(target)) {
-        setShowLangMenu(false);
-      }
       if (notifsRef.current && !notifsRef.current.contains(target)) {
         setShowNotifs(false);
       }
@@ -73,7 +81,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setShowLangMenu(false);
         setShowNotifs(false);
         setShowUserMenu(false);
       }
@@ -90,8 +97,15 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
   }, []);
 
+  const toggleContrast = () => {
+    const root = document.documentElement;
+    root.classList.toggle("high-contrast");
+    setIsHighContrast(root.classList.contains("high-contrast"));
+  };
+
   const navigate = useNavigate();
   const location = useLocation();
+  const isLanding = location.pathname === "/";
 
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
@@ -101,385 +115,346 @@ export const Navbar: React.FC<NavbarProps> = ({
     else if (newRole === "admin") navigate("/admin/dashboard");
   };
 
-  // Derive breadcrumb from path with localization
-  const getPageBreadcrumb = () => {
-    const path = location.pathname;
-    if (path.includes("/farmer/dashboard")) return { portal: t("nav.farmerPortal"), page: t("nav.overview") };
-    if (path.includes("/farmer/centres")) return { portal: t("nav.farmerPortal"), page: t("nav.centres") };
-    if (path.includes("/farmer/book-slot")) return { portal: t("nav.farmerPortal"), page: t("nav.bookings") };
-    if (path.includes("/farmer/queue")) return { portal: t("nav.farmerPortal"), page: t("nav.queue") };
-    if (path.includes("/farmer/procurement")) return { portal: t("nav.farmerPortal"), page: t("nav.procurement") };
-    if (path.includes("/farmer/payment")) return { portal: t("nav.farmerPortal"), page: t("nav.payment") };
-    if (path.includes("/farmer/notifications")) return { portal: t("nav.farmerPortal"), page: t("nav.notifications") };
-
-    if (path.includes("/centre/dashboard")) return { portal: t("nav.operatorPortal"), page: t("centre.consoleTitle") };
-    if (path.includes("/centre/queue")) return { portal: t("nav.operatorPortal"), page: t("nav.queue") };
-    if (path.includes("/centre/procurement")) return { portal: t("nav.operatorPortal"), page: t("nav.procurement") };
-    if (path.includes("/centre/analytics")) return { portal: t("nav.operatorPortal"), page: isHindi ? "विश्लेषण" : "Analytics" };
-
-    if (path.includes("/admin/dashboard")) return { portal: t("nav.adminPortal"), page: isHindi ? "नेटवर्क अवलोकन" : "Network Overview" };
-    if (path.includes("/admin/centres")) return { portal: t("nav.adminPortal"), page: isHindi ? "उपार्जन केंद्र" : "Centres Directory" };
-    if (path.includes("/admin/analytics")) return { portal: t("nav.adminPortal"), page: isHindi ? "विश्लेषण" : "Analytics" };
-    if (path.includes("/admin/simulator")) return { portal: t("nav.adminPortal"), page: t("admin.whatIfSimulatorBtn") };
-
-    return { portal: t("common.appName"), page: t("common.saasEngine") };
+  const getRoleDisplayName = () => {
+    if (role === "farmer") return isHindi ? "किसान पोर्टल (Farmer)" : "Farmer Services";
+    if (role === "centre") return isHindi ? "मंडी ऑपरेटर (Operator)" : "Mandi Operator";
+    return isHindi ? "राज्य प्रशासन (Admin)" : "State Command";
   };
 
-  const breadcrumb = getPageBreadcrumb();
-  const userName =
-    role === "farmer"
-      ? (isHindi ? "राजेश शर्मा" : "Rajesh Sharma")
-      : role === "centre"
-      ? (isHindi ? "शिवाजी नगर संचालन" : "Shivaji Nagar Ops")
-      : (isHindi ? "प्रशासक निदेशक" : "Admin Director");
+  const getUserName = () => {
+    if (role === "farmer") return isHindi ? "श्री राजेश शर्मा (किसान ID: MP-IND-89421)" : "Rajesh Sharma (ID: MP-IND-89421)";
+    if (role === "centre") return isHindi ? "प्रभारी अधिकारी (इंदौर मंडी-01)" : "Centre Officer (Indore-01)";
+    return isHindi ? "राज्य नोडल निदेशक (कृषि विपणन)" : "State Nodal Director (Agri)";
+  };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E4E9E5] card-shadow">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[60px] gap-3">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-[#0F172A] border-b border-[#CBD5E1] dark:border-[#1E293B] shadow-xs select-none">
+      
+      {/* Tier 1: GIGW Accessibility & Identity Top Bar */}
+      <GovTopBar
+        onContrastToggle={toggleContrast}
+        isHighContrast={isHighContrast}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* Tier 2: National Portal Branding & Emblem Header */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 bg-white dark:bg-[#0F172A]">
+        <div className="flex items-center justify-between gap-4">
           
-          {/* Left Side: Expand button + Brand Logo & Breadcrumb */}
-          <div className="flex items-center gap-3">
-            {onToggleMobileSidebar && (
-              <button
-                onClick={onToggleMobileSidebar}
-                className="lg:hidden p-2 rounded-[10px] text-[#66736B] hover:text-[#17211B] hover:bg-[#EEF5EF] transition-colors"
-                aria-label={t("nav.menu")}
-              >
-                {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            )}
-
-            {onToggleSidebarExpand && (
-              <button
-                onClick={onToggleSidebarExpand}
-                className="hidden lg:flex p-2 rounded-[10px] text-[#66736B] hover:text-[#123D2D] hover:bg-[#EEF5EF] transition-colors"
-                title={isSidebarExpanded ? t("nav.collapseSidebar") : t("nav.expandSidebar")}
-              >
-                {isSidebarExpanded ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
-              </button>
-            )}
-
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-[10px] bg-[#123D2D] flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-sm group-hover:bg-[#2F7D4A] transition-colors">
-                KQ
-              </div>
-              <div className="hidden sm:block">
-                <span className="font-bold text-base text-[#17211B] tracking-tight">KrishiQ</span>
-              </div>
+          {/* Left: Emblem + Official Portal Title */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Ashoka Lion Capital Emblem */}
+            <Link to="/" className="shrink-0 group flex items-center" title="भारत सरकार | Government of India">
+              <EmblemOfIndia size="md" />
             </Link>
 
-            <div className="h-4 w-px bg-[#E4E9E5] hidden md:block mx-1" />
+            {/* Vertical Gov Separator */}
+            <div className="h-10 sm:h-12 w-[1.5px] bg-[#CBD5E1] dark:bg-slate-700 hidden sm:block" />
 
-            {/* Clean Breadcrumb */}
-            <div className="hidden md:flex items-center gap-2 text-[13px]">
-              <span className="text-[#66736B] font-medium">{breadcrumb.portal}</span>
-              <span className="text-[#8A958E]">/</span>
-              <span className="font-semibold text-[#17211B]">{breadcrumb.page}</span>
+            {/* Bilingual Portal Name */}
+            <div>
+              <Link to="/" className="block">
+                <h1 className="text-base sm:text-xl lg:text-2xl font-black text-[#003366] dark:text-[#38BDF8] tracking-tight leading-tight">
+                  {isHindi ? "राष्ट्रीय कृषि ई-उपार्जन पोर्टल" : "KrishiQ - National Procurement Portal"}
+                </h1>
+                <p className="text-[11px] sm:text-xs text-slate-700 dark:text-slate-300 font-semibold leading-tight mt-0.5">
+                  {isHindi
+                    ? "कृषि उपज मंडी डिजिटल समन्वय एवं यात्रा प्रबंधन प्रणाली"
+                    : "Intelligent Mandi Intake & Real-Time Queue Coordination Platform"}
+                </p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden md:block">
+                  {isHindi
+                    ? "कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार"
+                    : "Department of Agriculture & Farmers Welfare, Government of India"}
+                </p>
+              </Link>
             </div>
           </div>
 
-          {/* Right Side: Clean controls (Language, Notifications, Profile Dropdown) */}
-          <div className="flex items-center gap-2.5">
-            
-            {/* Language Selector */}
-            <div className="relative" ref={langRef}>
-              <button
-                onClick={() => {
-                  setShowLangMenu((prev) => !prev);
-                  setShowNotifs(false);
-                  setShowUserMenu(false);
-                }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] border border-[#E4E9E5] dark:border-[#202722] bg-white dark:bg-[#141816] hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E] text-xs font-medium text-[#17211B] dark:text-white transition-colors cursor-pointer"
-                title="Select Language"
-              >
-                <Globe className="w-3.5 h-3.5 text-[#66736B] dark:text-[#A0ABA4]" />
-                <span className="font-semibold">{language === "hi" ? "हिंदी" : "English"}</span>
-                <ChevronDown className="w-3 h-3 text-[#8A958E] dark:text-[#A0ABA4]" />
-              </button>
+          {/* Right: National Initiative Badges & Kisan Helpline */}
+          <div className="flex items-center gap-3 sm:gap-5">
+            <GovInitiativeBadges />
 
-              {showLangMenu && (
-                <div className="absolute right-0 mt-1.5 w-36 bg-white dark:bg-[#141816] rounded-2xl border border-[#E4E9E5] dark:border-[#202722] card-shadow z-50 p-1.5 text-xs">
-                  <button
-                    onClick={() => { setLanguage("en"); setShowLangMenu(false); }}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl transition-colors flex items-center justify-between ${
-                      language === "en" ? "font-bold bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89]" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
-                    }`}
-                  >
-                    <span>English</span>
-                    {language === "en" && <Check className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />}
-                  </button>
-                  <button
-                    onClick={() => { setLanguage("hi"); setShowLangMenu(false); }}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl transition-colors font-sans flex items-center justify-between ${
-                      language === "hi" ? "font-bold bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89]" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
-                    }`}
-                  >
-                    <span>हिंदी</span>
-                    {language === "hi" && <Check className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Light / Dark Mode Toggle Button (Between Language and Notifications) */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 rounded-[10px] text-[#66736B] dark:text-[#A0ABA4] hover:text-[#17211B] dark:hover:text-white hover:bg-[#EEF5EF] dark:hover:bg-[#1B221E] border border-[#E4E9E5] dark:border-[#202722] transition-colors cursor-pointer"
-              title={
-                theme === "dark"
-                  ? (isHindi ? "लाइट मोड चालू करें" : "Switch to Light Mode")
-                  : (isHindi ? "डार्क मोड चालू करें" : "Switch to Dark Mode")
-              }
-              aria-label="Toggle Light and Dark Mode"
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-[#F2A93B]" />
-              ) : (
-                <Moon className="w-4 h-4 text-[#66736B]" />
-              )}
-            </button>
-
-            {/* Notifications Dropdown */}
-            <div className="relative" ref={notifsRef}>
-              <button
-                onClick={() => {
-                  setShowNotifs((prev) => !prev);
-                  setShowLangMenu(false);
-                  setShowUserMenu(false);
-                }}
-                className="relative p-2 rounded-[10px] text-[#66736B] dark:text-[#A0ABA4] hover:text-[#17211B] dark:hover:text-white hover:bg-[#EEF5EF] dark:hover:bg-[#1B221E] border border-[#E4E9E5] dark:border-[#202722] transition-colors cursor-pointer"
-                aria-label={t("farmer.notificationsTitle")}
-              >
-                <Bell className="w-4 h-4" />
-                {unreadNotifsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#D95555] text-white text-[9px] font-bold flex items-center justify-center">
-                    {unreadNotifsCount}
-                  </span>
-                )}
-              </button>
-
-              {showNotifs && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#121E17] rounded-2xl border border-[#E4E9E5] dark:border-[#243B2E] card-shadow shadow-xl dark:shadow-2xl z-50 overflow-hidden">
-                  <div className="px-4 py-3 bg-[#F6F8F4] dark:bg-[#0D1812] border-b border-[#E4E9E5] dark:border-[#22352A] flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-[#66736B] dark:text-[#8E9F94] uppercase tracking-wider">
-                        {t("farmer.notificationsTitle")}
-                      </span>
-                      {unreadNotifsCount > 0 && (
-                        <span className="px-1.5 py-0.5 rounded-full bg-[#2F7D4A]/10 text-[#2F7D4A] dark:bg-[#2F7D4A]/20 dark:text-[#4ADE80] text-[10px] font-bold">
-                          {unreadNotifsCount} {isHindi ? "नया" : "new"}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {unreadNotifsCount > 0 && (
-                        <button
-                          type="button"
-                          onClick={markAllNotificationsAsRead}
-                          className="text-[11px] text-[#2F7D4A] dark:text-[#4ADE80] hover:underline font-semibold transition-colors cursor-pointer"
-                        >
-                          {isHindi ? "सभी पढ़ें" : "Mark all read"}
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setShowNotifs(false)}
-                        className="text-[#8A958E] hover:text-[#17211B] dark:hover:text-white text-xs font-medium cursor-pointer"
-                      >
-                        {t("common.close")}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="max-h-80 overflow-y-auto divide-y divide-[#E4E9E5] dark:divide-[#22352A]">
-                    {notifications.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-[#66736B] dark:text-[#8E9F94]">
-                        {t("farmer.noNewNotifications")}
-                      </div>
-                    ) : (
-                      notifications.map((notif) => (
-                        <div
-                          key={notif.id}
-                          onClick={() => {
-                            markNotificationAsRead(notif.id);
-                            if (notif.actionUrl) {
-                              navigate(notif.actionUrl);
-                              setShowNotifs(false);
-                            }
-                          }}
-                          className={`px-4 py-3 transition-colors cursor-pointer text-xs flex items-start gap-3 ${
-                            !notif.read
-                              ? "bg-[#F2F8F4] hover:bg-[#E8F3EB] dark:bg-[#162B1F] dark:hover:bg-[#1C3627]"
-                              : "bg-white hover:bg-[#F9FAF8] dark:bg-[#121E17] dark:hover:bg-[#18291F]"
-                          }`}
-                        >
-                          {/* Unread indicator dot */}
-                          <div className="pt-1 shrink-0">
-                            <span
-                              className={`w-2 h-2 rounded-full block ${
-                                !notif.read
-                                  ? "bg-[#2F7D4A] dark:bg-[#4ADE80] ring-4 ring-[#2F7D4A]/20"
-                                  : "bg-transparent"
-                              }`}
-                            />
-                          </div>
-
-                          {/* Text content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-baseline justify-between gap-2">
-                              <h5
-                                className={`text-xs ${
-                                  !notif.read
-                                    ? "font-bold text-[#123D2D] dark:text-[#F0F5F1]"
-                                    : "font-medium text-[#4B5563] dark:text-[#9CA3AF]"
-                                }`}
-                              >
-                                {notif.title}
-                              </h5>
-                              <span
-                                className={`text-[10px] font-sans shrink-0 ${
-                                  !notif.read
-                                    ? "text-[#4B5563] dark:text-[#94A3B8] font-medium"
-                                    : "text-[#9CA3AF] dark:text-[#64748B]"
-                                }`}
-                              >
-                                {notif.timestamp}
-                              </span>
-                            </div>
-                            <p
-                              className={`text-[12px] leading-relaxed mt-0.5 ${
-                                !notif.read
-                                  ? "text-[#24332A] dark:text-[#CBD5E1]"
-                                  : "text-[#6B7280] dark:text-[#94A3B8]"
-                              }`}
-                            >
-                              {notif.message}
-                            </p>
-                          </div>
-
-                          {/* Sleek Eye button to toggle read state */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleNotificationRead(notif.id);
-                            }}
-                            className="p-1 rounded-md text-[#6B7280] hover:text-[#2F7D4A] dark:text-[#94A3B8] dark:hover:text-[#4ADE80] hover:bg-black/5 dark:hover:bg-white/10 shrink-0 transition-colors cursor-pointer mt-0.5"
-                            title={
-                              !notif.read
-                                ? (isHindi ? "पढ़ा हुआ चिह्नित करें" : "Mark as read")
-                                : (isHindi ? "अनदेखा चिह्नित करें" : "Mark as unread")
-                            }
-                            aria-label={!notif.read ? "Mark as read" : "Mark as unread"}
-                          >
-                            {!notif.read ? (
-                              <Eye className="w-4 h-4 text-[#2F7D4A] dark:text-[#4ADE80]" />
-                            ) : (
-                              <EyeOff className="w-4 h-4 opacity-40 hover:opacity-100" />
-                            )}
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  <div className="p-2.5 bg-[#F6F8F4] dark:bg-[#0D1812] border-t border-[#E4E9E5] dark:border-[#22352A] text-center">
-                    <Link
-                      to="/farmer/notifications"
-                      onClick={() => setShowNotifs(false)}
-                      className="text-xs font-bold text-[#2F7D4A] dark:text-[#4ADE80] hover:underline inline-flex items-center gap-1"
-                    >
-                      <span>{isHindi ? "सभी सूचनाएँ देखें →" : "View All Notifications →"}</span>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* User Profile Dropdown with Demo Persona Switcher */}
-            <div className="relative" ref={userMenuRef}>
-              <button
-                onClick={() => {
-                  setShowUserMenu((prev) => !prev);
-                  setShowLangMenu(false);
-                  setShowNotifs(false);
-                }}
-                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full border border-[#E4E9E5] dark:border-[#202722] bg-white dark:bg-[#141816] hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E] transition-colors cursor-pointer"
-              >
-                <div className="w-7 h-7 rounded-full bg-[#123D2D] dark:bg-[#2F7D4A] text-white flex items-center justify-center text-xs font-bold">
-                  {userName.charAt(0)}
-                </div>
-                <span className="hidden md:inline text-xs font-semibold text-[#17211B] dark:text-white">
-                  {userName}
+            {/* Official Toll-free Helpline Box */}
+            <div className="hidden xl:flex items-center gap-2.5 px-3 py-1.5 bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#CBD5E1] dark:border-slate-700 rounded-xs">
+              <div className="w-7 h-7 rounded-2xs bg-[#15803D] text-white flex items-center justify-center">
+                <PhoneCall className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left">
+                <span className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider block">
+                  {isHindi ? "किसान हेल्पलाइन" : "Kisan Helpline"}
                 </span>
-                <ChevronDown className="w-3 h-3 text-[#8A958E] dark:text-[#A0ABA4] hidden md:block" />
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 mt-1.5 w-52 bg-white dark:bg-[#141816] rounded-2xl border border-[#E4E9E5] dark:border-[#202722] card-shadow z-50 p-2 text-xs space-y-1 shadow-xl">
-                  <div className="px-3 py-2 border-b border-[#E4E9E5] dark:border-[#202722]">
-                    <div className="font-bold text-[#17211B] dark:text-white">{userName}</div>
-                    <div className="text-[10px] text-[#66736B] dark:text-[#A0ABA4] uppercase font-mono">
-                      {role === "farmer" ? t("nav.farmerPortal") : role === "centre" ? t("nav.operatorPortal") : t("nav.adminPortal")}
-                    </div>
-                  </div>
-
-                  <div className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8A958E] dark:text-[#A0ABA4]">
-                    {t("common.switchPersona")}
-                  </div>
-
-                  <button
-                    onClick={() => handleRoleChange("admin")}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2 font-medium transition-colors ${
-                      role === "admin" ? "bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89] font-bold" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
-                    }`}
-                  >
-                    <Landmark className="w-3.5 h-3.5 text-[#F2A93B]" />
-                    <span>{t("nav.adminPortal")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleRoleChange("centre")}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2 font-medium transition-colors ${
-                      role === "centre" ? "bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89] font-bold" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
-                    }`}
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-[#4178C0]" />
-                    <span>{t("nav.operatorPortal")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleRoleChange("farmer")}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl flex items-center gap-2 font-medium transition-colors ${
-                      role === "farmer" ? "bg-[#EEF5EF] dark:bg-[#12281C] text-[#123D2D] dark:text-[#52DB89] font-bold" : "text-[#17211B] dark:text-white hover:bg-[#F6F8F4] dark:hover:bg-[#1B221E]"
-                    }`}
-                  >
-                    <Users className="w-3.5 h-3.5 text-[#2F7D4A] dark:text-[#52DB89]" />
-                    <span>{t("nav.farmerPortal")}</span>
-                  </button>
-
-                  <div className="border-t border-[#E4E9E5] dark:border-[#202722] pt-1 mt-1">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        resetAllData();
-                      }}
-                      className="w-full text-left px-3 py-1.5 rounded-xl hover:bg-[#FDF2F2] dark:hover:bg-[#251214] text-[#D95555] dark:text-[#F87171] font-medium flex items-center gap-2 transition-colors cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>{t("common.resetData")}</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+                <span className="font-mono font-black text-xs text-[#003366] dark:text-emerald-400 tracking-wider">
+                  1800-180-1551
+                </span>
+              </div>
             </div>
-
           </div>
 
         </div>
       </div>
+
+      {/* Tier 3: Primary Government Navigation Bar (Deep Navy #003366) */}
+      <div className="w-full bg-[#003366] text-white">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-[42px] gap-2">
+            
+            {/* Left Nav Controls */}
+            <div className="flex items-center gap-2">
+              {/* Mobile Sidebar Toggle Button */}
+              {!isLanding && onToggleMobileSidebar && (
+                <button
+                  onClick={onToggleMobileSidebar}
+                  className="lg:hidden p-1.5 rounded-xs text-white/90 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label={t("nav.menu")}
+                >
+                  {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+              )}
+
+              {/* Desktop Sidebar Toggle */}
+              {!isLanding && handleToggleCollapse && (
+                <button
+                  onClick={handleToggleCollapse}
+                  className="hidden lg:flex p-1.5 rounded-xs text-white/90 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                  title={isCollapsed ? (isHindi ? "साइडबार खोलें" : "Expand Sidebar") : (isHindi ? "साइडबार समेटें" : "Collapse Sidebar")}
+                  aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                >
+                  {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+                </button>
+              )}
+
+              {/* Main Nav Links */}
+              <nav className="flex items-center text-xs font-bold uppercase tracking-wide">
+                <Link
+                  to="/"
+                  className={`px-3 py-2.5 transition-colors border-b-2 flex items-center gap-1.5 ${
+                    isLanding
+                      ? "bg-[#002244] text-[#FF9933] border-[#FF9933]"
+                      : "text-white/90 hover:text-white hover:bg-white/10 border-transparent"
+                  }`}
+                >
+                  <Home className="w-3.5 h-3.5" />
+                  <span>{isHindi ? "मुख्य पृष्ठ" : "Home"}</span>
+                </Link>
+
+                {role === "farmer" && !isLanding && (
+                  <Link
+                    to="/farmer/dashboard"
+                    className="px-3 py-2.5 bg-[#002244] text-[#FF9933] border-b-2 border-[#FF9933] flex items-center gap-1.5"
+                  >
+                    <span>{isHindi ? "किसान सेवाएं" : "Farmer Services"}</span>
+                  </Link>
+                )}
+
+                {role === "centre" && !isLanding && (
+                  <Link
+                    to="/centre/dashboard"
+                    className="px-3 py-2.5 bg-[#002244] text-[#FF9933] border-b-2 border-[#FF9933] flex items-center gap-1.5"
+                  >
+                    <span>{isHindi ? "मंडी ऑपरेटर कंसोल" : "Operator Console"}</span>
+                  </Link>
+                )}
+
+                {role === "admin" && !isLanding && (
+                  <Link
+                    to="/admin/dashboard"
+                    className="px-3 py-2.5 bg-[#002244] text-[#FF9933] border-b-2 border-[#FF9933] flex items-center gap-1.5"
+                  >
+                    <span>{isHindi ? "राज्य नियंत्रण कक्ष" : "State Command"}</span>
+                  </Link>
+                )}
+              </nav>
+            </div>
+
+            {/* Right Side: Notifications & Official Role Switcher */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              
+              {/* Notifications Dropdown */}
+              <div className="relative" ref={notifsRef}>
+                <button
+                  onClick={() => {
+                    setShowNotifs((prev) => !prev);
+                    setShowUserMenu(false);
+                  }}
+                  className="relative p-1.5 rounded-xs text-white/90 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                  aria-label={t("farmer.notificationsTitle")}
+                  title={isHindi ? "सूचनाएँ एवं विज्ञप्ति" : "Notifications & Circulars"}
+                >
+                  <Bell className="w-4 h-4" />
+                  {unreadNotifsCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#B91C1C] text-white text-[9px] font-extrabold flex items-center justify-center border border-white">
+                      {unreadNotifsCount}
+                    </span>
+                  )}
+                </button>
+
+                {showNotifs && (
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#131D28] text-slate-800 dark:text-slate-100 rounded-xs border-2 border-[#003366] shadow-xl z-50 overflow-hidden">
+                    <div className="px-4 py-2.5 bg-[#003366] text-white flex items-center justify-between text-xs font-bold">
+                      <div className="flex items-center gap-2">
+                        <span>{isHindi ? "सरकारी सूचनाएँ एवं निर्देश" : "Official Notifications"}</span>
+                        {unreadNotifsCount > 0 && (
+                          <span className="px-1.5 py-0.2 rounded-2xs bg-[#FF9933] text-[#002244] text-[10px]">
+                            {unreadNotifsCount} {isHindi ? "नया" : "New"}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {unreadNotifsCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={markAllNotificationsAsRead}
+                            className="text-[10px] text-[#FF9933] hover:underline"
+                          >
+                            {isHindi ? "सभी पढ़ें" : "Mark read"}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setShowNotifs(false)}
+                          className="text-white/80 hover:text-white text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto divide-y divide-[#CBD5E1] dark:divide-slate-700">
+                      {notifications.length === 0 ? (
+                        <div className="p-4 text-center text-xs text-slate-500">
+                          {t("farmer.noNewNotifications")}
+                        </div>
+                      ) : (
+                        notifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            onClick={() => {
+                              markNotificationAsRead(notif.id);
+                              if (notif.actionUrl) {
+                                navigate(notif.actionUrl);
+                                setShowNotifs(false);
+                              }
+                            }}
+                            className={`p-3 text-xs flex items-start gap-2.5 cursor-pointer transition-colors ${
+                              !notif.read ? "bg-[#EFF6FF] dark:bg-[#0C2340]" : "bg-white dark:bg-[#131D28] hover:bg-slate-50"
+                            }`}
+                          >
+                            <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${!notif.read ? "bg-[#003366]" : "bg-transparent"}`} />
+                            <div className="flex-1">
+                              <h5 className="font-bold text-[#003366] dark:text-[#38BDF8] text-xs">
+                                {notif.title}
+                              </h5>
+                              <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                                {notif.message}
+                              </p>
+                              <span className="text-[10px] text-slate-400 block mt-1">
+                                {notif.timestamp}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Authorized Operational Role Selector */}
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => {
+                    setShowUserMenu((prev) => !prev);
+                    setShowNotifs(false);
+                  }}
+                  className="flex items-center gap-2 px-2.5 py-1 bg-[#002244] hover:bg-[#001B36] border border-[#0A3866] rounded-xs text-xs font-bold text-white transition-colors cursor-pointer"
+                  title="Change Official User Role"
+                >
+                  <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
+                  <span className="hidden sm:inline">{getRoleDisplayName()}</span>
+                  <span className="sm:hidden uppercase">{role}</span>
+                  <ChevronDown className="w-3 h-3 text-[#FF9933]" />
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-[#131D28] text-slate-800 dark:text-slate-100 rounded-xs border-2 border-[#003366] shadow-2xl z-50 p-2 text-xs space-y-1">
+                    <div className="px-3 py-2 bg-[#F1F5F9] dark:bg-[#0E1620] border-b border-[#CBD5E1] dark:border-slate-700">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold block">
+                        {isHindi ? "सत्यापित उपयोगकर्ता" : "Authorized User Profile"}
+                      </span>
+                      <strong className="text-xs font-bold text-[#003366] dark:text-[#38BDF8] block truncate">
+                        {getUserName()}
+                      </strong>
+                    </div>
+
+                    <div className="px-2 pt-2 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      {isHindi ? "भूमिका बदलें (Switch Role)" : "Select Operating Persona"}
+                    </div>
+
+                    <button
+                      onClick={() => handleRoleChange("farmer")}
+                      className={`w-full text-left px-3 py-2 rounded-xs flex items-center gap-2 font-medium transition-colors cursor-pointer ${
+                        role === "farmer" ? "bg-[#003366] text-white font-bold" : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5 text-[#22C55E]" />
+                      <div className="flex-1">
+                        <span className="block font-bold">{isHindi ? "1. किसान पोर्टल" : "1. Farmer Portal"}</span>
+                        <span className="text-[10px] opacity-80">{isHindi ? "टोकन, कतार, एवं भुगतान" : "Token, Queue, & Payment"}</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleRoleChange("centre")}
+                      className={`w-full text-left px-3 py-2 rounded-xs flex items-center gap-2 font-medium transition-colors cursor-pointer ${
+                        role === "centre" ? "bg-[#003366] text-white font-bold" : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-[#38BDF8]" />
+                      <div className="flex-1">
+                        <span className="block font-bold">{isHindi ? "2. मंडी ऑपरेटर कंसोल" : "2. Mandi Operator"}</span>
+                        <span className="text-[10px] opacity-80">{isHindi ? "तौल कांटा, FAQ गुणवत्ता, कतार" : "Weighbridge, FAQ grading"}</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleRoleChange("admin")}
+                      className={`w-full text-left px-3 py-2 rounded-xs flex items-center gap-2 font-medium transition-colors cursor-pointer ${
+                        role === "admin" ? "bg-[#003366] text-white font-bold" : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Landmark className="w-3.5 h-3.5 text-[#FF9933]" />
+                      <div className="flex-1">
+                        <span className="block font-bold">{isHindi ? "3. राज्य नियंत्रण कक्ष" : "3. State Command"}</span>
+                        <span className="text-[10px] opacity-80">{isHindi ? "टेलीमेट्री एवं भीड़ सिमुलेटर" : "Telemetry & Simulator"}</span>
+                      </div>
+                    </button>
+
+                    <div className="border-t border-[#CBD5E1] dark:border-slate-700 pt-1.5 mt-1">
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          resetAllData();
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-[#B91C1C] hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xs font-bold flex items-center gap-2 cursor-pointer"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>{isHindi ? "डेमो डेटा रीसेट करें" : "Reset Demo Simulation"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Tier 4: Public Notice & Important Circular Ticker */}
+      <GovMarquee />
+
     </header>
   );
 };
