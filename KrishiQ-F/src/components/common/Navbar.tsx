@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white dark:bg-[#0F172A] border-b border-[#CBD5E1] dark:border-[#1E293B] shadow-xs select-none">
+    <header className="sticky top-0 z-50 w-full bg-white dark:bg-[#0F172A] border-b border-[#CBD5E1] dark:border-[#1E293B] shadow-xs select-none">
       
       {/* Tier 1: GIGW Accessibility & Identity Top Bar */}
       <GovTopBar
