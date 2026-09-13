@@ -31,15 +31,17 @@ export const Card: React.FC<CardProps> = ({
     lg: "p-4 sm:p-5",
   };
 
+  const hasHeader = Boolean(title || headerRight);
+
   return (
     <div
       className={`bg-white dark:bg-[#131D28] text-[#0F172A] dark:text-[#F8FAFC] rounded-xs border border-[#CBD5E1] dark:border-[#1E293B] card-shadow overflow-hidden ${
         hoverable ? "card-shadow-hover" : ""
-      } ${title || headerRight ? "" : paddingStyles[padding]} ${className}`}
+      } ${className}`}
       {...props}
     >
-      {(title || headerRight) && (
-        <div className="bg-[#F8FAFC] dark:bg-[#0E1620] px-3.5 sm:px-4 py-2.5 border-b border-[#CBD5E1] dark:border-[#1E293B] flex items-center justify-between gap-2">
+      {hasHeader && (
+        <div className="bg-[#F8FAFC] dark:bg-[#0E1620] px-3.5 sm:px-4 py-2.5 border-b border-[#CBD5E1] dark:border-[#1E293B] flex items-center justify-between gap-2 shrink-0">
           <div>
             <h3 className="text-xs sm:text-sm font-bold text-[#003366] dark:text-[#38BDF8] tracking-tight leading-snug">
               {title}
@@ -53,7 +55,13 @@ export const Card: React.FC<CardProps> = ({
           {headerRight && <div className="shrink-0">{headerRight}</div>}
         </div>
       )}
-      <div className={title || headerRight ? paddingStyles[padding] : ""}>{children}</div>
+      {padding === "none" && !hasHeader ? (
+        children
+      ) : (
+        <div className={`${paddingStyles[padding]} ${className.includes("flex-col") ? "flex-1 flex flex-col" : ""}`}>
+          {children}
+        </div>
+      )}
     </div>
   );
 };

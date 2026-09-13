@@ -23,6 +23,7 @@ import {
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
+import { LocalProcurementMap } from "../../components/common/LocalProcurementMap";
 
 export const FarmerDashboard: React.FC = () => {
   const { farmerBooking, setSelectedCentreId, selectedCentre, centres } = useKrishiQ();
@@ -236,170 +237,22 @@ export const FarmerDashboard: React.FC = () => {
             </div>
           </Card>
 
-          {/* 60% Interactive Map */}
-          <Card padding="none" className="lg:col-span-7 flex flex-col h-[340px] overflow-hidden relative border-[#CBD5E1]">
-            <div className="px-4 h-10 bg-[#003366] text-white flex items-center justify-between text-xs font-bold z-10 shrink-0">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#FF9933]" />
-                <span className="uppercase tracking-wide">{t("farmer.liveMapTitle")}</span>
-              </div>
-              <span className="text-slate-200 text-[11px] font-medium">
-                {isHindi ? "इंदौर संभाग (मध्य प्रदेश)" : "Indore Division (MP)"}
-              </span>
-            </div>
-
-            <div className="relative flex-1 bg-[#E8F0E4] dark:bg-[#0F172A] overflow-hidden select-none">
-              {/* SVG District Map of Indore Division */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice">
-                <defs>
-                  {/* Congestion gradient fills */}
-                  <linearGradient id="lowZone" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#BBF7D0" stopOpacity="0.7" />
-                    <stop offset="100%" stopColor="#86EFAC" stopOpacity="0.5" />
-                  </linearGradient>
-                  <linearGradient id="modZone" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.7" />
-                    <stop offset="100%" stopColor="#FCD34D" stopOpacity="0.5" />
-                  </linearGradient>
-                  <linearGradient id="highZone" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#FECACA" stopOpacity="0.7" />
-                    <stop offset="100%" stopColor="#FCA5A5" stopOpacity="0.5" />
-                  </linearGradient>
-                  <pattern id="gridPattern" width="30" height="30" patternUnits="userSpaceOnUse">
-                    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#94A3B8" strokeWidth="0.15" opacity="0.4" />
-                  </pattern>
-                </defs>
-
-                {/* Background terrain */}
-                <rect width="600" height="300" fill="url(#gridPattern)" />
-
-                {/* District Boundaries & Congestion Zones */}
-                {/* Indore District — HIGH congestion (red) */}
-                <path d="M180 70 L260 55 L310 80 L320 140 L290 180 L230 190 L180 160 L165 110 Z"
-                  fill="url(#highZone)" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="6,3" />
-                <text x="240" y="130" textAnchor="middle" fontSize="11" fontWeight="800" fill="#991B1B" opacity="0.8" fontFamily="sans-serif">INDORE</text>
-                <text x="240" y="143" textAnchor="middle" fontSize="7" fontWeight="600" fill="#B91C1C" opacity="0.7" fontFamily="sans-serif">इंदौर</text>
-
-                {/* Dewas District — MODERATE congestion (amber) */}
-                <path d="M310 80 L400 60 L430 95 L420 150 L370 170 L320 140 Z"
-                  fill="url(#modZone)" stroke="#D97706" strokeWidth="1.5" strokeDasharray="6,3" />
-                <text x="370" y="115" textAnchor="middle" fontSize="10" fontWeight="700" fill="#92400E" opacity="0.8" fontFamily="sans-serif">DEWAS</text>
-                <text x="370" y="127" textAnchor="middle" fontSize="7" fontWeight="600" fill="#B45309" opacity="0.7" fontFamily="sans-serif">देवास</text>
-
-                {/* Ujjain District — LOW congestion (green) */}
-                <path d="M400 60 L510 40 L540 80 L530 140 L480 160 L420 150 L430 95 Z"
-                  fill="url(#lowZone)" stroke="#15803D" strokeWidth="1.5" strokeDasharray="6,3" />
-                <text x="475" y="100" textAnchor="middle" fontSize="10" fontWeight="700" fill="#166534" opacity="0.8" fontFamily="sans-serif">UJJAIN</text>
-                <text x="475" y="112" textAnchor="middle" fontSize="7" fontWeight="600" fill="#15803D" opacity="0.7" fontFamily="sans-serif">उज्जैन</text>
-
-                {/* Dhar District — LOW congestion (green) */}
-                <path d="M60 100 L165 110 L180 160 L230 190 L200 240 L130 260 L60 230 L40 170 Z"
-                  fill="url(#lowZone)" stroke="#15803D" strokeWidth="1.5" strokeDasharray="6,3" />
-                <text x="130" y="185" textAnchor="middle" fontSize="10" fontWeight="700" fill="#166534" opacity="0.8" fontFamily="sans-serif">DHAR</text>
-                <text x="130" y="197" textAnchor="middle" fontSize="7" fontWeight="600" fill="#15803D" opacity="0.7" fontFamily="sans-serif">धार</text>
-
-                {/* Ratlam District — MODERATE congestion (amber) */}
-                <path d="M30 30 L140 20 L180 70 L165 110 L60 100 L25 65 Z"
-                  fill="url(#modZone)" stroke="#D97706" strokeWidth="1.5" strokeDasharray="6,3" />
-                <text x="105" y="68" textAnchor="middle" fontSize="10" fontWeight="700" fill="#92400E" opacity="0.8" fontFamily="sans-serif">RATLAM</text>
-                <text x="105" y="80" textAnchor="middle" fontSize="7" fontWeight="600" fill="#B45309" opacity="0.7" fontFamily="sans-serif">रतलाम</text>
-
-                {/* Shajapur District — LOW congestion (green) */}
-                <path d="M320 140 L370 170 L380 230 L320 260 L270 240 L290 180 Z"
-                  fill="url(#lowZone)" stroke="#15803D" strokeWidth="1.5" strokeDasharray="6,3" />
-                <text x="330" y="210" textAnchor="middle" fontSize="9" fontWeight="700" fill="#166534" opacity="0.8" fontFamily="sans-serif">SHAJAPUR</text>
-                <text x="330" y="222" textAnchor="middle" fontSize="7" fontWeight="600" fill="#15803D" opacity="0.7" fontFamily="sans-serif">शाजापुर</text>
-
-                {/* Road Network */}
-                {/* NH-52 Horizontal */}
-                <line x1="20" y1="130" x2="560" y2="100" stroke="#64748B" strokeWidth="2" opacity="0.5" />
-                <rect x="280" y="100" width="30" height="12" rx="2" fill="#FFFFFF" stroke="#64748B" strokeWidth="0.5" />
-                <text x="295" y="109" textAnchor="middle" fontSize="6" fontWeight="700" fill="#334155" fontFamily="sans-serif">NH-52</text>
-
-                {/* NH-47 Vertical */}
-                <line x1="250" y1="10" x2="240" y2="280" stroke="#64748B" strokeWidth="2" opacity="0.5" />
-                <rect x="225" y="35" width="30" height="12" rx="2" fill="#FFFFFF" stroke="#64748B" strokeWidth="0.5" />
-                <text x="240" y="44" textAnchor="middle" fontSize="6" fontWeight="700" fill="#334155" fontFamily="sans-serif">NH-47</text>
-
-                {/* State Highway */}
-                <line x1="140" y1="20" x2="480" y2="250" stroke="#94A3B8" strokeWidth="1.2" strokeDasharray="8,4" opacity="0.4" />
-
-                {/* Kshipra River */}
-                <path d="M440 30 C430 80 460 120 440 160 C420 200 450 240 430 280"
-                  fill="none" stroke="#38BDF8" strokeWidth="2.5" opacity="0.45" strokeLinecap="round" />
-                <text x="455" y="78" fontSize="7" fontWeight="600" fill="#0284C7" opacity="0.6" fontFamily="sans-serif" transform="rotate(8, 455, 78)">Kshipra R.</text>
-
-                {/* Narmada River segment */}
-                <path d="M20 240 C80 220 140 250 200 230 C250 215 290 240 340 225"
-                  fill="none" stroke="#38BDF8" strokeWidth="2" opacity="0.35" strokeLinecap="round" />
-                <text x="175" y="255" fontSize="7" fontWeight="600" fill="#0284C7" opacity="0.5" fontFamily="sans-serif">Narmada R.</text>
-
-                {/* Railway line */}
-                <line x1="60" y1="100" x2="530" y2="85" stroke="#78716C" strokeWidth="1.5" strokeDasharray="2,6" opacity="0.3" />
-              </svg>
-
-              {/* Route connector lines (on top of map) */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 5 }}>
-                <line x1="45%" y1="50%" x2="62%" y2="38%" stroke="#22C55E" strokeWidth="2" strokeDasharray="4" opacity="0.7" />
-                <line x1="45%" y1="50%" x2="32%" y2="64%" stroke="#EF4444" strokeWidth="2" opacity="0.7" />
-                <line x1="45%" y1="50%" x2="80%" y2="24%" stroke="#38BDF8" strokeWidth="1.5" opacity="0.7" />
-              </svg>
-
-              {/* Farmer Pin */}
-              <div className="absolute left-[45%] top-[50%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
-                <div className="w-7 h-7 rounded-full bg-[#15803D] text-white flex items-center justify-center font-bold text-xs border-2 border-white shadow-lg">
-                  📍
-                </div>
-                <span className="mt-0.5 px-2 py-0.5 rounded-2xs bg-black/80 text-white text-[10px] font-bold">
-                  {t("farmer.yourFarm")}
-                </span>
-              </div>
-
-              {/* Centre Pins */}
-              {centres.map((c) => {
-                const isRec = c.isRecommended;
-                const isCrit = c.status === "critical";
-                const isWarn = c.status === "warning";
-                const colorBg = isCrit ? "bg-[#DC2626]" : isWarn ? "bg-[#D97706]" : "bg-[#15803D]";
-
-                return (
-                  <div
-                    key={c.id}
-                    onClick={() => {
-                      setSelectedCentreId(c.id);
-                      navigate("/farmer/centres");
-                    }}
-                    style={{
-                      left: c.id === "centre-b" ? "62%" : c.id === "centre-a" ? "32%" : "80%",
-                      top: c.id === "centre-b" ? "38%" : c.id === "centre-a" ? "64%" : "24%",
-                    }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
-                  >
-                    {isRec && (
-                      <span className="mb-0.5 px-1.5 py-0.2 rounded-2xs text-[8px] font-extrabold bg-[#FF9933] text-[#002244] uppercase shadow-xs">
-                        {t("common.recommended")}
-                      </span>
-                    )}
-                    <div className={`w-7 h-7 rounded-xs ${colorBg} text-white flex items-center justify-center font-bold text-xs border border-white shadow-md`}>
-                      {c.name.charAt(0)}
-                    </div>
-                    <span className="mt-0.5 px-1.5 py-0.5 rounded-2xs bg-black/85 text-white text-[10px] font-medium whitespace-nowrap">
-                      {formatLocation(c.name.split(" (")[0])} • {c.predictedWaitMinutes}m
-                    </span>
-                  </div>
-                );
-              })}
-
-              <div className="absolute bottom-2 left-2 right-2 bg-slate-900/90 p-2 rounded-xs text-[10px] text-white flex items-center justify-between border border-slate-700">
-                <div className="flex items-center gap-3 font-semibold">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#22C55E]" /> {t("common.lowCongestion")}</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#F59E0B]" /> {t("common.moderate")}</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#EF4444]" /> {t("common.highCongestion")}</span>
-                </div>
-                <span className="text-[#FF9933] font-bold uppercase">{t("farmer.liveGrid")}</span>
-              </div>
-            </div>
-          </Card>
+          {/* 60% Interactive Congestion Map */}
+          <div className="lg:col-span-7 flex flex-col">
+            <LocalProcurementMap
+              centres={centres}
+              selectedCentreId={selectedCentre?.id}
+              onSelectCentre={(id) => {
+                setSelectedCentreId(id);
+                navigate("/farmer/centres");
+              }}
+              onBookCentre={(id) => {
+                setSelectedCentreId(id);
+                navigate("/farmer/centres");
+              }}
+              heightClass="h-[360px]"
+            />
+          </div>
 
         </div>
       </div>

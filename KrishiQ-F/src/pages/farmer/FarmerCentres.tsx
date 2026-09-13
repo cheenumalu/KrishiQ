@@ -12,6 +12,7 @@ import {
 import { Card } from "../../components/common/Card";
 import { Badge } from "../../components/common/Badge";
 import { Button } from "../../components/common/Button";
+import { LocalProcurementMap } from "../../components/common/LocalProcurementMap";
 
 export const FarmerCentres: React.FC = () => {
   const { setSelectedCentreId, centres } = useKrishiQ();
@@ -269,35 +270,14 @@ export const FarmerCentres: React.FC = () => {
           })}
         </div>
       ) : (
-        /* Full Map View */
-        <Card padding="none" className="overflow-hidden">
-          <div className="p-4 bg-[#123D2D] text-white flex items-center justify-between text-xs font-semibold">
-            <span>{t("farmer.liveMapTitle")}</span>
-            <span>{isHindi ? "इंदौर उपार्जन संभाग" : "Indore Procurement Sector"}</span>
-          </div>
-
-          <div className="relative h-[480px] bg-[#17211B] overflow-hidden select-none">
-            {/* Pins */}
-            {filteredCentres.map((c, idx) => (
-              <div
-                key={c.id}
-                style={{ top: `${30 + idx * 14}%`, left: `${25 + idx * 16}%` }}
-                className="absolute z-30 flex flex-col items-center cursor-pointer hover:scale-110 transition-transform"
-                onClick={() => handleBookAtCentre(c.id)}
-              >
-                <div className={`w-10 h-10 rounded-2xl ${c.isRecommended ? "bg-[#2F7D4A]" : c.status === "critical" ? "bg-[#D95555]" : "bg-[#4178C0]"} text-white flex items-center justify-center font-bold text-sm shadow-xl border-2 border-white`}>
-                  {c.name.charAt(0)}
-                </div>
-                <div className="mt-1 px-2.5 py-1 rounded-xl bg-black/85 text-white text-[11px] font-medium text-center backdrop-blur-md">
-                  <div className="font-bold">{formatLocation(c.name.split(" (")[0])}</div>
-                  <div className="text-[10px] text-[#58A66B] font-sans">
-                    {c.predictedWaitMinutes}m {t("common.waitTime")} • {c.distanceKm} {t("common.km")}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        /* Full Map View with Real Congestion Heatmap */
+        <LocalProcurementMap
+          centres={centres}
+          selectedCentreId={null}
+          onSelectCentre={(id) => handleBookAtCentre(id)}
+          onBookCentre={(id) => handleBookAtCentre(id)}
+          heightClass="h-[520px]"
+        />
       )}
 
     </div>

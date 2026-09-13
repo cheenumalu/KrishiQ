@@ -16,6 +16,7 @@ import {
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { Badge } from "../../components/common/Badge";
+import { LocalProcurementMap } from "../../components/common/LocalProcurementMap";
 import {
   ResponsiveContainer,
   BarChart,
@@ -29,7 +30,7 @@ import {
 } from "recharts";
 
 export const AdminDashboard: React.FC = () => {
-  const { addToast } = useKrishiQ();
+  const { addToast, centres, setSelectedCentreId } = useKrishiQ();
   const { t, isHindi, formatLocation } = useLanguage();
   const navigate = useNavigate();
   const [completedActions, setCompletedActions] = useState<Record<string, boolean>>({});
@@ -180,68 +181,19 @@ export const AdminDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
           
           {/* 71% Map Card */}
-          <div className="lg:col-span-8 flex flex-col h-[400px] bg-[#0F172A] rounded-xs border border-[#CBD5E1] overflow-hidden relative">
-            <div className="px-4 py-2 bg-[#003366] text-white flex items-center justify-between text-xs font-bold shrink-0">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#FF9933]" />
-                <span className="uppercase tracking-wide">{isHindi ? "संभागीय उपार्जन नेटवर्क नक्शा (42 केंद्र)" : "Regional Procurement Grid Map"}</span>
-              </div>
-              <span className="text-[11px] text-slate-300">
-                {isHindi ? "इंदौर संभाग" : "Indore Division"}
-              </span>
-            </div>
-
-            <div className="relative flex-1 overflow-hidden select-none">
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
-                <line x1="30%" y1="40%" x2="60%" y2="50%" stroke="#38BDF8" strokeWidth="2" strokeDasharray="3" />
-                <line x1="60%" y1="50%" x2="80%" y2="30%" stroke="#EF4444" strokeWidth="2" />
-                <line x1="60%" y1="50%" x2="40%" y2="70%" stroke="#22C55E" strokeWidth="2" />
-              </svg>
-
-              {/* Mandi Pins */}
-              <div className="absolute left-[30%] top-[40%] -translate-x-1/2 -translate-y-1/2 text-center">
-                <div className="w-7 h-7 rounded-xs bg-[#15803D] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md">
-                  A
-                </div>
-                <span className="px-1.5 py-0.5 rounded-2xs bg-black/85 text-white text-[9px] font-bold block mt-1">
-                  सांवेर • 28m
-                </span>
-              </div>
-
-              <div className="absolute left-[60%] top-[50%] -translate-x-1/2 -translate-y-1/2 text-center">
-                <div className="w-7 h-7 rounded-xs bg-[#B91C1C] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md animate-pulse">
-                  B
-                </div>
-                <span className="px-1.5 py-0.5 rounded-2xs bg-[#B91C1C] text-white text-[9px] font-bold block mt-1">
-                  धार रोड • 165m ⚠
-                </span>
-              </div>
-
-              <div className="absolute left-[80%] top-[30%] -translate-x-1/2 -translate-y-1/2 text-center">
-                <div className="w-7 h-7 rounded-xs bg-[#003366] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md">
-                  C
-                </div>
-                <span className="px-1.5 py-0.5 rounded-2xs bg-black/85 text-white text-[9px] font-bold block mt-1">
-                  शिवाजी नगर • 42m
-                </span>
-              </div>
-
-              <div className="absolute left-[40%] top-[70%] -translate-x-1/2 -translate-y-1/2 text-center">
-                <div className="w-7 h-7 rounded-xs bg-[#15803D] text-white flex items-center justify-center font-bold text-xs border border-white shadow-md">
-                  D
-                </div>
-                <span className="px-1.5 py-0.5 rounded-2xs bg-black/85 text-white text-[9px] font-bold block mt-1">
-                  महू मंडी • 35m
-                </span>
-              </div>
-
-              <div className="absolute bottom-2 left-2 right-2 bg-slate-900/90 p-2 rounded-xs text-[10px] text-white flex items-center justify-between border border-slate-700">
-                <span className="font-semibold text-[#FF9933]">
-                  {isHindi ? "रेड अलर्ट: धार रोड उपार्जन केंद्र पर क्षमता से अधिक आवक" : "CRITICAL ALERT: Dhar Road Mandi Over Capacity (165m Wait)"}
-                </span>
-                <span className="text-slate-400 font-mono">LIVE TELEMETRY</span>
-              </div>
-            </div>
+          <div className="lg:col-span-8 flex flex-col">
+            <LocalProcurementMap
+              centres={centres}
+              onSelectCentre={(id) => {
+                setSelectedCentreId(id);
+                navigate("/admin/centres");
+              }}
+              onBookCentre={(id) => {
+                setSelectedCentreId(id);
+                navigate("/admin/centres");
+              }}
+              heightClass="h-[400px]"
+            />
           </div>
 
           {/* 29% Directive Dispatch Box */}
